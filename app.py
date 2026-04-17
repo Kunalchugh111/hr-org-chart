@@ -75,7 +75,7 @@ if uploaded_file is not None:
 
     all_rows_formatted = ",\n".join(js_rows)
 
-  # 5. The HTML Template with the Image Downloader built-in
+# 5. The HTML Template with the Image Downloader built-in
     html_template = f"""
     <html>
       <head>
@@ -84,6 +84,7 @@ if uploaded_file is not None:
         <script type="text/javascript">
           google.charts.load('current', {{packages:["orgchart"]}});
           google.charts.setOnLoadCallback(drawChart);
+          
           function drawChart() {{
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Name');
@@ -96,17 +97,15 @@ if uploaded_file is not None:
           
           // Function to download the chart as an image
           function downloadImage() {{
+              // We now target the inner box directly, bypassing the scrollbar constraints
               const chartContainer = document.getElementById("chart_div");
               
               html2canvas(chartContainer, {{
-                  width: chartContainer.scrollWidth,
-                  height: chartContainer.scrollHeight,
-                  scrollX: 0,
-                  scrollY: 0,
-                  backgroundColor: "#ffffff"
+                  backgroundColor: "#ffffff",
+                  scale: 2 // Upgrades the export to high resolution
               }}).then(canvas => {{
                   let link = document.createElement('a');
-                  link.download = 'Org_Chart_Full.png';
+                  link.download = 'HR_Org_Chart_Full.png';
                   link.href = canvas.toDataURL("image/png");
                   link.click();
               }});
@@ -121,7 +120,11 @@ if uploaded_file is not None:
       </head>
       <body>
         <button class="btn" onclick="downloadImage()">Download Chart as Image</button>
-        <div id="chart_div" style="overflow-x: auto; width: 100%; padding: 20px;"></div>
+        
+        <div id="scroll_wrapper" style="overflow-x: auto; width: 100%; padding: 20px; background-color: #fcfcfc; border-radius: 8px;">
+            <div id="chart_div" style="display: inline-block; min-width: 100%;"></div>
+        </div>
+        
       </body>
     </html>
     """
