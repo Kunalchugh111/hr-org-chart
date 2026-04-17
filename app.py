@@ -49,12 +49,12 @@ if uploaded_file is not None:
     if not include_inactive and 'Status' in filtered_df.columns:
         filtered_df = filtered_df[~filtered_df['Status'].astype(str).str.contains('Inactive', case=False, na=False)]
 
-    valid_ids = filtered_df['Emp Code'].astype(str).tolist()
+    valid_ids = filtered_df['Employee Code'].astype(str).tolist()
     
     # 4. Generate the Chart
     js_rows = []
     for index, row in filtered_df.iterrows():
-        emp_id = str(row.get('Emp Code', '')).strip()
+        emp_id = str(row.get('Employee Code', '')).strip()
         manager_id = str(row.get('L1 Manager Code', '')).strip()
         name = str(row.get('Employee Name', '')).strip()
         grade = str(row.get('Grade', '')).strip()
