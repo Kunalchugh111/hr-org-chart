@@ -75,7 +75,7 @@ if uploaded_file is not None:
 
     all_rows_formatted = ",\n".join(js_rows)
 
-    # 5. The HTML Template with the Image Downloader built-in
+  # 5. The HTML Template with the Image Downloader built-in
     html_template = f"""
     <html>
       <head>
@@ -94,23 +94,22 @@ if uploaded_file is not None:
             chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
           }}
           
-     // Function to download the chart as an image (FIXED for large scrolling charts)
-          function downloadImage() {
+          // Function to download the chart as an image
+          function downloadImage() {{
               const chartContainer = document.getElementById("chart_div");
               
-              html2canvas(chartContainer, {
+              html2canvas(chartContainer, {{
                   width: chartContainer.scrollWidth,
                   height: chartContainer.scrollHeight,
                   scrollX: 0,
                   scrollY: 0,
-                  backgroundColor: "#ffffff" // Changed to white so the background isn't transparent
-              }).then(canvas => {
+                  backgroundColor: "#ffffff"
+              }}).then(canvas => {{
                   let link = document.createElement('a');
                   link.download = 'Org_Chart_Full.png';
                   link.href = canvas.toDataURL("image/png");
                   link.click();
-              });
-          }
+              }});
           }}
        </script>
        <style>
