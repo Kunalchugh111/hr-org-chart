@@ -94,7 +94,7 @@ if uploaded_file is not None:
             chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
           }}
           
-         // Function to download the chart as an image (FIXED for large scrolling charts)
+     // Function to download the chart as an image (FIXED for large scrolling charts)
           function downloadImage() {
               const chartContainer = document.getElementById("chart_div");
               
@@ -111,7 +111,6 @@ if uploaded_file is not None:
                   link.click();
               });
           }
-              }});
           }}
        </script>
        <style>
