@@ -10,7 +10,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Premium SaaS Styling
+# 2. Premium Light SaaS Styling
 st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -24,38 +24,16 @@ st.markdown("""
         header { visibility: hidden; }
         .stDeployButton { display: none !important; }
 
-        /* App Background - Premium Dark Gradient */
+        /* App Background - Premium Light */
         .stApp {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important;
+            background-color: #fafafa !important;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
             min-height: 100vh;
         }
         
-        /* Ambient Glow Effects */
-        .stApp::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .stApp::after {
-            content: '';
-            position: fixed;
-            bottom: -10%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
         /* Main Container */
         .block-container {
             padding-top: 2rem !important;
@@ -68,141 +46,148 @@ st.markdown("""
         /* Header Styling */
         h1 {
             font-weight: 800 !important;
-            color: #ffffff !important;
-            letter-spacing: -0.04em !important;
-            font-size: 3rem !important;
+            color: #0f172a !important;
+            letter-spacing: -0.03em !important;
+            font-size: 2.8rem !important;
             margin-bottom: 0.5rem !important;
-            background: linear-gradient(135deg, #ffffff 0%, #c7d2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         
         h2, h3 {
-            color: #e2e8f0 !important;
+            color: #1e293b !important;
             font-weight: 700 !important;
-            letter-spacing: -0.02em !important;
+            letter-spacing: -0.01em !important;
         }
 
-        /* Premium Sidebar */
+        /* Premium Light Sidebar */
         [data-testid="stSidebar"] {
-            background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(20px) !important;
-            border-right: 1px solid rgba(139, 92, 246, 0.2) !important;
+            background: #ffffff !important;
+            border-right: 1px solid #e5e7eb !important;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.02) !important;
         }
-        [data-testid="stSidebar"]::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 1px;
-            background: linear-gradient(180deg, rgba(139, 92, 246, 0.4) 0%, transparent 50%, rgba(59, 130, 246, 0.4) 100%);
-        }
-        [data-testid="stSidebar"] * { color: #cbd5e1 !important; }
+        [data-testid="stSidebar"] * { color: #374151 !important; }
         [data-testid="stSidebar"] h3 {
-            color: #a5b4fc !important;
+            color: #111827 !important;
             font-size: 1.1rem !important;
             margin-bottom: 1rem !important;
             padding-bottom: 0.5rem !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
+            border-bottom: 2px solid #f3f4f6 !important;
         }
 
         /* Form Elements in Sidebar */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: rgba(30, 41, 59, 0.8) !important;
-            border: 1px solid rgba(139, 92, 246, 0.3) !important;
-            border-radius: 8px !important;
-            color: #e2e8f0 !important;
+            background-color: #f9fafb !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 10px !important;
+            color: #374151 !important;
         }
         [data-testid="stSidebar"] div[data-baseweb="select"]:hover > div {
-            border-color: rgba(139, 92, 246, 0.6) !important;
+            border-color: #8b5cf6 !important;
+            background-color: #ffffff !important;
         }
         
         /* File Uploader */
         [data-testid="stFileUploadDropzone"] {
-            background: rgba(30, 41, 59, 0.4) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 2px dashed rgba(139, 92, 246, 0.4) !important;
-            border-radius: 12px !important;
+            background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%) !important;
+            border: 2px dashed #d1d5db !important;
+            border-radius: 14px !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 120px !important;
+            min-height: 140px !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         [data-testid="stFileUploadDropzone"]:hover {
             border-color: #8b5cf6 !important;
-            background: rgba(139, 92, 246, 0.1) !important;
+            background: linear-gradient(135deg, #faf5ff 0%, #ffffff 100%) !important;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);
         }
-        [data-testid="stFileUploadDropzone"] p { color: #cbd5e1 !important; }
+        [data-testid="stFileUploadDropzone"] p { color: #4b5563 !important; }
 
         /* Toggles */
         [data-testid="stToggle"] > label > div > div {
-            background-color: rgba(139, 92, 246, 0.2) !important;
-            border-color: #8b5cf6 !important;
+            background-color: #f3f4f6 !important;
+            border-color: #d1d5db !important;
         }
         [data-testid="stToggle"] > label > div > div[aria-checked="true"] {
             background-color: #8b5cf6 !important;
             border-color: #8b5cf6 !important;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
         }
 
         /* Buttons */
         .stButton > button {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
             color: #ffffff !important;
             border: none !important;
-            border-radius: 10px !important;
+            border-radius: 12px !important;
             font-weight: 600 !important;
             font-size: 0.95rem !important;
-            padding: 0.75rem 1.5rem !important;
+            padding: 0.8rem 1.5rem !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25), 0 1px 2px rgba(0,0,0,0.05) !important;
             width: 100% !important;
         }
         .stButton > button:hover {
-            transform: translateY(-2px) scale(1.02) !important;
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4) !important;
+            transform: translateY(-2px) scale(1.01) !important;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35), 0 2px 4px rgba(0,0,0,0.08) !important;
+            background: linear-gradient(135deg, #9061f9 0%, #8b5cf6 100%) !important;
         }
         .stButton > button:active {
-            transform: translateY(0) scale(0.98) !important;
+            transform: translateY(0) scale(0.99) !important;
+        }
+        .stButton > button[type="secondary"] {
+            background: #f9fafb !important;
+            color: #4b5563 !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        }
+        .stButton > button[type="secondary"]:hover {
+            background: #f3f4f6 !important;
+            color: #111827 !important;
+            border-color: #d1d5db !important;
         }
 
         /* Select Box in Main Area */
         .stSelectbox > div > div {
-            background-color: rgba(30, 41, 59, 0.8) !important;
-            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
             border-radius: 10px !important;
-            color: #e2e8f0 !important;
+            color: #374151 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+        }
+        .stSelectbox > div > div:hover {
+            border-color: #8b5cf6 !important;
         }
 
         /* Info/Success/Error Boxes */
         .stAlert {
-            background: rgba(30, 41, 59, 0.6) !important;
-            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
             border-radius: 12px !important;
-            backdrop-filter: blur(10px) !important;
-            color: #e2e8f0 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+            color: #374151 !important;
         }
-        .stAlert div { color: #e2e8f0 !important; }
+        .stAlert div { color: #374151 !important; }
         .stAlert > div { background-color: transparent !important; }
 
         /* Metrics/Stats Cards */
         [data-testid="stMetric"] {
-            background: rgba(30, 41, 59, 0.6) !important;
-            border: 1px solid rgba(139, 92, 246, 0.2) !important;
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
             border-radius: 12px !important;
             padding: 1rem !important;
-            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
         }
 
         /* Divider */
         .stDivider {
-            border-color: rgba(139, 92, 246, 0.2) !important;
+            border-color: #f3f4f6 !important;
         }
 
         /* Tooltip */
         [data-testid="stTooltipHoverContent"] {
-            background-color: #1e293b !important;
-            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            background-color: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+            color: #111827 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -216,12 +201,12 @@ if 'file_uploaded' not in st.session_state:
 
 # 4. Sidebar Controls
 with st.sidebar:
-    st.markdown("### ✨ OrgDesign Pro")
-    st.markdown("<p style='color: #94a3b8; font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 1.5rem;'>Premium Organizational Architecture Platform</p>", unsafe_allow_html=True)
+    st.markdown("### 🏢 OrgDesign Pro")
+    st.markdown("<p style='color: #6b7280; font-size: 0.85rem; margin-top: -0.5rem; margin-bottom: 1.5rem;'>Enterprise Organizational Architecture Platform</p>", unsafe_allow_html=True)
     
-    st.markdown("<div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
+    st.markdown("<div style='background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
     st.markdown("##### 📊 Upload HR Data")
-    st.markdown("<p style='color: #64748b; font-size: 0.8rem; margin-top: -0.5rem;'>Drag & drop or browse your roster file</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #6b7280; font-size: 0.8rem; margin-top: -0.5rem;'>CSV or Excel roster files supported</p>", unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader("", type=['csv', 'xlsx'], label_visibility="collapsed")
     
@@ -247,7 +232,7 @@ with st.sidebar:
     include_inactive = False
     
     if st.session_state.file_uploaded:
-        st.markdown("<div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
+        st.markdown("<div style='background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
         st.markdown("##### 🔍 Data Filters")
         
         if 'Sub Function' in df.columns:
@@ -258,7 +243,7 @@ with st.sidebar:
         include_inactive = st.toggle("Include Inactive", value=False)
         st.markdown("</div>", unsafe_allow_html=True)
         
-        st.markdown("<div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
+        st.markdown("<div style='background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1rem; margin-bottom: 1rem;'>", unsafe_allow_html=True)
         st.markdown("##### 🧪 Scenario Modeling")
         enable_draft = st.toggle("Enable Draft Mode")
         
@@ -282,40 +267,40 @@ with st.sidebar:
                     st.rerun()
                         
             if st.session_state.draft_moves:
-                st.markdown(f"<div style='background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 0.5rem; text-align: center; margin-top: 0.5rem;'><p style='color: #4ade80; font-size: 0.8rem; margin: 0;'>✨ {len(st.session_state.draft_moves)} moves active</p></div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 0.6rem; text-align: center; margin-top: 0.75rem;'><p style='color: #059669; font-size: 0.85rem; margin: 0; font-weight: 600;'>✨ {len(st.session_state.draft_moves)} active moves</p></div>", unsafe_allow_html=True)
         
         st.markdown("</div>", unsafe_allow_html=True)
 
 # 5. Main Dashboard Area
 if not st.session_state.file_uploaded:
-    st.markdown("<div style='text-align: center; padding: 4rem 2rem;'>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align: center; padding: 4rem 2rem; max-width: 900px; margin: 0 auto;'>", unsafe_allow_html=True)
     st.title("🏢 OrgDesign Pro")
-    st.markdown("<p style='color: #94a3b8; font-size: 1.25rem; margin-top: 0.5rem; margin-bottom: 2rem;'>Transform your HR data into stunning organizational charts</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #4b5563; font-size: 1.2rem; margin-top: 0.5rem; margin-bottom: 3rem;'>Transform your HR data into stunning, interactive organizational charts</p>", unsafe_allow_html=True)
     
     st.markdown("""
         <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 800px; margin: 0 auto; text-align: left;'>
-            <div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1.5rem; backdrop-filter: blur(10px);'>
-                <div style='font-size: 2rem; margin-bottom: 0.5rem;'>📊</div>
-                <h3 style='color: #e2e8f0; margin: 0 0 0.5rem 0; font-size: 1.1rem;'>Smart Parsing</h3>
-                <p style='color: #64748b; font-size: 0.85rem; margin: 0;'>Automatically detects and maps reporting hierarchies</p>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+                <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>📊</div>
+                <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Smart Parsing</h3>
+                <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Automatically detects reporting hierarchies and structures complex org trees.</p>
             </div>
-            <div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1.5rem; backdrop-filter: blur(10px);'>
-                <div style='font-size: 2rem; margin-bottom: 0.5rem;'>🎨</div>
-                <h3 style='color: #e2e8f0; margin: 0 0 0.5rem 0; font-size: 1.1rem;'>Premium Design</h3>
-                <p style='color: #64748b; font-size: 0.85rem; margin: 0;'>Beautiful, modern cards with rich details</p>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+                <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>🎨</div>
+                <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Premium Design</h3>
+                <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Beautiful, modern cards with rich details, shadows, and interactive states.</p>
             </div>
-            <div style='background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1.5rem; backdrop-filter: blur(10px);'>
-                <div style='font-size: 2rem; margin-bottom: 0.5rem;'>🧪</div>
-                <h3 style='color: #e2e8f0; margin: 0 0 0.5rem 0; font-size: 1.1rem;'>Scenario Mode</h3>
-                <p style='color: #64748b; font-size: 0.85rem; margin: 0;'>Model org changes before implementing them</p>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+                <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>🧪</div>
+                <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Scenario Mode</h3>
+                <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Model org changes safely before implementing them in production.</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-        <div style='margin-top: 3rem; padding: 1.5rem; background: rgba(30, 41, 59, 0.4); border: 1px dashed rgba(139, 92, 246, 0.3); border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto;'>
-            <p style='color: #94a3b8; margin: 0;'>
-                <strong style='color: #a5b4fc;'>👈 Get Started:</strong> Upload your HR roster (CSV/XLSX) from the sidebar to begin mapping your organizational structure.
+        <div style='margin-top: 3rem; padding: 1.5rem; background: #ffffff; border: 1px dashed #d1d5db; border-radius: 16px; max-width: 600px; margin-left: auto; margin-right: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.02);'>
+            <p style='color: #374151; margin: 0; font-size: 0.95rem;'>
+                <strong style='color: #7c3aed;'>👈 Get Started:</strong> Upload your HR roster (CSV/XLSX) from the sidebar to begin mapping your organizational structure.
             </p>
         </div>
     """, unsafe_allow_html=True)
@@ -325,7 +310,7 @@ else:
     
     st.markdown("""
         <div style='display: flex; align-items: center; gap: 0.5rem; margin-top: -10px; margin-bottom: 1.5rem;'>
-            <span style='color: #64748b; font-size: 0.9rem;'>💡 Tip: Double-click any manager's card to collapse or expand their reporting lines.</span>
+            <span style='background: #fef3c7; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; color: #b45309; font-weight: 500;'>💡 Tip: Double-click any manager's card to collapse or expand their reporting lines.</span>
         </div>
     """, unsafe_allow_html=True)
     
@@ -393,9 +378,8 @@ else:
         # Draft Mode Visual Cue
         is_moved = emp_id in st.session_state.draft_moves
         top_border = "border-top: 4px solid #8b5cf6;" if is_moved else "border-top: 4px solid #10b981;"
-        bg_tint = "background-color: rgba(139, 92, 246, 0.05);" if is_moved else ""
         
-        box_html = f"<div class='beautiful-card' style='{top_border} {bg_tint}'><div class='card-header'><span class='badge'>{sub_func[:15]}</span><span class='grade'>GR: {grade}</span></div><div class='card-body'><div class='card-name'>{name}</div><div class='card-title'>{designation}</div></div><div class='card-footer'><div class='stat'><span>On-Roll</span><b>{onroll}</b></div><div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div><div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div></div></div>"
+        box_html = f"<div class='beautiful-card' style='{top_border}'><div class='card-header'><span class='badge'>{sub_func[:15]}</span><span class='grade'>GR: {grade}</span></div><div class='card-body'><div class='card-name'>{name}</div><div class='card-title'>{designation}</div></div><div class='card-footer'><div class='stat'><span>On-Roll</span><b>{onroll}</b></div><div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div><div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div></div></div>"
         box_html_clean = box_html.replace('\n', '').replace('\r', '').replace("'", "\\'")
         mgr_str = f"'{manager_id}'" if manager_id else "''"
         js_rows_current.append(f"[{{'v': '{emp_id}', 'f': \"{box_html_clean}\"}}, {mgr_str}, '']")
@@ -434,7 +418,7 @@ else:
           function downloadImage() {{
               const chartContainer = document.getElementById("chart_div");
               html2canvas(chartContainer, {{ 
-                  backgroundColor: "#0f172a",
+                  backgroundColor: "#fafafa",
                   scale: 2
               }}).then(canvas => {{
                   let link = document.createElement('a');
@@ -464,7 +448,7 @@ else:
                   await new Promise(r => setTimeout(r, 800));
                   
                   const chartContainer = document.getElementById("chart_div");
-                  const canvas = await html2canvas(chartContainer, {{ backgroundColor: "#0f172a", scale: 2 }});
+                  const canvas = await html2canvas(chartContainer, {{ backgroundColor: "#fafafa", scale: 2 }});
                   
                   const imgData = canvas.toDataURL("image/png").split(',')[1];
                   zip.file(sub.replace(/ /g, "_") + "_Org_Chart.png", imgData, {{base64: true}});
@@ -480,23 +464,26 @@ else:
           }}
        </script>
        <style>
-         @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(20px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
-         @keyframes pulseGlow {{ 0%, 100% {{ box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }} 50% {{ box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }} }}
+         @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(15px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
+         @keyframes softPulse {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-2px); }} }}
          
          body {{ 
              margin: 0; padding: 0; 
-             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+             background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
              font-family: 'Inter', sans-serif;
              min-height: 100vh;
-             color: #e2e8f0;
+             color: #111827;
          }}
          
-         /* Org Chart Lines */
+         /* Org Chart Lines - Premium Light */
          .google-visualization-orgchart-lineleft, 
          .google-visualization-orgchart-lineright, 
          .google-visualization-orgchart-linebottom {{ 
-             border-color: rgba(148, 163, 184, 0.4) !important; 
+             border-color: #d1d5db !important; 
              border-width: 2px !important; 
+         }}
+         .google-visualization-orgchart-node-medium {{
+             padding: 0 !important;
          }}
          
          /* Node Styling */
@@ -505,83 +492,85 @@ else:
              background: none !important; 
              padding: 0 !important; 
              box-shadow: none !important; 
-             margin: 16px; 
+             margin: 20px; 
              cursor: pointer; 
          }}
          
          .selectedNode .beautiful-card {{
              border-color: #8b5cf6 !important;
-             box-shadow: 0 0 20px rgba(139, 92, 246, 0.4) !important;
+             box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2), 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+             transform: translateY(-2px);
          }}
          
          .beautiful-card {{ 
-             border-radius: 14px; 
-             background: rgba(30, 41, 59, 0.8); 
-             border: 1px solid rgba(139, 92, 246, 0.2); 
+             border-radius: 16px; 
+             background: #ffffff; 
+             border: 1px solid #e5e7eb; 
              position: relative; 
              width: 280px; 
              overflow: hidden; 
-             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); 
-             animation: slideUpFade 0.5s forwards; 
-             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-             backdrop-filter: blur(10px);
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0,0,0,0.02); 
+             animation: slideUpFade 0.4s ease-out forwards; 
+             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
          }}
          .beautiful-card:hover {{ 
-             transform: translateY(-6px) scale(1.02); 
-             box-shadow: 0 12px 32px rgba(139, 92, 246, 0.25); 
-             border-color: rgba(139, 92, 246, 0.5); 
+             transform: translateY(-4px); 
+             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(139, 92, 246, 0.12); 
+             border-color: #c7d2fe; 
              z-index: 10; 
          }}
          
          .card-header {{ 
-             padding: 14px 18px; 
+             padding: 16px 18px; 
              display: flex; 
              justify-content: space-between; 
              align-items: center; 
-             background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%); 
-             border-bottom: 1px solid rgba(148, 163, 184, 0.2); 
+             background: linear-gradient(180deg, #f8f9fb 0%, #ffffff 100%); 
+             border-bottom: 1px solid #f3f4f6; 
          }}
          .badge {{ 
-             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); 
+             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
              color: #ffffff; 
-             padding: 5px 12px; 
-             border-radius: 20px; 
+             padding: 6px 12px; 
+             border-radius: 8px; 
              font-size: 11px; 
              font-weight: 700; 
              text-transform: uppercase; 
-             letter-spacing: 0.5px; 
-             box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+             letter-spacing: 0.6px; 
+             box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
          }}
          .grade {{ 
-             color: #94a3b8; 
+             color: #6b7280; 
              font-size: 12px; 
              font-weight: 600; 
-             background: rgba(148, 163, 184, 0.1);
-             padding: 4px 10px;
+             background: #f3f4f6;
+             padding: 5px 10px;
              border-radius: 6px;
+             border: 1px solid #e5e7eb;
          }}
          
          .card-body {{ 
-             padding: 18px; 
+             padding: 20px 18px 14px; 
              text-align: left; 
          }}
          .card-name {{ 
              font-size: 16px; 
              font-weight: 700; 
-             color: #ffffff; 
+             color: #0f172a; 
              margin-bottom: 6px; 
+             line-height: 1.3;
          }}
          .card-title {{ 
              font-size: 13px; 
-             color: #94a3b8; 
+             color: #4b5563; 
              font-weight: 500; 
              line-height: 1.5; 
          }}
          
          .card-footer {{ 
-             background: rgba(15, 23, 42, 0.5); 
-             border-top: 1px solid rgba(148, 163, 184, 0.15); 
-             padding: 12px 18px; 
+             background: #f9fafb; 
+             border-top: 1px solid #f3f4f6; 
+             padding: 14px 18px; 
              display: flex; 
              justify-content: space-between; 
          }}
@@ -589,98 +578,106 @@ else:
              display: flex; 
              flex-direction: column; 
              align-items: center; 
-             gap: 4px; 
+             gap: 5px; 
          }}
          .stat span {{ 
              font-size: 10px; 
-             color: #64748b; 
+             color: #6b7280; 
              text-transform: uppercase; 
              font-weight: 700; 
              letter-spacing: 0.5px; 
          }}
          .stat b {{ 
              font-size: 14px; 
-             color: #e2e8f0; 
+             color: #0f172a; 
+             font-weight: 600;
          }}
          
          /* Buttons */
          .btn-container {{ 
              display: flex; 
              gap: 16px; 
-             margin-bottom: 28px; 
+             margin-bottom: 32px; 
              flex-wrap: wrap; 
-             padding: 0 4px;
+             padding: 0 8px;
          }}
          .download-btn {{ 
-             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); 
-             color: #ffffff; 
-             border: none; 
-             padding: 14px 28px; 
-             border-radius: 10px; 
+             background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); 
+             color: #374151; 
+             border: 1px solid #d1d5db; 
+             padding: 14px 26px; 
+             border-radius: 12px; 
              cursor: pointer; 
              font-weight: 600; 
              font-size: 15px; 
-             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
              display: inline-flex; 
              align-items: center; 
-             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); 
+             gap: 8px;
+             box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
              font-family: 'Inter', sans-serif;
          }}
          .download-btn:hover {{ 
-             transform: translateY(-2px); 
-             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5); 
+             background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+             border-color: #c0c4c8;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+             transform: translateY(-2px);
          }}
          .download-btn:active {{
-             transform: translateY(0) scale(0.98);
+             transform: translateY(0);
          }}
          
          .zip-btn {{ 
-             background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); 
+             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); 
+             color: #ffffff;
+             border: none;
+             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25), 0 1px 2px rgba(0,0,0,0.05);
          }}
          .zip-btn:hover {{ 
-             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5); 
+             box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+             transform: translateY(-2px);
          }}
          
          /* Chart Container */
          #scroll_wrapper {{ 
              overflow-x: auto; 
              width: 100%; 
-             padding: 40px 20px; 
-             background: rgba(15, 23, 42, 0.4); 
+             padding: 40px 24px 48px; 
+             background: #ffffff; 
              border-radius: 20px; 
-             border: 1px solid rgba(139, 92, 246, 0.2); 
-             backdrop-filter: blur(10px);
+             border: 1px solid #e5e7eb; 
+             box-shadow: inset 0 1px 3px rgba(0,0,0,0.02), 0 2px 8px rgba(0,0,0,0.03);
          }}
          #chart_div {{ 
              display: inline-block; 
              min-width: 100%; 
-             padding: 20px; 
+             padding: 12px; 
              background-color: transparent; 
          }}
          
          /* Scrollbar */
          ::-webkit-scrollbar {{
-             width: 10px;
-             height: 10px;
+             width: 12px;
+             height: 12px;
          }}
          ::-webkit-scrollbar-track {{
-             background: rgba(30, 41, 59, 0.5);
-             border-radius: 10px;
+             background: #f3f4f6;
+             border-radius: 12px;
          }}
          ::-webkit-scrollbar-thumb {{
-             background: linear-gradient(180deg, #8b5cf6, #6366f1);
-             border-radius: 10px;
+             background: #d1d5db;
+             border-radius: 12px;
+             border: 3px solid #f3f4f6;
          }}
          ::-webkit-scrollbar-thumb:hover {{
-             background: linear-gradient(180deg, #7c3aed, #4f46e5);
+             background: #9ca3af;
          }}
        </style>
       </head>
       <body>
         <div class="btn-container">
-            <button class="download-btn" onclick="downloadImage()">⬇️ Download Current View</button>
-            <button class="download-btn zip-btn" id="zip-btn" onclick="downloadAllZip()">📦 Download All Charts ZIP</button>
+            <button class="download-btn" onclick="downloadImage()">⬇️ Download View</button>
+            <button class="download-btn zip-btn" id="zip-btn" onclick="downloadAllZip()">📦 Export All Charts</button>
         </div>
         <div id="scroll_wrapper">
             <div id="chart_div"></div>
