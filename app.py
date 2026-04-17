@@ -2,14 +2,62 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# 1. Page Configuration
+# 1. Page Configuration 
 st.set_page_config(page_title="HR Org Design", layout="wide", initial_sidebar_state="expanded")
 
+# --- SPECTACULAR FRONTEND CSS UPGRADE ---
 st.markdown("""
     <style>
+        /* 1. Dynamic Gradient Background for the main app */
+        .stApp {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #fff7ed 100%);
+        }
+        
+        /* 2. Premium Gradient Typography for the Main Title */
+        h1 { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+            font-weight: 900 !important; 
+            background: -webkit-linear-gradient(45deg, #16a34a, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            padding-bottom: 10px;
+        }
+        
+        /* 3. Sleek, Elevated Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.03);
+        }
+        
+        /* Sidebar Headers */
+        [data-testid="stSidebar"] h3 {
+            color: #0f172a;
+            font-weight: 700;
+        }
+        
+        /* 4. Streamlit Widget Styling (Making dropdowns rounded & crisp) */
+        div[data-baseweb="select"] > div {
+            border-radius: 8px !important;
+            border: 1px solid #cbd5e1 !important;
+            background-color: #ffffff !important;
+        }
+        
+        /* File Uploader styling */
+        [data-testid="stFileUploadDropzone"] {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        [data-testid="stFileUploadDropzone"]:hover {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+        
         .block-container { padding-top: 2rem; padding-bottom: 0rem; }
-        h1 { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 800; color: #0f172a; }
-        .stApp { background-color: #ffffff; color: #0f172a; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -50,17 +98,14 @@ if uploaded_file is None:
 else:
     st.title(f"Organizational Architecture: {selected_sub if selected_sub != 'All' else 'Full Organization'}")
     
-    # Create the Base Filtered DataFrame (Applies Retainer/Inactive filters across the board)
     base_filtered_df = df.copy()
     if not include_retainers and 'Employment Type' in base_filtered_df.columns:
         base_filtered_df = base_filtered_df[~base_filtered_df['Employment Type'].astype(str).str.contains('Retainer', case=False, na=False)]
     if not include_inactive and 'Status' in base_filtered_df.columns:
         base_filtered_df = base_filtered_df[~base_filtered_df['Status'].astype(str).str.contains('Inactive', case=False, na=False)]
 
-    # --- ADVANCED LOGIC: Build the Master Map for the ZIP Download ---
     all_subs_js_dict_items = []
     
-    # We create a dictionary where every Sub Function has its own pre-formatted chart data
     if 'Sub Function' in base_filtered_df.columns:
         unique_subs = base_filtered_df['Sub Function'].dropna().unique()
         for sub in unique_subs:
@@ -88,11 +133,9 @@ else:
             sub_rows_str = "[\n" + ",\n".join(js_rows_sub) + "\n]"
             all_subs_js_dict_items.append(f'"{sub}": {sub_rows_str}')
 
-    # This creates the final JSON-like string of all sub-functions to send to Javascript
     all_data_dict_str = "{\n" + ",\n".join(all_subs_js_dict_items) + "\n}"
 
 
-    # --- CURRENT VIEW LOGIC: Build the data for the currently selected dropdown view ---
     current_view_df = base_filtered_df.copy()
     if selected_sub != "All" and 'Sub Function' in current_view_df.columns:
         current_view_df = current_view_df[current_view_df['Sub Function'] == selected_sub]
@@ -120,7 +163,7 @@ else:
     all_rows_formatted = ",\n".join(js_rows_current)
     safe_filename = selected_sub.replace(" ", "_") + "_Org_Chart" if selected_sub != "All" else "Full_Organization_Chart"
 
-    # 5. HTML Template with JSZip integration
+    # 5. HTML Template with JSZip integration (UNCHANGED)
     html_template = f"""
     <html>
       <head>
@@ -130,7 +173,6 @@ else:
         <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
         
         <script type="text/javascript">
-          // 1. We load the master dictionary from Python into Javascript
           const allDataMap = {all_data_dict_str};
           var chart;
           
@@ -148,7 +190,6 @@ else:
             chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
           }}
           
-          // Function 1: Single Download
           function downloadImage() {{
               const chartContainer = document.getElementById("chart_div");
               html2canvas(chartContainer, {{ 
@@ -162,7 +203,6 @@ else:
               }});
           }}
           
-          // Function 2: Automated Batch Zip Generator
           async function downloadAllZip() {{
               const btn = document.getElementById('zip-btn');
               btn.innerHTML = '⏳ Generating ZIP...';
@@ -172,12 +212,10 @@ else:
               var zip = new JSZip();
               var subFunctions = Object.keys(allDataMap);
               
-              // Loop through every department
               for (let i = 0; i < subFunctions.length; i++) {{
                   let sub = subFunctions[i];
                   let rows = allDataMap[sub];
                   
-                  // Force the chart to draw this specific department
                   var data = new google.visualization.DataTable();
                   data.addColumn('string', 'Name');
                   data.addColumn('string', 'Manager');
@@ -185,25 +223,20 @@ else:
                   data.addRows(rows);
                   chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
                   
-                  // Wait 800 milliseconds for the animation to finish
                   await new Promise(r => setTimeout(r, 800));
                   
-                  // Take the picture
                   const chartContainer = document.getElementById("chart_div");
                   const canvas = await html2canvas(chartContainer, {{ 
                       backgroundColor: "#ffffff", 
                       scale: 2 
                   }});
                   
-                  // Save it to the Zip folder
                   const imgData = canvas.toDataURL("image/png").split(',')[1];
                   zip.file(sub.replace(/ /g, "_") + "_Org_Chart.png", imgData, {{base64: true}});
               }}
               
-              // Reset the chart back to whatever the user originally selected
               drawChart();
               
-              // Package and download the Zip
               btn.innerHTML = '📦 Wrapping ZIP...';
               zip.generateAsync({{type:"blob"}}).then(function(content) {{
                   saveAs(content, "All_HR_Org_Charts.zip");
@@ -215,7 +248,7 @@ else:
        </script>
        <style>
          @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(20px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
-         body {{ margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+         body {{ margin: 0; padding: 0; background-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
          .google-visualization-orgchart-lineleft, .google-visualization-orgchart-lineright, .google-visualization-orgchart-linebottom {{ border-color: #cbd5e1 !important; border-width: 2px !important; }}
          .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; }}
          
@@ -238,8 +271,8 @@ else:
          .zip-btn {{ background: #0f172a; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2); }}
          .zip-btn:hover {{ background: #334155; }}
          
-         #scroll_wrapper {{ overflow-x: auto; width: 100%; padding: 40px 20px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; }}
-         #chart_div {{ display: inline-block; min-width: 100%; padding: 20px; background-color: #ffffff; }}
+         #scroll_wrapper {{ overflow-x: auto; width: 100%; padding: 40px 20px; background-color: rgba(255,255,255,0.7); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
+         #chart_div {{ display: inline-block; min-width: 100%; padding: 20px; background-color: transparent; }}
        </style>
       </head>
       <body>
