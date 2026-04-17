@@ -94,13 +94,23 @@ if uploaded_file is not None:
             chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
           }}
           
-          // Function to download the chart as an image
-          function downloadImage() {{
-              html2canvas(document.getElementById("chart_div"), {{backgroundColor: null}}).then(canvas => {{
+         // Function to download the chart as an image (FIXED for large scrolling charts)
+          function downloadImage() {
+              const chartContainer = document.getElementById("chart_div");
+              
+              html2canvas(chartContainer, {
+                  width: chartContainer.scrollWidth,
+                  height: chartContainer.scrollHeight,
+                  scrollX: 0,
+                  scrollY: 0,
+                  backgroundColor: "#ffffff" // Changed to white so the background isn't transparent
+              }).then(canvas => {
                   let link = document.createElement('a');
-                  link.download = 'Org_Chart.png';
+                  link.download = 'Org_Chart_Full.png';
                   link.href = canvas.toDataURL("image/png");
                   link.click();
+              });
+          }
               }});
           }}
        </script>
