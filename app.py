@@ -5,23 +5,13 @@ import streamlit.components.v1 as components
 # 1. Page Configuration
 st.set_page_config(page_title="HR Org Design", layout="wide", initial_sidebar_state="expanded")
 
-# --- SPECTACULAR UI/UX OVERHAUL ---
+# --- UI/UX OVERHAUL ---
 st.markdown("""
     <style>
-        /* Import Premium Web Font */
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-
-        /* Hide Streamlit Chrome to look like a real app */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-
-        /* Global Font Override */
-        html, body, [class*="css"] {
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        }
-
-        /* Main App Background - Soft, Colorful Mesh Gradient */
+        #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+        html, body, [class*="css"] { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important; }
+        
         .stApp {
             background-color: #f8fafc;
             background-image:
@@ -31,57 +21,28 @@ st.markdown("""
             background-attachment: fixed;
         }
 
-        /* Clean, Bold Typography for the Main Dashboard */
-        h1 {
-            font-weight: 800 !important;
-            color: #0f172a !important;
-            letter-spacing: -1.5px;
-            font-size: 2.8rem !important;
-            margin-bottom: 1rem !important;
-        }
-
-        /* Sleek, Dark "Pro" Sidebar */
-        [data-testid="stSidebar"] {
-            background-color: #0f172a !important;
-            border-right: 1px solid #1e293b;
-        }
+        h1 { font-weight: 800 !important; color: #0f172a !important; letter-spacing: -1.5px; font-size: 2.8rem !important; margin-bottom: 0.5rem !important; }
         
-        /* Force Sidebar Text to White */
-        [data-testid="stSidebar"] * {
-            color: #f8fafc !important;
-        }
+        [data-testid="stSidebar"] { background-color: #0f172a !important; border-right: 1px solid #1e293b; }
+        [data-testid="stSidebar"] * { color: #f8fafc !important; }
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div { background-color: #1e293b !important; border: 1px solid #334155 !important; border-radius: 8px !important; color: white !important; }
         
-        /* Sidebar Dropdown Styling */
-        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
-            background-color: #1e293b !important;
-            border: 1px solid #334155 !important;
-            border-radius: 8px !important;
-            color: white !important;
-        }
-        
-        /* File Uploader - Frosted Glass Look */
         [data-testid="stFileUploadDropzone"] {
-            background: rgba(255, 255, 255, 0.4) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.8) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.4) !important; backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important; border-radius: 16px !important; transition: all 0.3s ease;
         }
-        [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #22c55e !important;
-            background: rgba(255, 255, 255, 0.6) !important;
-            transform: translateY(-2px);
-        }
+        [data-testid="stFileUploadDropzone"]:hover { border-color: #22c55e !important; background: rgba(255, 255, 255, 0.6) !important; transform: translateY(-2px); }
 
-        /* Main Canvas Adjustments */
-        .block-container { 
-            padding-top: 3rem; 
-            padding-bottom: 2rem; 
-            max-width: 95%;
-        }
+        .block-container { padding-top: 3rem; padding-bottom: 2rem; max-width: 95%; }
+        
+        /* Highlight Session State Buttons */
+        .stButton>button { border-radius: 8px; font-weight: 600; width: 100%; }
     </style>
 """, unsafe_allow_html=True)
+
+# --- INITIALIZE SESSION STATE FOR DRAFT MODE ---
+if 'draft_moves' not in st.session_state:
+    st.session_state.draft_moves = {}
 
 # 2. Sidebar Controls
 with st.sidebar:
@@ -96,14 +57,18 @@ with st.sidebar:
     include_inactive = False
     
     if uploaded_file is not None:
-        st.markdown("<br>### 🎛️ Data Filters", unsafe_allow_html=True)
-        if uploaded_file.name.endswith('.csv'):
-            df = pd.read_csv(uploaded_file)
-        else:
-            df = pd.read_excel(uploaded_file)
+        if uploaded_file.name.endswith('.csv'): df = pd.read_csv(uploaded_file)
+        else: df = pd.read_excel(uploaded_file)
             
         df.columns = df.columns.str.strip()
+        
+        # Clean Employee Codes for mapping
+        if 'Employee Code' in df.columns:
+            df['Clean_Emp_Code'] = df['Employee Code'].astype(str).str.replace('.0', '', regex=False).str.strip()
+            # Dictionary to map names to codes for Draft Mode
+            name_to_code = dict(zip(df['Employee Name'], df['Clean_Emp_Code']))
             
+        st.markdown("### 🎛️ Data Filters")
         if 'Sub Function' in df.columns:
             sub_functions = df['Sub Function'].dropna().unique()
             selected_sub = st.selectbox("Sub Function View", ["All"] + list(sub_functions))
@@ -112,6 +77,31 @@ with st.sidebar:
         
         include_retainers = st.toggle("Include Retainers", value=True)
         include_inactive = st.toggle("Include Inactive", value=False)
+        
+        st.markdown("---")
+        
+        # --- NEW DRAFT MODE UI ---
+        st.markdown("### 🧪 Scenario Modeling")
+        enable_draft = st.toggle("Enable Draft Mode")
+        
+        if enable_draft:
+            emp_names = sorted(df['Employee Name'].dropna().astype(str).tolist())
+            move_emp = st.selectbox("Employee to Move", [""] + emp_names)
+            new_mgr = st.selectbox("New Manager", [""] + emp_names)
+            
+            if st.button("Apply Move"):
+                if move_emp and new_mgr:
+                    e_code = name_to_code.get(move_emp)
+                    m_code = name_to_code.get(new_mgr)
+                    if e_code and m_code:
+                        st.session_state.draft_moves[e_code] = m_code
+                        st.rerun()
+                        
+            if st.session_state.draft_moves:
+                st.success(f"Draft Moves applied: {len(st.session_state.draft_moves)}")
+                if st.button("Reset Draft"):
+                    st.session_state.draft_moves = {}
+                    st.rerun()
 
 # 3. Main Dashboard Area & Data Processing
 if uploaded_file is None:
@@ -119,8 +109,15 @@ if uploaded_file is None:
     st.info("👈 Please upload your HR data in the sidebar to begin building the map.")
 else:
     st.title(f"Organizational Architecture: {selected_sub if selected_sub != 'All' else 'Full Organization'}")
+    st.markdown("<p style='color: #64748b; font-weight: 600; margin-top: -10px;'>💡 Tip: Double-click any manager's card to collapse or expand their reporting lines.</p>", unsafe_allow_html=True)
     
     base_filtered_df = df.copy()
+    
+    # APPLY DRAFT MOVES TO THE DATAFRAME FIRST
+    if st.session_state.draft_moves:
+        for e_code, m_code in st.session_state.draft_moves.items():
+            base_filtered_df.loc[base_filtered_df['Clean_Emp_Code'] == e_code, 'L1 Manager Code'] = m_code
+
     if not include_retainers and 'Employment Type' in base_filtered_df.columns:
         base_filtered_df = base_filtered_df[~base_filtered_df['Employment Type'].astype(str).str.contains('Retainer', case=False, na=False)]
     if not include_inactive and 'Status' in base_filtered_df.columns:
@@ -144,8 +141,7 @@ else:
                 onroll = str(row.get('Onroll Reportees', '0')).strip()
                 sub_func = str(row.get('Sub Function', '')).strip()
                 
-                if manager_id not in valid_ids_sub:
-                    manager_id = ""
+                if manager_id not in valid_ids_sub: manager_id = ""
                     
                 box_html = f"<div class='beautiful-card'><div class='card-header'><span class='badge'>{sub_func[:15]}</span><span class='grade'>GR: {grade}</span></div><div class='card-body'><div class='card-name'>{name}</div><div class='card-title'>{designation}</div></div><div class='card-footer'><div class='stat'><span>On-Roll</span><b>{onroll}</b></div><div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div><div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div></div></div>"
                 box_html_clean = box_html.replace('\n', '').replace('\r', '')
@@ -173,10 +169,12 @@ else:
         onroll = str(row.get('Onroll Reportees', '0')).strip()
         sub_func = str(row.get('Sub Function', '')).strip()
         
-        if manager_id not in valid_ids_current:
-            manager_id = ""
+        if manager_id not in valid_ids_current: manager_id = ""
             
-        box_html = f"<div class='beautiful-card'><div class='card-header'><span class='badge'>{sub_func[:15]}</span><span class='grade'>GR: {grade}</span></div><div class='card-body'><div class='card-name'>{name}</div><div class='card-title'>{designation}</div></div><div class='card-footer'><div class='stat'><span>On-Roll</span><b>{onroll}</b></div><div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div><div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div></div></div>"
+        # Added Draft Mode Visual Cue (Subtle blue border if moved)
+        border_style = "border-top: 4px solid #3b82f6; background-color: #eff6ff;" if emp_id in st.session_state.draft_moves else "border-top: 4px solid #22c55e;"
+        
+        box_html = f"<div class='beautiful-card' style='{border_style}'><div class='card-header'><span class='badge'>{sub_func[:15]}</span><span class='grade'>GR: {grade}</span></div><div class='card-body'><div class='card-name'>{name}</div><div class='card-title'>{designation}</div></div><div class='card-footer'><div class='stat'><span>On-Roll</span><b>{onroll}</b></div><div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div><div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div></div></div>"
         box_html_clean = box_html.replace('\n', '').replace('\r', '')
         mgr_str = f"'{manager_id}'" if manager_id else "''"
         js_rows_current.append(f"[{{'v': '{emp_id}', 'f': \"{box_html_clean}\"}}, {mgr_str}, '']")
@@ -184,7 +182,7 @@ else:
     all_rows_formatted = ",\n".join(js_rows_current)
     safe_filename = selected_sub.replace(" ", "_") + "_Org_Chart" if selected_sub != "All" else "Full_Organization_Chart"
 
-    # 5. HTML Template with JSZip integration (UNCHANGED CORE LOGIC)
+    # 5. HTML Template with JSZip integration
     html_template = f"""
     <html>
       <head>
@@ -208,6 +206,7 @@ else:
             data.addRows([{all_rows_formatted}]);
             
             chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+            // AllowCollapse is set to TRUE here, enabling the double-click feature
             chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
           }}
           
@@ -226,9 +225,7 @@ else:
           
           async function downloadAllZip() {{
               const btn = document.getElementById('zip-btn');
-              btn.innerHTML = '⏳ Generating ZIP...';
-              btn.style.pointerEvents = 'none';
-              btn.style.opacity = '0.7';
+              btn.innerHTML = '⏳ Generating ZIP...'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.7';
               
               var zip = new JSZip();
               var subFunctions = Object.keys(allDataMap);
@@ -238,19 +235,14 @@ else:
                   let rows = allDataMap[sub];
                   
                   var data = new google.visualization.DataTable();
-                  data.addColumn('string', 'Name');
-                  data.addColumn('string', 'Manager');
-                  data.addColumn('string', 'ToolTip');
+                  data.addColumn('string', 'Name'); data.addColumn('string', 'Manager'); data.addColumn('string', 'ToolTip');
                   data.addRows(rows);
                   chart.draw(data, {{allowHtml:true, allowCollapse:true, size:'large', nodeClass:'myNode'}});
                   
                   await new Promise(r => setTimeout(r, 800));
                   
                   const chartContainer = document.getElementById("chart_div");
-                  const canvas = await html2canvas(chartContainer, {{ 
-                      backgroundColor: "#ffffff", 
-                      scale: 2 
-                  }});
+                  const canvas = await html2canvas(chartContainer, {{ backgroundColor: "#ffffff", scale: 2 }});
                   
                   const imgData = canvas.toDataURL("image/png").split(',')[1];
                   zip.file(sub.replace(/ /g, "_") + "_Org_Chart.png", imgData, {{base64: true}});
@@ -261,20 +253,19 @@ else:
               btn.innerHTML = '📦 Wrapping ZIP...';
               zip.generateAsync({{type:"blob"}}).then(function(content) {{
                   saveAs(content, "All_HR_Org_Charts.zip");
-                  btn.innerHTML = 'Create All & Download ZIP';
-                  btn.style.pointerEvents = 'auto';
-                  btn.style.opacity = '1';
+                  btn.innerHTML = 'Create All & Download ZIP'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1';
               }});
           }}
        </script>
        <style>
          @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(20px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
-         /* Internal HTML Font matching Streamlit */
          body {{ margin: 0; padding: 0; background-color: transparent; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }}
          .google-visualization-orgchart-lineleft, .google-visualization-orgchart-lineright, .google-visualization-orgchart-linebottom {{ border-color: #cbd5e1 !important; border-width: 2px !important; }}
-         .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; }}
          
-         .beautiful-card {{ border-radius: 12px; background: #ffffff; border: 1px solid #dcfce7; border-top: 4px solid #22c55e; position: relative; width: 250px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.05); animation: slideUpFade 0.5s forwards; transition: all 0.3s ease; }}
+         /* Added cursor: pointer so users know they can double click */
+         .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; cursor: pointer; }}
+         
+         .beautiful-card {{ border-radius: 12px; background: #ffffff; border: 1px solid #dcfce7; position: relative; width: 250px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.05); animation: slideUpFade 0.5s forwards; transition: all 0.3s ease; }}
          .beautiful-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(34, 197, 94, 0.15); border-color: #86efac; z-index: 10; }}
          .card-header {{ padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); border-bottom: 1px solid #f1f5f9; }}
          .badge {{ background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }}
