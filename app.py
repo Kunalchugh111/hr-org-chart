@@ -2,20 +2,20 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# 1. Page Configuration (Dark Theme App)
-st.set_page_config(page_title="Connected Intelligence | Org Design", layout="wide", initial_sidebar_state="expanded")
+# 1. Page Configuration (Light Theme)
+st.set_page_config(page_title="HR Org Design", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
     <style>
         .block-container { padding-top: 2rem; padding-bottom: 0rem; }
-        h1 { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 800; color: #f8fafc; }
-        .stApp { background-color: #0f172a; color: white; }
+        h1 { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 800; color: #0f172a; }
+        .stApp { background-color: #ffffff; color: #0f172a; }
     </style>
 """, unsafe_allow_html=True)
 
 # 2. Sidebar Controls
 with st.sidebar:
-    st.markdown("### 🧬 Architecture Generator")
+    st.markdown("### 🌿 Architecture Generator")
     st.markdown("Upload your roster to generate the dynamic structure.")
     st.markdown("---")
     
@@ -74,9 +74,9 @@ else:
         if manager_id not in valid_ids:
             manager_id = ""
             
-        # SPECTACULAR UI: Dark mode glass cards with neon gradient accents
+        # BEAUTIFUL UI: Premium light green cards with pure white background
         box_html = f"""
-        <div class='glass-card'>
+        <div class='beautiful-card'>
             <div class='card-header'>
                 <span class='badge'>{sub_func[:15]}</span>
                 <span class='grade'>GR: {grade}</span>
@@ -87,13 +87,13 @@ else:
             </div>
             <div class='card-footer'>
                 <div class='stat'><span>On-Roll</span><b>{onroll}</b></div>
-                <div class='stat'><span>Appr HC</span><b style='color:#fb923c;'>-</b></div>
-                <div class='stat'><span>Off-Roll</span><b style='color:#a3e635;'>-</b></div>
+                <div class='stat'><span>Appr HC</span><b style='color:#ea580c;'>-</b></div>
+                <div class='stat'><span>Off-Roll</span><b style='color:#65a30d;'>-</b></div>
             </div>
         </div>
         """
         
-        # THE CRITICAL BUG FIX: Stripping newlines so JavaScript doesn't crash
+        # Stripping newlines to prevent crashes
         box_html_clean = box_html.replace('\n', '').replace('\r', '')
 
         mgr_str = f"'{manager_id}'" if manager_id else "''"
@@ -102,7 +102,7 @@ else:
 
     all_rows_formatted = ",\n".join(js_rows)
 
-    # 5. HTML Template with High-End CSS Animations and Download Fix
+    # 5. HTML Template - Clipped Download FIXED
     html_template = f"""
     <html>
       <head>
@@ -123,17 +123,15 @@ else:
           }}
           
           function downloadImage() {{
-              const chartContainer = document.getElementById("scroll_wrapper");
+              // THE FIX: We target the inner 'chart_div' directly so it captures the FULL expanding tree, not the cut-off scrollbox.
+              const chartContainer = document.getElementById("chart_div");
               
-              // Download Fix: Forced solid background so it doesn't render black
               html2canvas(chartContainer, {{ 
-                  backgroundColor: "#0b1120", 
-                  scale: 2,
-                  width: chartContainer.scrollWidth,
-                  height: chartContainer.scrollHeight
+                  backgroundColor: "#ffffff", // Pure white background
+                  scale: 2 // High-res export
               }}).then(canvas => {{
                   let link = document.createElement('a');
-                  link.download = 'Spectacular_Org_Chart.png';
+                  link.download = 'Beautiful_Org_Chart.png';
                   link.href = canvas.toDataURL("image/png");
                   link.click();
               }});
@@ -141,92 +139,90 @@ else:
        </script>
        <style>
          @keyframes slideUpFade {{
-            0% {{ opacity: 0; transform: translateY(30px); }}
+            0% {{ opacity: 0; transform: translateY(20px); }}
             100% {{ opacity: 1; transform: translateY(0); }}
          }}
          
-         body {{ margin: 0; padding: 0; background-color: #0b1120; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+         body {{ margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
          
-         /* Connecting Lines Styling */
+         /* Connecting Lines Styling - Soft Grey */
          .google-visualization-orgchart-lineleft, .google-visualization-orgchart-lineright, .google-visualization-orgchart-linebottom {{
-             border-color: #334155 !important;
+             border-color: #cbd5e1 !important;
              border-width: 2px !important;
          }}
          
          .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; }}
          
-         /* Spectacular Card Design */
-         .glass-card {{
-            border-radius: 16px;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
+         /* Beautiful Light Green Card Design */
+         .beautiful-card {{
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #dcfce7;
+            border-top: 4px solid #22c55e; /* Vibrant Coromandel Green Accent Line */
             position: relative;
-            width: 260px;
+            width: 250px;
             overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
-            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.05), 0 2px 4px -1px rgba(34, 197, 94, 0.03);
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             transition: all 0.3s ease;
          }}
          
-         /* Glowing Neon Top/Bottom Borders */
-         .glass-card::before {{
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, #f97316, #fb923c); /* Orange */
-         }}
-         .glass-card::after {{
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, #65a30d, #a3e635); /* Green */
-         }}
-         
-         .glass-card:hover {{
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.6), 0 0 15px rgba(249, 115, 22, 0.3);
-            border-color: #475569;
+         .beautiful-card:hover {{
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(34, 197, 94, 0.15), 0 8px 10px -6px rgba(34, 197, 94, 0.1);
+            border-color: #86efac;
             z-index: 10;
          }}
          
          .card-header {{
             padding: 12px 16px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+            border-bottom: 1px solid #f1f5f9;
          }}
          
          .badge {{
-            background: rgba(249, 115, 22, 0.15);
-            color: #fdba74;
-            padding: 4px 8px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
          }}
-         .grade {{ color: #94a3b8; font-size: 11px; font-weight: 600; }}
          
-         .card-body {{ padding: 20px 16px; text-align: center; }}
-         .card-name {{ font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; letter-spacing: 0.2px; }}
-         .card-title {{ font-size: 12px; color: #cbd5e1; font-weight: 400; line-height: 1.4; }}
+         .grade {{ color: #64748b; font-size: 11px; font-weight: 600; }}
+         
+         .card-body {{ padding: 16px; text-align: left; }}
+         .card-name {{ font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }}
+         .card-title {{ font-size: 12px; color: #475569; font-weight: 400; line-height: 1.4; }}
          
          .card-footer {{
-            background: rgba(0,0,0,0.2);
-            padding: 12px 16px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            padding: 10px 16px;
             display: flex; justify-content: space-between;
          }}
-         .stat {{ display: flex; flex-direction: column; align-items: center; gap: 4px; }}
+         .stat {{ display: flex; flex-direction: column; align-items: center; gap: 2px; }}
          .stat span {{ font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }}
-         .stat b {{ font-size: 14px; color: #f8fafc; }}
+         .stat b {{ font-size: 13px; color: #0f172a; }}
          
-         /* Sleek Action Button */
+         /* Sleek Green Download Button */
          .download-btn {{ 
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: #ffffff; border: none; padding: 12px 28px; border-radius: 30px; 
-            cursor: pointer; font-weight: 700; font-size: 14px; margin-bottom: 24px; 
-            transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+            background: #16a34a;
+            color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; 
+            cursor: pointer; font-weight: 600; font-size: 14px; margin-bottom: 24px; 
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);
          }}
-         .download-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 15px rgba(234, 88, 12, 0.5); }}
+         .download-btn:hover {{ background: #15803d; transform: translateY(-1px); }}
          
          #scroll_wrapper {{
             overflow-x: auto; width: 100%; padding: 40px 20px; 
-            background-color: #0b1120; border-radius: 16px;
-            border: 1px solid #1e293b;
+            background-color: #ffffff; border-radius: 12px;
+            border: 1px solid #e2e8f0;
+         }}
+         
+         #chart_div {{
+             display: inline-block; min-width: 100%; padding: 20px; background-color: #ffffff;
          }}
        </style>
       </head>
@@ -236,7 +232,7 @@ else:
             Download High-Res Architecture
         </button>
         <div id="scroll_wrapper">
-            <div id="chart_div" style="display: inline-block; min-width: 100%;"></div>
+            <div id="chart_div"></div>
         </div>
       </body>
     </html>
