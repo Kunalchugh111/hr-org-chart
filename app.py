@@ -209,4 +209,37 @@ else:
             padding: 12px 16px;
             display: flex; justify-content: space-between;
          }}
-         .stat {{ display: flex; flex-direction: column; align-items: center; gap
+         .stat {{ display: flex; flex-direction: column; align-items: center; gap: 4px; }}
+         .stat span {{ font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }}
+         .stat b {{ font-size: 14px; color: #f8fafc; }}
+         
+         /* Sleek Action Button */
+         .download-btn {{ 
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: #ffffff; border: none; padding: 12px 28px; border-radius: 30px; 
+            cursor: pointer; font-weight: 700; font-size: 14px; margin-bottom: 24px; 
+            transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+         }}
+         .download-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 15px rgba(234, 88, 12, 0.5); }}
+         
+         #scroll_wrapper {{
+            overflow-x: auto; width: 100%; padding: 40px 20px; 
+            background-color: #0b1120; border-radius: 16px;
+            border: 1px solid #1e293b;
+         }}
+       </style>
+      </head>
+      <body>
+        <button class="download-btn" onclick="downloadImage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download High-Res Architecture
+        </button>
+        <div id="scroll_wrapper">
+            <div id="chart_div" style="display: inline-block; min-width: 100%;"></div>
+        </div>
+      </body>
+    </html>
+    """
+    
+    components.html(html_template, height=900, scrolling=True)
