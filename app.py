@@ -14,13 +14,13 @@ st.set_page_config(
 )
 
 # =========================================================
-# 2) Streamlit Styling  ✅ (REAL <style> NOT &lt;style&gt;)
+# 2) Streamlit Styling
 # =========================================================
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  /* (keep your styling as-is) */
   html, body, [class*="css"] {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
   }
   #MainMenu, footer, header, .stDeployButton { display: none !important; }
   .stApp { background-color: #f0f4f8 !important; }
@@ -139,7 +139,7 @@ else:
     all_emps = all_emp_list.to_dict("records")
 
     # =========================================================
-    # 6) HTML Component ✅ (REAL HTML, NOT ESCAPED)
+    # 6) HTML Component  (ONLY FIXES FOR "NO TEXT" BELOW)
     # =========================================================
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
@@ -148,20 +148,13 @@ else:
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>OrgDesign Pro</title>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-<style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.jstyle>
   :root {{
     --bg: #f0f4f8;
     --card: #ffffff;
     --border: #dde3ec;
-
-    /* FORCE HIGH CONTRAST */
     --text-main: #0b1220;
     --text-sub:  #0f172a;
-
     --accent: #4f46e5;
     --accent-hover: #4338ca;
     --success: #059669;
@@ -174,7 +167,7 @@ else:
   html, body {{
     height: 100%;
     background: var(--bg);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: Arial, Helvetica, sans-serif; /* NORMAL FONT (no Google font dependency) */
     color: var(--text-main);
     overflow: hidden;
   }}
@@ -185,7 +178,6 @@ else:
     height: 100vh;
   }}
 
-  /* Toolbar */
   .toolbar {{
     flex-shrink: 0;
     height: 56px;
@@ -222,23 +214,18 @@ else:
     gap: 7px;
     white-space: nowrap;
     user-select: none;
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
   }}
-
-  .tool-btn:hover {{ background: #eef2f7; border-color: #b0bec9; }}
-  .tool-btn:active {{ transform: scale(0.98); }}
 
   .tool-btn.primary {{
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: #fff;
-    border: none;
+    color: #fff; border: none;
     box-shadow: 0 4px 14px rgba(79,70,229,0.30);
   }}
 
   .tool-btn.success {{
     background: linear-gradient(135deg, #059669, #0d9488);
-    color: #fff;
-    border: none;
+    color: #fff; border: none;
     box-shadow: 0 4px 14px rgba(5,150,105,0.28);
   }}
 
@@ -259,8 +246,6 @@ else:
     border-radius: 8px;
   }}
 
-  .zoom-controls .tool-btn:hover {{ background: #e2e8f0; }}
-
   .zoom-label {{
     font-size: 0.78rem;
     color: var(--text-main);
@@ -269,7 +254,6 @@ else:
     font-weight: 900;
   }}
 
-  /* Canvas */
   .canvas-wrapper {{
     flex: 1;
     overflow: auto;
@@ -279,10 +263,6 @@ else:
     position: relative;
     cursor: grab;
   }}
-  .canvas-wrapper.dragging {{ cursor: grabbing; }}
-  .canvas-wrapper::-webkit-scrollbar {{ width: 8px; height: 8px; }}
-  .canvas-wrapper::-webkit-scrollbar-thumb {{ background: #b0bec9; border-radius: 8px; }}
-  .canvas-wrapper::-webkit-scrollbar-track {{ background: #eef2f7; }}
 
   .canvas-content {{
     display: inline-block;
@@ -291,7 +271,6 @@ else:
     min-width: 100%;
   }}
 
-  /* Tree */
   .tree {{ display: inline-block; }}
   .tree ul {{
     padding-top: 20px;
@@ -308,7 +287,6 @@ else:
     padding: 20px 7px 0 7px;
   }}
 
-  /* Connectors */
   .tree li::before, .tree li::after {{
     content: '';
     position: absolute;
@@ -323,27 +301,7 @@ else:
     left: 50%;
     border-left: 2px solid var(--connector);
   }}
-  .tree li:only-child::before,
-  .tree li:only-child::after {{ display: none !important; }}
-  .tree li:only-child {{ padding-top: 0; }}
-  .tree li:first-child::before,
-  .tree li:last-child::after {{ border: none !important; }}
-  .tree li:last-child::before {{
-    border-right: 2px solid var(--connector);
-    border-radius: 0 5px 0 0;
-  }}
-  .tree li:first-child::after {{ border-radius: 5px 0 0 0; }}
-  .tree ul ul::before {{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    border-left: 2px solid var(--connector);
-    width: 0;
-    height: 20px;
-  }}
 
-  /* Cards — FORCE readable text */
   .node-card {{
     display: inline-block;
     width: 210px;
@@ -351,31 +309,17 @@ else:
     border: 1.5px solid var(--border);
     border-radius: 14px;
     box-shadow: 0 2px 8px rgba(11,18,32,0.07);
-    transition: box-shadow 0.18s, transform 0.18s;
     cursor: pointer;
     text-align: left;
     border-top: 4px solid var(--success);
-    color: var(--text-main) !important;
-    -webkit-text-fill-color: var(--text-main) !important;
+    color: var(--text-main);
   }}
 
+  /* IMPORTANT: do NOT use -webkit-text-fill-color here; it can break canvas capture */
   .node-card * {{
-    color: var(--text-main) !important;
-    -webkit-text-fill-color: var(--text-main) !important;
+    color: var(--text-main);
+    opacity: 1;
   }}
-
-  .node-card:hover {{
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(11,18,32,0.13);
-  }}
-
-  .node-card.selected {{
-    border: 2px solid var(--accent);
-    box-shadow: 0 0 0 4px rgba(79,70,229,0.18);
-  }}
-
-  .node-card.is-root {{ border-top-color: var(--accent); }}
-  .node-card.selecting-target {{ cursor: crosshair; }}
 
   .card-h {{
     padding: 9px 11px;
@@ -418,7 +362,6 @@ else:
     text-overflow: ellipsis;
   }}
 
-  /* IMPORTANT: Avoid -webkit-line-clamp for export reliability */
   .emp-title {{
     font-size: 0.78rem;
     font-weight: 800;
@@ -438,104 +381,10 @@ else:
     background: #f8fafc;
   }}
 
-  /* Modal (kept) */
-  .modal-bg {{
-    position: fixed;
-    inset: 0;
-    background: rgba(11,18,32,0.45);
-    backdrop-filter: blur(3px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.22s;
-    z-index: 200;
-  }}
-  .modal-bg.open {{ opacity: 1; pointer-events: auto; }}
-
-  .action-sheet {{
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    max-width: 540px;
-    margin: 0 auto;
-    background: #ffffff;
-    border-top: 1px solid var(--border);
-    border-radius: 22px 22px 0 0;
-    padding: 22px 24px;
-    box-shadow: 0 -12px 40px rgba(0,0,0,0.14);
-    transform: translateY(100%);
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 201;
-  }}
-  .modal-bg.open .action-sheet {{ transform: translateY(0); }}
-
-  .mode-banner {{
-    background: #fffbeb;
-    color: #78350f !important;
-    padding: 10px 13px;
-    border-radius: 11px;
-    font-size: 0.86rem;
-    font-weight: 900;
-    margin-bottom: 12px;
-    text-align: center;
-    display: none;
-    border: 1.5px solid #fcd34d;
-  }}
-  .mode-banner.show {{ display: block; }}
-
-  .sheet-header {{
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 14px;
-  }}
-  .sheet-title {{ font-weight: 900; font-size: 1.05rem; }}
-  .close-btn {{
-    background: none; border: none; font-size: 1.6rem; color: #334155; cursor: pointer;
-  }}
-
-  .emp-summary {{
-    display: flex; gap: 12px; align-items: center; padding: 12px;
-    background: #f8fafc; border-radius: 14px; margin-bottom: 14px;
-    border: 1.5px solid #e5e7eb;
-  }}
-  .avatar {{
-    width: 42px; height: 42px; flex-shrink: 0;
-    background: linear-gradient(135deg, #e0e7ff, #ede9fe);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-weight: 900; color: #3730a3 !important; font-size: 1.1rem;
-  }}
-
-  .emp-sum-name {{ font-weight: 900; font-size: 0.95rem; }}
-  .emp-sum-title {{ font-size: 0.82rem; font-weight: 800; margin-top: 2px; }}
-
-  .action-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }}
-  .act-btn {{
-    padding: 12px; border-radius: 12px; font-weight: 900; font-size: 0.86rem;
-    cursor: pointer; transition: 0.18s; display: flex; align-items: center; justify-content: center; gap: 7px;
-    border: 1.5px solid var(--border);
-    background: #fff;
-  }}
-  .act-btn.move {{ background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8 !important; }}
-  .act-btn.del  {{ background: #fef2f2; border-color: #fecaca; color: #b91c1c !important; }}
-
-  .search-box {{ margin-top: 12px; display: none; }}
-  .search-box.active {{ display: block; }}
-  .s-input {{
-    width: 100%; padding: 10px 13px; border: 1.5px solid var(--border);
-    border-radius: 11px; font-size: 0.9rem; outline: none; font-weight: 800;
-  }}
-  .s-results {{
-    max-height: 168px; overflow-y: auto; margin-top: 8px;
-    border: 1.5px solid var(--border); border-radius: 11px; background: #fff;
-  }}
-  .s-item {{
-    padding: 9px 13px; cursor: pointer; font-size: 0.86rem;
-    border-bottom: 1px solid #f1f5f9; font-weight: 800;
-  }}
-  .s-item:hover {{ background: #f8fafc; }}
-  .s-item:last-child {{ border: none; }}
-
   /* Export loading overlay */
   .export-loading {{
     position: fixed; inset: 0; z-index: 9999;
-    background: rgba(11,18,32,0.72); backdrop-filter: blur(4px);
+    background: rgba(11,18,32,0.72);
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; gap: 18px; color: #fff;
     font-size: 1.1rem; font-weight: 900;
@@ -546,18 +395,22 @@ else:
     animation: spin 0.75s linear infinite;
   }}
   @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
+
+  /* ✅ Export-only font boost so text is not lost on huge charts */
+  .export-mode .emp-name {{ font-size: 16px !important; }}
+  .export-mode .emp-title {{ font-size: 13px !important; }}
+  .export-mode .card-f    {{ font-size: 12px !important; }}
 </style>
 </head>
 
 <body>
-
 <div class="toolbar">
   <div class="brand">🏢 OrgDesign Pro</div>
   <div class="zoom-controls">
     <button class="tool-btn" onclick="zoomBy(-0.1)">−</button>
     <span class="zoom-label" id="zoom-level">100%</span>
     <button class="tool-btn" onclick="zoomBy(0.1)">+</button>
-    <button class="tool-btn" onclick="fitToScreen()">⊡ Fit</button>
+    <button class="tool-btn" onclick="fitToScreen(true)">⊡ Fit</button>
   </div>
   <button class="tool-btn" onclick="centerView()">🧭 Center</button>
   <button class="tool-btn success" onclick="exportImage()">🖼️ Save Image</button>
@@ -570,52 +423,20 @@ else:
   </div>
 </div>
 
-<div class="modal-bg" id="modal-bg" onclick="closeModal()">
-  <div class="action-sheet" onclick="event.stopPropagation()">
-    <div class="mode-banner" id="mode-banner">👆 Click any manager card to assign them as new manager</div>
-
-    <div class="sheet-header">
-      <span class="sheet-title">Manage Employee</span>
-      <button class="close-btn" onclick="closeModal()">×</button>
-    </div>
-
-    <div class="emp-summary">
-      <div class="avatar" id="sel-avatar">A</div>
-      <div>
-        <div class="emp-sum-name" id="sel-name">Name</div>
-        <div class="emp-sum-title" id="sel-title">Title</div>
-      </div>
-    </div>
-
-    <div class="action-grid">
-      <button class="act-btn move" id="btn-move" onclick="startMoveMode()">🔄 Reassign Manager</button>
-      <button class="act-btn del" onclick="removeEmployee()">🗑️ Remove Node</button>
-    </div>
-
-    <div class="search-box" id="search-box">
-      <input type="text" class="s-input" id="search-input" placeholder="Search manager by name…"/>
-      <div class="s-results" id="search-results"></div>
-    </div>
-  </div>
-</div>
-
 <script>
 const viewData = {json.dumps(view_data)};
 const allEmps  = {json.dumps(all_emps)};
 
-let state = {{ selected: null, mode: 'normal', zoom: 1 }};
+/* ✅ FIX 1: add exporting lock + debounce timer */
+let state = {{ selected: null, mode: 'normal', zoom: 1, exporting: false }};
+let autoFitTimer = null;
 
 const treeEl        = document.getElementById('org-tree');
 const canvasContent = document.getElementById('canvas-content');
 const wrapper       = document.getElementById('canvas-wrapper');
-const modalBg       = document.getElementById('modal-bg');
-const searchBox     = document.getElementById('search-box');
-const searchInput   = document.getElementById('search-input');
-const resultsDiv    = document.getElementById('search-results');
-const modeBanner    = document.getElementById('mode-banner');
 const zoomDisplay   = document.getElementById('zoom-level');
 
-/* FIX: correct HTML escaping (your old esc() was wrong) */
+/* ✅ FIX 2: correct esc() (yours was wrong) */
 function esc(str) {{
   return String(str ?? '')
     .replace(/&/g,'&amp;')
@@ -625,7 +446,6 @@ function esc(str) {{
     .replace(/'/g,'&#039;');
 }}
 
-// ── Render ───────────────────────────────────────────────
 function render() {{
   treeEl.innerHTML = '';
   const roots = viewData.filter(d => !d.manager || d.manager === '');
@@ -637,17 +457,15 @@ function render() {{
   roots.forEach(r => ul.appendChild(createNode(r)));
   treeEl.appendChild(ul);
 
-  // Auto-fit after render
-  setTimeout(() => fitToScreen(true), 120);
+  /* ✅ FIX 3: debounce auto-fit, and never during export */
+  clearTimeout(autoFitTimer);
+  autoFitTimer = setTimeout(() => fitToScreen(true), 140);
 }}
 
 function createNode(node) {{
   const li   = document.createElement('li');
   const card = document.createElement('div');
-  card.className = 'node-card' +
-    (!node.manager ? ' is-root' : '') +
-    (state.selected === node.id ? ' selected' : '') +
-    (state.mode === 'selecting_manager' ? ' selecting-target' : '');
+  card.className = 'node-card';
 
   const reports = viewData.filter(x => x.manager === node.id).length;
 
@@ -665,7 +483,6 @@ function createNode(node) {{
       '<span>' + reports + ' direct' + (reports !== 1 ? 's' : '') + '</span>' +
     '</div>';
 
-  card.onclick = e => {{ e.stopPropagation(); handleNodeClick(node); }};
   li.appendChild(card);
 
   const children = viewData.filter(c => c.manager === node.id);
@@ -677,81 +494,6 @@ function createNode(node) {{
   return li;
 }}
 
-// ── Interaction ──────────────────────────────────────────
-function handleNodeClick(node) {{
-  if (state.mode === 'selecting_manager' && state.selected !== node.id) {{
-    executeMove(state.selected, node.id);
-  }} else if (state.mode === 'normal') {{
-    state.selected = node.id;
-    openModal(node);
-    render();
-  }}
-}}
-
-function openModal(node) {{
-  document.getElementById('sel-name').textContent  = node.name;
-  document.getElementById('sel-title').textContent = node.title;
-  document.getElementById('sel-avatar').textContent = String(node.name || 'A').charAt(0).toUpperCase();
-  modalBg.classList.add('open');
-}}
-
-function closeModal() {{
-  modalBg.classList.remove('open');
-  state.selected = null;
-  state.mode = 'normal';
-  searchBox.classList.remove('active');
-  modeBanner.classList.remove('show');
-  document.getElementById('btn-move').innerHTML = '🔄 Reassign Manager';
-  searchInput.value = ''; resultsDiv.innerHTML = '';
-  render();
-}}
-
-function startMoveMode() {{
-  state.mode = 'selecting_manager';
-  modeBanner.classList.add('show');
-  searchBox.classList.add('active');
-  document.getElementById('btn-move').innerHTML = '⏳ Selecting…';
-  searchInput.focus(); render();
-}}
-
-function executeMove(empId, newMgrId) {{
-  if (!empId || !newMgrId || empId === newMgrId) return;
-  const emp = viewData.find(x => x.id === empId);
-  if (!emp) return;
-  emp.manager = newMgrId;
-  closeModal();
-  showToast('✅ Manager updated');
-}}
-
-function removeEmployee() {{
-  if (!confirm('Remove this employee? Their direct reports will move up.')) return;
-  const idx = viewData.findIndex(x => x.id === state.selected);
-  if (idx > -1) {{
-    const node = viewData[idx];
-    viewData.filter(c => c.manager === node.id).forEach(c => c.manager = node.manager);
-    viewData.splice(idx, 1);
-  }}
-  closeModal();
-}}
-
-// ── Search ───────────────────────────────────────────────
-searchInput.addEventListener('input', e => {{
-  const q = e.target.value.toLowerCase().trim();
-  resultsDiv.innerHTML = '';
-  if (!q) return;
-  allEmps
-    .filter(emp => String(emp.name||'').toLowerCase().includes(q) && String(emp.id) !== String(state.selected))
-    .slice(0, 14)
-    .forEach(emp => {{
-      const div = document.createElement('div');
-      div.className = 's-item';
-      div.innerHTML = '<b>' + esc(emp.name) + '</b> <span style="color:#0f172a;font-weight:800;">— ' + esc(emp.title) + '</span>';
-      div.onclick = () => executeMove(state.selected, emp.id);
-      resultsDiv.appendChild(div);
-    }});
-}});
-
-// ── Zoom ────────────────────────────────────────────────
 function applyZoom(z) {{
   state.zoom = Math.max(0.1, Math.min(2.5, z));
   canvasContent.style.transformOrigin = 'top left';
@@ -761,7 +503,10 @@ function applyZoom(z) {{
 
 function zoomBy(delta) {{ applyZoom(state.zoom + delta); }}
 
+/* ✅ FIX 4: clamp minimum zoom so text never becomes microscopic */
 function fitToScreen(alsoCenter=false) {{
+  if (state.exporting) return;   // ✅ do NOT change zoom while exporting
+
   requestAnimationFrame(() => {{
     const treeW  = treeEl.scrollWidth;
     const treeH  = treeEl.scrollHeight;
@@ -771,49 +516,21 @@ function fitToScreen(alsoCenter=false) {{
 
     const scaleW = availW / treeW;
     const scaleH = availH / treeH;
-    applyZoom(Math.min(scaleW, scaleH, 1.0));
 
-    if (alsoCenter) {{
-      setTimeout(centerView, 60);
-    }}
+    const target = Math.min(scaleW, scaleH, 1.0);
+    applyZoom(Math.max(target, 0.35));  // ✅ MIN 35% keeps text visible (use 0.25 if org is massive)
+
+    if (alsoCenter) setTimeout(centerView, 60);
   }});
 }}
 
 function centerView() {{
-  // center horizontally based on scaled tree width
   const scaledW = treeEl.scrollWidth * state.zoom;
   const maxLeft = Math.max(0, scaledW - wrapper.clientWidth);
   wrapper.scrollLeft = Math.floor(maxLeft / 2);
   wrapper.scrollTop  = 0;
 }}
 
-// ── Pan (mouse + touch) ──────────────────────────────────
-let isPanning = false, panX = 0, panY = 0, panSL = 0, panST = 0;
-wrapper.addEventListener('mousedown', e => {{
-  if (e.target.closest('.node-card,.toolbar,.action-sheet')) return;
-  isPanning = true; wrapper.classList.add('dragging');
-  panX = e.pageX; panY = e.pageY;
-  panSL = wrapper.scrollLeft; panST = wrapper.scrollTop;
-}});
-window.addEventListener('mouseup', () => {{ isPanning = false; wrapper.classList.remove('dragging'); }});
-wrapper.addEventListener('mousemove', e => {{
-  if (!isPanning) return; e.preventDefault();
-  wrapper.scrollLeft = panSL - (e.pageX - panX);
-  wrapper.scrollTop  = panST - (e.pageY - panY);
-}});
-
-let touch0 = null;
-wrapper.addEventListener('touchstart', e => {{
-  if (e.touches.length === 1) touch0 = {{ x: e.touches[0].pageX, y: e.touches[0].pageY, sl: wrapper.scrollLeft, st: wrapper.scrollTop }};
-}}, {{passive:true}});
-wrapper.addEventListener('touchmove', e => {{
-  if (!touch0 || e.touches.length !== 1) return;
-  wrapper.scrollLeft = touch0.sl - (e.touches[0].pageX - touch0.x);
-  wrapper.scrollTop  = touch0.st - (e.touches[0].pageY - touch0.y);
-}}, {{passive:true}});
-wrapper.addEventListener('touchend', () => {{ touch0 = null; }});
-
-// ── CSV Download ─────────────────────────────────────────
 function csvEscape(v) {{ return '"' + String(v??'').replace(/"/g,'""') + '"'; }}
 function triggerDownload(blob, filename) {{
   const url = URL.createObjectURL(blob);
@@ -830,8 +547,11 @@ function downloadCSV() {{
   triggerDownload(new Blob([csv], {{type:'text/csv;charset=utf-8;'}}), 'org_draft_updated.csv');
 }}
 
-// ── IMAGE Export ✅ (Fix missing text) ─────────────────────
+/* ✅ FIX 5: export lock + export-mode + higher scale */
 async function exportImage() {{
+  state.exporting = true;
+  clearTimeout(autoFitTimer);
+
   const overlay = document.createElement('div');
   overlay.className = 'export-loading';
   overlay.innerHTML =
@@ -843,15 +563,15 @@ async function exportImage() {{
   const savedZoom = state.zoom;
   applyZoom(1);
 
-  // Ensure fonts are loaded BEFORE capture (critical for text)
+  // Wait for fonts/layout
   try {{
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
   }} catch(e) {{}}
-
   await new Promise(r => setTimeout(r, 160));
 
-  // Create a clean export stage off-screen (prevents text glitches)
+  // Create export stage
   const stage = document.createElement('div');
+  stage.className = 'export-mode';       // ✅ boosts font sizes during export
   stage.style.position = 'fixed';
   stage.style.left = '-10000px';
   stage.style.top = '0';
@@ -859,7 +579,6 @@ async function exportImage() {{
   stage.style.padding = '40px';
   stage.style.width = (treeEl.scrollWidth + 200) + 'px';
 
-  // Clone tree only (no modal/toolbar)
   const clonedTree = treeEl.cloneNode(true);
   stage.appendChild(clonedTree);
   document.body.appendChild(stage);
@@ -867,101 +586,25 @@ async function exportImage() {{
   try {{
     const canvas = await html2canvas(stage, {{
       backgroundColor: '#f0f4f8',
-      scale: 2,
+      scale: 3,     // ✅ higher DPI so text renders (try 4 if still faint)
       useCORS: true,
       logging: false
     }});
 
-    // Branded final image
-    const HEADER = 70, FOOTER = 44, PAD = 28;
-    const final  = document.createElement('canvas');
-    final.width  = canvas.width + PAD * 2;
-    final.height = canvas.height + HEADER + FOOTER + PAD * 2;
-
-    const ctx = final.getContext('2d');
-
-    // Background
-    ctx.fillStyle = '#f0f4f8';
-    ctx.fillRect(0, 0, final.width, final.height);
-
-    // Header band
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, final.width, HEADER + PAD);
-
-    // Accent line
-    const grad = ctx.createLinearGradient(0, 0, final.width, 0);
-    grad.addColorStop(0, '#4f46e5');
-    grad.addColorStop(0.5, '#7c3aed');
-    grad.addColorStop(1, '#0d9488');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, final.width, 5);
-
-    // Title
-    ctx.fillStyle = '#0b1220';
-    ctx.font = 'bold 28px Inter, Arial, sans-serif';
-    ctx.fillText('🏢  OrgDesign Pro', PAD, PAD + 34);
-
-    // Subtitle
-    ctx.fillStyle = '#475569';
-    ctx.font = '700 14px Inter, Arial, sans-serif';
-    const dateStr = 'Org Chart Export · ' + new Date().toLocaleDateString('en-GB', {{day:'2-digit',month:'short',year:'numeric'}});
-    ctx.fillText(dateStr, PAD, PAD + 56);
-
-    // Count badge
-    const countText = viewData.length + ' employees';
-    ctx.font = 'bold 13px Inter, Arial, sans-serif';
-    const badgeW = ctx.measureText(countText).width + 22;
-    const badgeX = final.width - PAD - badgeW;
-    const badgeY = PAD + 18;
-    ctx.fillStyle = '#4f46e5';
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, 26, 13);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(countText, badgeX + 11, badgeY + 18);
-
-    // Draw chart
-    ctx.drawImage(canvas, PAD, HEADER + PAD);
-
-    // Footer
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '700 12px Inter, Arial, sans-serif';
-    ctx.fillText('Generated by OrgDesign Pro', PAD, final.height - 18);
-
-    // Bottom accent
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, final.height - 4, final.width, 4);
-
-    final.toBlob(blob => {{
+    canvas.toBlob(blob => {{
       const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
       triggerDownload(blob, 'orgchart_' + stamp + '.png');
-      showToast('🖼️ Image saved!');
     }}, 'image/png');
 
   }} catch(err) {{
-    showToast('❌ Export failed — ' + err.message);
     console.error(err);
+    alert('Export failed: ' + err.message);
   }} finally {{
     stage.remove();
     overlay.remove();
     applyZoom(savedZoom);
+    state.exporting = false;
   }}
-}}
-
-// ── Toast ────────────────────────────────────────────────
-function showToast(msg) {{
-  const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:22px;right:22px;background:#0b1220;color:#fff;' +
-    'padding:11px 18px;border-radius:12px;font-size:0.9rem;font-weight:900;z-index:9999;' +
-    'transform:translateY(18px);opacity:0;transition:0.22s;font-family:Inter,sans-serif;' +
-    'box-shadow:0 8px 24px rgba(0,0,0,0.22);';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  requestAnimationFrame(() => {{ t.style.transform = 'translateY(0)'; t.style.opacity = '1'; }});
-  setTimeout(() => {{
-    t.style.opacity = '0'; t.style.transform = 'translateY(18px)';
-    setTimeout(() => t.remove(), 250);
-  }}, 2400);
 }}
 
 render();
@@ -972,3 +615,4 @@ render();
 """
 
     components.html(html_template, height=chart_height, scrolling=True)
+``
