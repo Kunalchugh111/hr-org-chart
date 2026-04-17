@@ -37,26 +37,27 @@ if uploaded_file is not None:
         # Toggle for Inactive (Assuming a column named 'Status' exists)
         include_inactive = st.toggle("Include Inactive Employees", value=False)
 
-    # 3. Apply Filters
+ # 3. Apply Filters
     filtered_df = df.copy()
     if selected_sub != "All":
         filtered_df = filtered_df[filtered_df['Sub Function'] == selected_sub]
         
-    # Example logic: Filter out retainers if toggle is off
     if not include_retainers and 'Employment Type' in filtered_df.columns:
         filtered_df = filtered_df[~filtered_df['Employment Type'].astype(str).str.contains('Retainer', case=False, na=False)]
         
-    # Example logic: Filter out inactive if toggle is off
     if not include_inactive and 'Status' in filtered_df.columns:
         filtered_df = filtered_df[~filtered_df['Status'].astype(str).str.contains('Inactive', case=False, na=False)]
 
-    valid_ids = filtered_df['Employee Code'].astype(str).tolist()
+    # FIX: Strip out the hidden '.0' from the Pandas decimal conversion
+    valid_ids = [str(vid).replace('.0', '').strip() for vid in filtered_df['Employee Code'].tolist()]
     
     # 4. Generate the Chart
     js_rows = []
     for index, row in filtered_df.iterrows():
-        emp_id = str(row.get('Employee Code', '')).strip()
-        manager_id = str(row.get('L1 Manager Code', '')).strip()
+        # FIX: Clean the IDs here as well so they match perfectly
+        emp_id = str(row.get('Employee Code', '')).replace('.0', '').strip()
+        manager_id = str(row.get('L1 Manager Code', '')).replace('.0', '').strip()
+        
         name = str(row.get('Employee Name', '')).strip()
         grade = str(row.get('Grade', '')).strip()
         designation = str(row.get('Designation', '')).strip()
