@@ -16,6 +16,7 @@ if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
     else:
         df = pd.read_excel(uploaded_file)
+        df.columns = df.columns.str.strip()
     
     st.markdown("### Filter Options")
     col1, col2, col3 = st.columns(3)
