@@ -2,70 +2,92 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# 1. Page Configuration 
+# 1. Page Configuration
 st.set_page_config(page_title="HR Org Design", layout="wide", initial_sidebar_state="expanded")
 
-# --- SPECTACULAR FRONTEND CSS UPGRADE ---
+# --- SPECTACULAR UI/UX OVERHAUL ---
 st.markdown("""
     <style>
-        /* 1. Dynamic Gradient Background for the main app */
+        /* Import Premium Web Font */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        /* Hide Streamlit Chrome to look like a real app */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+
+        /* Global Font Override */
+        html, body, [class*="css"] {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+        }
+
+        /* Main App Background - Soft, Colorful Mesh Gradient */
         .stApp {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #fff7ed 100%);
-        }
-        
-        /* 2. Premium Gradient Typography for the Main Title */
-        h1 { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
-            font-weight: 900 !important; 
-            background: -webkit-linear-gradient(45deg, #16a34a, #ea580c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-            padding-bottom: 10px;
-        }
-        
-        /* 3. Sleek, Elevated Sidebar */
-        [data-testid="stSidebar"] {
-            background-color: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(10px);
-            border-right: 1px solid #e2e8f0;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.03);
-        }
-        
-        /* Sidebar Headers */
-        [data-testid="stSidebar"] h3 {
-            color: #0f172a;
-            font-weight: 700;
-        }
-        
-        /* 4. Streamlit Widget Styling (Making dropdowns rounded & crisp) */
-        div[data-baseweb="select"] > div {
-            border-radius: 8px !important;
-            border: 1px solid #cbd5e1 !important;
-            background-color: #ffffff !important;
-        }
-        
-        /* File Uploader styling */
-        [data-testid="stFileUploadDropzone"] {
             background-color: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
+            background-image:
+                radial-gradient(at 10% 0%, hsla(142, 69%, 92%, 1) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, hsla(28, 100%, 90%, 1) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, hsla(210, 100%, 95%, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Clean, Bold Typography for the Main Dashboard */
+        h1 {
+            font-weight: 800 !important;
+            color: #0f172a !important;
+            letter-spacing: -1.5px;
+            font-size: 2.8rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* Sleek, Dark "Pro" Sidebar */
+        [data-testid="stSidebar"] {
+            background-color: #0f172a !important;
+            border-right: 1px solid #1e293b;
+        }
+        
+        /* Force Sidebar Text to White */
+        [data-testid="stSidebar"] * {
+            color: #f8fafc !important;
+        }
+        
+        /* Sidebar Dropdown Styling */
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            border-radius: 8px !important;
+            color: white !important;
+        }
+        
+        /* File Uploader - Frosted Glass Look */
+        [data-testid="stFileUploadDropzone"] {
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
             transition: all 0.3s ease;
         }
         [data-testid="stFileUploadDropzone"]:hover {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
+            border-color: #22c55e !important;
+            background: rgba(255, 255, 255, 0.6) !important;
+            transform: translateY(-2px);
         }
-        
-        .block-container { padding-top: 2rem; padding-bottom: 0rem; }
+
+        /* Main Canvas Adjustments */
+        .block-container { 
+            padding-top: 3rem; 
+            padding-bottom: 2rem; 
+            max-width: 95%;
+        }
     </style>
 """, unsafe_allow_html=True)
 
 # 2. Sidebar Controls
 with st.sidebar:
-    st.markdown("### 🌿 Architecture Generator")
-    st.markdown("Upload your roster to generate the dynamic structure.")
-    st.markdown("---")
+    st.markdown("### ⚡ Architecture Generator")
+    st.markdown("Upload your roster to map the organizational structure.")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader("Upload HR Data", type=['csv', 'xlsx'])
     
@@ -74,7 +96,7 @@ with st.sidebar:
     include_inactive = False
     
     if uploaded_file is not None:
-        st.markdown("### 🎛️ Filters")
+        st.markdown("<br>### 🎛️ Data Filters", unsafe_allow_html=True)
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
         else:
@@ -135,7 +157,6 @@ else:
 
     all_data_dict_str = "{\n" + ",\n".join(all_subs_js_dict_items) + "\n}"
 
-
     current_view_df = base_filtered_df.copy()
     if selected_sub != "All" and 'Sub Function' in current_view_df.columns:
         current_view_df = current_view_df[current_view_df['Sub Function'] == selected_sub]
@@ -163,7 +184,7 @@ else:
     all_rows_formatted = ",\n".join(js_rows_current)
     safe_filename = selected_sub.replace(" ", "_") + "_Org_Chart" if selected_sub != "All" else "Full_Organization_Chart"
 
-    # 5. HTML Template with JSZip integration (UNCHANGED)
+    # 5. HTML Template with JSZip integration (UNCHANGED CORE LOGIC)
     html_template = f"""
     <html>
       <head>
@@ -248,7 +269,8 @@ else:
        </script>
        <style>
          @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(20px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
-         body {{ margin: 0; padding: 0; background-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+         /* Internal HTML Font matching Streamlit */
+         body {{ margin: 0; padding: 0; background-color: transparent; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; }}
          .google-visualization-orgchart-lineleft, .google-visualization-orgchart-lineright, .google-visualization-orgchart-linebottom {{ border-color: #cbd5e1 !important; border-width: 2px !important; }}
          .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; }}
          
@@ -266,12 +288,12 @@ else:
          .stat b {{ font-size: 13px; color: #0f172a; }}
          
          .btn-container {{ display: flex; gap: 15px; margin-bottom: 24px; flex-wrap: wrap; }}
-         .download-btn {{ background: #16a34a; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2); }}
-         .download-btn:hover {{ background: #15803d; transform: translateY(-1px); }}
-         .zip-btn {{ background: #0f172a; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2); }}
-         .zip-btn:hover {{ background: #334155; }}
+         .download-btn {{ background: #0f172a; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2); }}
+         .download-btn:hover {{ background: #1e293b; transform: translateY(-1px); }}
+         .zip-btn {{ background: #16a34a; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2); }}
+         .zip-btn:hover {{ background: #15803d; }}
          
-         #scroll_wrapper {{ overflow-x: auto; width: 100%; padding: 40px 20px; background-color: rgba(255,255,255,0.7); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
+         #scroll_wrapper {{ overflow-x: auto; width: 100%; padding: 40px 20px; background-color: rgba(255,255,255,0.7); border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }}
          #chart_div {{ display: inline-block; min-width: 100%; padding: 20px; background-color: transparent; }}
        </style>
       </head>
