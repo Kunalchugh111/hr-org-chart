@@ -2,23 +2,21 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 
-# 1. Page Configuration
+# 1. Page Configuration (Dark Theme App)
 st.set_page_config(page_title="Connected Intelligence | Org Design", layout="wide", initial_sidebar_state="expanded")
 
-# --- UI TWEAKS FOR STREAMLIT ---
 st.markdown("""
     <style>
         .block-container { padding-top: 2rem; padding-bottom: 0rem; }
-        h1 { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; color: #1e293b; }
-        .stButton>button { border-radius: 8px; font-weight: 600; }
+        h1 { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 800; color: #f8fafc; }
+        .stApp { background-color: #0f172a; color: white; }
     </style>
 """, unsafe_allow_html=True)
 
-# 2. Sidebar for Controls (SaaS App feel)
+# 2. Sidebar Controls
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Coromandel_International_Logo.svg/512px-Coromandel_International_Logo.svg.png", width=150)
-    st.markdown("### Org Chart Generator")
-    st.markdown("Upload your roster to generate dynamic reporting structures.")
+    st.markdown("### 🧬 Architecture Generator")
+    st.markdown("Upload your roster to generate the dynamic structure.")
     st.markdown("---")
     
     uploaded_file = st.file_uploader("Upload HR Data", type=['csv', 'xlsx'])
@@ -28,13 +26,13 @@ with st.sidebar:
     include_inactive = False
     
     if uploaded_file is not None:
-        st.markdown("### Filters")
+        st.markdown("### 🎛️ Filters")
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
         else:
             df = pd.read_excel(uploaded_file)
             
-        df.columns = df.columns.str.strip() # Clean invisible spaces from headers
+        df.columns = df.columns.str.strip()
             
         if 'Sub Function' in df.columns:
             sub_functions = df['Sub Function'].dropna().unique()
@@ -46,11 +44,10 @@ with st.sidebar:
 # 3. Main Dashboard Area
 if uploaded_file is None:
     st.title("Organizational Architecture")
-    st.info("👈 Please upload your HR data in the sidebar to begin building the chart.")
+    st.info("👈 Please upload your HR data in the sidebar to begin building the map.")
 else:
     st.title(f"Organizational Architecture: {selected_sub if selected_sub != 'All' else 'Full Organization'}")
     
-    # Apply Filters
     filtered_df = df.copy()
     if selected_sub != "All" and 'Sub Function' in filtered_df.columns:
         filtered_df = filtered_df[filtered_df['Sub Function'] == selected_sub]
@@ -63,7 +60,6 @@ else:
 
     valid_ids = [str(vid).replace('.0', '').strip() for vid in filtered_df['Employee Code'].tolist()]
     
-    # 4. Generate the Chart Nodes with Premium CSS
     js_rows = []
     for index, row in filtered_df.iterrows():
         emp_id = str(row.get('Employee Code', '')).replace('.0', '').strip()
@@ -78,32 +74,35 @@ else:
         if manager_id not in valid_ids:
             manager_id = ""
             
-        # The new highly stylized HTML Card
+        # SPECTACULAR UI: Dark mode glass cards with neon gradient accents
         box_html = f"""
-        <div class='premium-card'>
+        <div class='glass-card'>
             <div class='card-header'>
-                <span>{sub_func[:15]}</span>
-                <span>GR: {grade}</span>
+                <span class='badge'>{sub_func[:15]}</span>
+                <span class='grade'>GR: {grade}</span>
             </div>
             <div class='card-body'>
                 <div class='card-name'>{name}</div>
                 <div class='card-title'>{designation}</div>
             </div>
             <div class='card-footer'>
-                <span>On-roll: <b>{onroll}</b></span>
-                <span>HC: <b>-</b></span>
-                <span>Off: <b>-</b></span>
+                <div class='stat'><span>On-Roll</span><b>{onroll}</b></div>
+                <div class='stat'><span>Appr HC</span><b style='color:#fb923c;'>-</b></div>
+                <div class='stat'><span>Off-Roll</span><b style='color:#a3e635;'>-</b></div>
             </div>
         </div>
         """
+        
+        # THE CRITICAL BUG FIX: Stripping newlines so JavaScript doesn't crash
+        box_html_clean = box_html.replace('\n', '').replace('\r', '')
 
         mgr_str = f"'{manager_id}'" if manager_id else "''"
-        row_string = f"[{{'v': '{emp_id}', 'f': \"{box_html}\"}}, {mgr_str}, '']"
+        row_string = f"[{{'v': '{emp_id}', 'f': \"{box_html_clean}\"}}, {mgr_str}, '']"
         js_rows.append(row_string)
 
     all_rows_formatted = ",\n".join(js_rows)
 
-    # 5. HTML Template with spectacular styling
+    # 5. HTML Template with High-End CSS Animations and Download Fix
     html_template = f"""
     <html>
       <head>
@@ -124,8 +123,15 @@ else:
           }}
           
           function downloadImage() {{
-              const chartContainer = document.getElementById("chart_div");
-              html2canvas(chartContainer, {{ backgroundColor: "#f8fafc", scale: 2 }}).then(canvas => {{
+              const chartContainer = document.getElementById("scroll_wrapper");
+              
+              // Download Fix: Forced solid background so it doesn't render black
+              html2canvas(chartContainer, {{ 
+                  backgroundColor: "#0b1120", 
+                  scale: 2,
+                  width: chartContainer.scrollWidth,
+                  height: chartContainer.scrollHeight
+              }}).then(canvas => {{
                   let link = document.createElement('a');
                   link.download = 'Spectacular_Org_Chart.png';
                   link.href = canvas.toDataURL("image/png");
@@ -134,102 +140,73 @@ else:
           }}
        </script>
        <style>
-         body {{ margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-         
-         /* Hide default Google OrgChart borders */
-         .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 10px; }}
-         
-         /* Premium Card CSS */
-         .premium-card {{
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            background: #ffffff;
-            width: 250px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-         }}
-         .premium-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-            border-color: #cbd5e1;
-         }}
-         .card-header {{
-            background-color: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 10px 14px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-         }}
-         .card-body {{
-            padding: 18px 14px;
-            text-align: left;
-         }}
-         .card-name {{
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
-         }}
-         .card-title {{
-            font-size: 13px;
-            color: #475569;
-            line-height: 1.4;
-         }}
-         .card-footer {{
-            background-color: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-            padding: 10px 14px;
-            font-size: 11px;
-            color: #475569;
-            display: flex;
-            justify-content: space-between;
+         @keyframes slideUpFade {{
+            0% {{ opacity: 0; transform: translateY(30px); }}
+            100% {{ opacity: 1; transform: translateY(0); }}
          }}
          
-         /* Modern Download Button */
-         .download-btn {{ 
-            background-color: #0f172a; 
-            color: #ffffff; 
-            border: none; 
-            padding: 12px 24px; 
-            border-radius: 30px; 
-            cursor: pointer; 
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 20px; 
-            transition: background-color 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-         }}
-         .download-btn:hover {{ background-color: #334155; }}
+         body {{ margin: 0; padding: 0; background-color: #0b1120; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
          
-         /* Scroll Container */
-         #scroll_wrapper {{
-            overflow-x: auto; 
-            width: 100%; 
-            padding: 40px 20px; 
-            background-color: #f8fafc; 
+         /* Connecting Lines Styling */
+         .google-visualization-orgchart-lineleft, .google-visualization-orgchart-lineright, .google-visualization-orgchart-linebottom {{
+             border-color: #334155 !important;
+             border-width: 2px !important;
+         }}
+         
+         .myNode {{ border: none !important; background: none !important; padding: 0 !important; box-shadow: none !important; margin: 12px; }}
+         
+         /* Spectacular Card Design */
+         .glass-card {{
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            position: relative;
+            width: 260px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.3s ease;
          }}
-       </style>
-      </head>
-      <body>
-        <button class="download-btn" onclick="downloadImage()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Download High-Res Map
-        </button>
-        <div id="scroll_wrapper">
-            <div id="chart_div" style="display: inline-block; min-width: 100%;"></div>
-        </div>
-      </body>
-    </html>
-    """
-    
-    components.html(html_template, height=850, scrolling=True)
+         
+         /* Glowing Neon Top/Bottom Borders */
+         .glass-card::before {{
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #f97316, #fb923c); /* Orange */
+         }}
+         .glass-card::after {{
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #65a30d, #a3e635); /* Green */
+         }}
+         
+         .glass-card:hover {{
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.6), 0 0 15px rgba(249, 115, 22, 0.3);
+            border-color: #475569;
+            z-index: 10;
+         }}
+         
+         .card-header {{
+            padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+         }}
+         
+         .badge {{
+            background: rgba(249, 115, 22, 0.15);
+            color: #fdba74;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+         }}
+         .grade {{ color: #94a3b8; font-size: 11px; font-weight: 600; }}
+         
+         .card-body {{ padding: 20px 16px; text-align: center; }}
+         .card-name {{ font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; letter-spacing: 0.2px; }}
+         .card-title {{ font-size: 12px; color: #cbd5e1; font-weight: 400; line-height: 1.4; }}
+         
+         .card-footer {{
+            background: rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            display: flex; justify-content: space-between;
+         }}
+         .stat {{ display: flex; flex-direction: column; align-items: center; gap
