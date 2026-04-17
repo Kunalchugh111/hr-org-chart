@@ -113,37 +113,40 @@ st.markdown("""
             box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
         }
 
-        /* Buttons */
+        /* Buttons - Fixed Visibility Issues */
         .stButton > button {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 12px !important;
+            border-radius: 10px !important;
             font-weight: 600 !important;
             font-size: 0.95rem !important;
-            padding: 0.8rem 1.5rem !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25), 0 1px 2px rgba(0,0,0,0.05) !important;
+            padding: 0.75rem 1.5rem !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
             width: 100% !important;
         }
-        .stButton > button:hover {
-            transform: translateY(-2px) scale(1.01) !important;
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35), 0 2px 4px rgba(0,0,0,0.08) !important;
-            background: linear-gradient(135deg, #9061f9 0%, #8b5cf6 100%) !important;
+        
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25), 0 1px 2px rgba(0,0,0,0.05) !important;
         }
-        .stButton > button:active {
-            transform: translateY(0) scale(0.99) !important;
+        .stButton > button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #9061f9 0%, #7c3aed 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) scale(1.01) !important;
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35) !important;
         }
-        .stButton > button[type="secondary"] {
-            background: #f9fafb !important;
-            color: #4b5563 !important;
+        
+        .stButton > button[kind="secondary"] {
+            background: #ffffff !important;
             border: 1px solid #e5e7eb !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-        }
-        .stButton > button[type="secondary"]:hover {
-            background: #f3f4f6 !important;
             color: #111827 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        }
+        .stButton > button[kind="secondary"]:hover {
+            background: #f9fafb !important;
             border-color: #d1d5db !important;
+            color: #0f172a !important;
+            transform: translateY(-1px) !important;
         }
 
         /* Select Box in Main Area */
@@ -279,17 +282,17 @@ if not st.session_state.file_uploaded:
     
     st.markdown("""
         <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; max-width: 800px; margin: 0 auto; text-align: left;'>
-            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);'>
                 <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>📊</div>
                 <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Smart Parsing</h3>
                 <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Automatically detects reporting hierarchies and structures complex org trees.</p>
             </div>
-            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);'>
                 <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>🎨</div>
                 <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Premium Design</h3>
                 <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Beautiful, modern cards with rich details, shadows, and interactive states.</p>
             </div>
-            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.3s;'>
+            <div style='background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.03);'>
                 <div style='font-size: 2.2rem; margin-bottom: 0.75rem;'>🧪</div>
                 <h3 style='color: #111827; margin: 0 0 0.5rem 0; font-size: 1.15rem;'>Scenario Mode</h3>
                 <p style='color: #6b7280; font-size: 0.88rem; margin: 0; line-height: 1.5;'>Model org changes safely before implementing them in production.</p>
@@ -316,6 +319,10 @@ else:
     
     base_filtered_df = df.copy()
     
+    # FIX: Ensure L1 Manager Code is string type to prevent pandas dtype mismatch error
+    if 'L1 Manager Code' in base_filtered_df.columns:
+        base_filtered_df['L1 Manager Code'] = base_filtered_df['L1 Manager Code'].astype(str).str.replace('.0', '', regex=False).str.strip()
+
     # APPLY DRAFT MOVES TO THE DATAFRAME FIRST
     if st.session_state.draft_moves:
         for e_code, m_code in st.session_state.draft_moves.items():
@@ -465,7 +472,6 @@ else:
        </script>
        <style>
          @keyframes slideUpFade {{ 0% {{ opacity: 0; transform: translateY(15px); }} 100% {{ opacity: 1; transform: translateY(0); }} }}
-         @keyframes softPulse {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-2px); }} }}
          
          body {{ 
              margin: 0; padding: 0; 
@@ -622,9 +628,6 @@ else:
              border-color: #c0c4c8;
              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
              transform: translateY(-2px);
-         }}
-         .download-btn:active {{
-             transform: translateY(0);
          }}
          
          .zip-btn {{ 
