@@ -14,74 +14,28 @@ st.set_page_config(
 )
 
 # =========================================================
-# 2) Streamlit UI Styling (sidebar readability)
+# 2) Streamlit Styling
 # =========================================================
 st.markdown("""
 <style>
-  :root, html, body, .stApp { color-scheme: light !important; }
-
   html, body, [class*="css"] {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
   }
-
   #MainMenu, footer, header, .stDeployButton { display: none !important; }
-
   .stApp { background-color: #f0f4f8 !important; }
-
-  .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 2rem !important;
-    max-width: 99% !important;
-  }
-
-  section[data-testid="stSidebar"] {
-    background: #ffffff !important;
-    border-right: 1px solid #e5e7eb !important;
-  }
-
-  /* Force sidebar text to be dark & visible */
-  section[data-testid="stSidebar"],
-  section[data-testid="stSidebar"] * {
-    color: #0b1220 !important;
-    opacity: 1 !important;
-  }
-
-  section[data-testid="stSidebar"] p,
-  section[data-testid="stSidebar"] span,
-  section[data-testid="stSidebar"] label,
-  section[data-testid="stSidebar"] small {
-    color: #0b1220 !important;
-    opacity: 1 !important;
-  }
-
-  .stButton > button {
-    border-radius: 10px !important;
-    font-weight: 700 !important;
-    transition: all 0.2s !important;
-    width: 100% !important;
-  }
-
+  .block-container { padding-top: 1rem !important; padding-bottom: 2rem !important; max-width: 99% !important; }
+  [data-testid="stSidebar"] { background: #ffffff !important; border-right: 1px solid #e5e7eb !important; }
+  .stButton > button { border-radius: 10px !important; font-weight: 700 !important; transition: all 0.2s !important; width: 100% !important; }
   .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
-    color: #ffffff !important;
-    border: none !important;
+    color: #ffffff !important; border: none !important;
     box-shadow: 0 6px 14px rgba(79,70,229,0.25) !important;
   }
-
-  .stButton > button[kind="secondary"] {
-    background: #ffffff !important;
-    color: #111827 !important;
-    border: 1px solid #e5e7eb !important;
-  }
-
+  .stButton > button[kind="secondary"] { background: #ffffff !important; color: #111827 !important; border: 1px solid #e5e7eb !important; }
   [data-testid="stSelectbox"] > div > div {
-    background: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 10px !important;
-    color: #111827 !important;
-    font-weight: 600 !important;
+    background: #ffffff !important; border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important; color: #111827 !important; font-weight: 600 !important;
   }
-
   iframe { border: none !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -97,11 +51,7 @@ if "draft_moves" not in st.session_state:
 # =========================================================
 with st.sidebar:
     st.markdown("### 🏢 OrgDesign Pro")
-    uploaded_file = st.file_uploader(
-        "Upload HR Roster",
-        type=["csv", "xlsx", "xls"],
-        label_visibility="collapsed"
-    )
+    uploaded_file = st.file_uploader("Upload HR Roster", type=["csv", "xlsx", "xls"], label_visibility="collapsed")
 
     df = None
     if uploaded_file is not None:
@@ -114,22 +64,12 @@ with st.sidebar:
             df.columns = df.columns.str.strip()
 
             if "Employee Code" in df.columns:
-                df["Clean_Emp_Code"] = (
-                    df["Employee Code"]
-                    .astype(str)
-                    .str.replace(".0", "", regex=False)
-                    .str.strip()
-                )
+                df["Clean_Emp_Code"] = df["Employee Code"].astype(str).str.replace(".0", "", regex=False).str.strip()
             else:
                 st.error("Missing required column: 'Employee Code'")
 
             if "L1 Manager Code" in df.columns:
-                df["L1 Manager Code"] = (
-                    df["L1 Manager Code"]
-                    .astype(str)
-                    .str.replace(".0", "", regex=False)
-                    .str.strip()
-                )
+                df["L1 Manager Code"] = df["L1 Manager Code"].astype(str).str.replace(".0", "", regex=False).str.strip()
 
         except Exception as e:
             st.error(f"Error reading file: {e}")
@@ -145,7 +85,7 @@ with st.sidebar:
         selected_sub = "All"
 
     chart_height = st.slider("Chart Height (px)", 600, 4000, 1600, 100)
-    st.caption("Chart auto-fits on load. Use ⊡ Fit anytime. Drag to pan.")
+    st.caption("Chart auto-fits on load. Use ⊡ Fit anytime to re-fit. Drag to pan.")
 
 # =========================================================
 # 5) Main Logic
@@ -161,18 +101,15 @@ else:
 
     base_df = df.copy()
 
-    # Apply stored draft moves if any
     if "Clean_Emp_Code" in base_df.columns and "L1 Manager Code" in base_df.columns:
         for e_code, m_code in st.session_state.draft_moves.items():
             base_df.loc[base_df["Clean_Emp_Code"] == e_code, "L1 Manager Code"] = m_code
 
-    # Sub function filter
     if selected_sub != "All" and "Sub Function" in base_df.columns:
         base_df = base_df[base_df["Sub Function"] == selected_sub]
 
     valid_ids = set(base_df["Clean_Emp_Code"].dropna().astype(str).tolist())
 
-    # view_data for org tree
     view_data = []
     for _, row in base_df.iterrows():
         eid = str(row.get("Clean_Emp_Code", "")).strip()
@@ -188,24 +125,20 @@ else:
             "sub": str(row.get("Sub Function", "N/A"))
         })
 
-    # all_emps for manager search
     emp_cols = ["Clean_Emp_Code", "Employee Name"]
     if "Designation" in df.columns:
         emp_cols.append("Designation")
+
     all_emp_list = df[emp_cols].dropna().copy()
     if "Designation" not in all_emp_list.columns:
         all_emp_list["Designation"] = "N/A"
+
     all_emp_list.columns = ["id", "name", "title"]
-    all_emp_list["id"] = (
-        all_emp_list["id"]
-        .astype(str)
-        .str.replace(".0", "", regex=False)
-        .str.strip()
-    )
+    all_emp_list["id"] = all_emp_list["id"].astype(str).str.replace(".0", "", regex=False).str.strip()
     all_emps = all_emp_list.to_dict("records")
 
     # =========================================================
-    # 6) HTML Component (REAL HTML + REAL JS)
+    # 6) HTML Component
     # =========================================================
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
@@ -215,7 +148,6 @@ else:
 <title>OrgDesign Pro</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
 <style>
   :root {{
     --bg: #f0f4f8;
@@ -282,10 +214,8 @@ else:
     gap: 7px;
     white-space: nowrap;
     user-select: none;
+    font-family: Arial, Helvetica, sans-serif;
   }}
-
-  .tool-btn:hover {{ background: #eef2f7; border-color: #b0bec9; }}
-  .tool-btn:active {{ transform: scale(0.98); }}
 
   .tool-btn.primary {{
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
@@ -316,8 +246,6 @@ else:
     border-radius: 8px;
   }}
 
-  .zoom-controls .tool-btn:hover {{ background: #e2e8f0; }}
-
   .zoom-label {{
     font-size: 0.78rem;
     color: var(--text-main);
@@ -335,8 +263,6 @@ else:
     position: relative;
     cursor: grab;
   }}
-
-  .canvas-wrapper.dragging {{ cursor: grabbing; }}
 
   .canvas-content {{
     display: inline-block;
@@ -375,25 +301,6 @@ else:
     left: 50%;
     border-left: 2px solid var(--connector);
   }}
-  .tree li:only-child::before,
-  .tree li:only-child::after {{ display: none !important; }}
-  .tree li:only-child {{ padding-top: 0; }}
-  .tree li:first-child::before,
-  .tree li:last-child::after {{ border: none !important; }}
-  .tree li:last-child::before {{
-    border-right: 2px solid var(--connector);
-    border-radius: 0 5px 0 0;
-  }}
-  .tree li:first-child::after {{ border-radius: 5px 0 0 0; }}
-  .tree ul ul::before {{
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    border-left: 2px solid var(--connector);
-    width: 0;
-    height: 20px;
-  }}
 
   .node-card {{
     display: inline-block;
@@ -402,18 +309,12 @@ else:
     border: 1.5px solid var(--border);
     border-radius: 14px;
     box-shadow: 0 2px 8px rgba(11,18,32,0.07);
-    transition: box-shadow 0.18s, transform 0.18s;
     cursor: pointer;
     text-align: left;
     border-top: 4px solid var(--success);
     color: var(--text-main);
   }}
-  .node-card:hover {{
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px rgba(11,18,32,0.13);
-  }}
 
-  /* IMPORTANT: no -webkit-text-fill-color (breaks html2canvas in many cases) */
   .node-card * {{
     color: var(--text-main);
     opacity: 1;
@@ -493,7 +394,6 @@ else:
   }}
   @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
 
-  /* Export font boost */
   .export-mode .emp-name {{ font-size: 16px !important; }}
   .export-mode .emp-title {{ font-size: 13px !important; }}
   .export-mode .card-f    {{ font-size: 12px !important; }}
@@ -524,7 +424,7 @@ else:
 const viewData = {json.dumps(view_data)};
 const allEmps  = {json.dumps(all_emps)};
 
-let state = {{ zoom: 1, exporting: false }};
+let state = {{ selected: null, mode: 'normal', zoom: 1, exporting: false }};
 let autoFitTimer = null;
 
 const treeEl        = document.getElementById('org-tree');
@@ -563,21 +463,20 @@ function createNode(node) {{
 
   const reports = viewData.filter(x => x.manager === node.id).length;
 
-  /* ✅ CRITICAL: REAL HTML TAGS (NOT &lt;div&gt;) */
-  card.innerHTML = `
-    <div class="card-h">
-      <span class="sub-tag" title="${esc(node.sub)}">${esc(node.sub)}</span>
-      <span class="grade-tag">GR ${esc(node.grade)}</span>
-    </div>
-    <div class="card-b">
-      <div class="emp-name" title="${esc(node.name)}">${esc(node.name)}</div>
-      <div class="emp-title" title="${esc(node.title)}">${esc(node.title)}</div>
-    </div>
-    <div class="card-f">
-      <span>${esc(String(node.id).slice(0,10))}</span>
-      <span>${reports} direct${reports !== 1 ? 's' : ''}</span>
-    </div>
-  `;
+  // Fixed section: Swapped out JS template literals for standard concatenation
+  card.innerHTML =
+    '<div class="card-h">' +
+      '<span class="sub-tag" title="' + esc(node.sub) + '">' + esc(node.sub) + '</span>' +
+      '<span class="grade-tag">GR ' + esc(node.grade) + '</span>' +
+    '</div>' +
+    '<div class="card-b">' +
+      '<div class="emp-name" title="' + esc(node.name) + '">' + esc(node.name) + '</div>' +
+      '<div class="emp-title" title="' + esc(node.title) + '">' + esc(node.title) + '</div>' +
+    '</div>' +
+    '<div class="card-f">' +
+      '<span>' + esc(String(node.id).slice(0,10)) + '</span>' +
+      '<span>' + reports + ' direct' + (reports !== 1 ? 's' : '') + '</span>' +
+    '</div>';
 
   li.appendChild(card);
 
@@ -613,7 +512,7 @@ function fitToScreen(alsoCenter=false) {{
     const scaleH = availH / treeH;
 
     const target = Math.min(scaleW, scaleH, 1.0);
-    applyZoom(Math.max(target, 0.35)); // min zoom so text stays visible
+    applyZoom(Math.max(target, 0.35));
 
     if (alsoCenter) setTimeout(centerView, 60);
   }});
@@ -626,10 +525,10 @@ function centerView() {{
   wrapper.scrollTop  = 0;
 }}
 
-function csvEscape(v) {{ return '"' + String(v ?? '').replace(/"/g,'""') + '"'; }}
+function csvEscape(v) {{ return '"' + String(v??'').replace(/"/g,'""') + '"'; }}
 function triggerDownload(blob, filename) {{
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a   = document.createElement('a');
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
 }}
@@ -648,7 +547,10 @@ async function exportImage() {{
 
   const overlay = document.createElement('div');
   overlay.className = 'export-loading';
-  overlay.innerHTML = '<div class="export-spinner"></div><div>Rendering org chart…</div>';
+  overlay.innerHTML =
+    '<div class="export-spinner"></div>' +
+    '<div>Rendering org chart…</div>' +
+    '<div style="font-size:0.78rem;opacity:0.7;font-weight:700;">Large charts may take a moment</div>';
   document.body.appendChild(overlay);
 
   const savedZoom = state.zoom;
@@ -657,7 +559,7 @@ async function exportImage() {{
   try {{
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
   }} catch(e) {{}}
-  await new Promise(r => setTimeout(r, 150));
+  await new Promise(r => setTimeout(r, 160));
 
   const stage = document.createElement('div');
   stage.className = 'export-mode';
@@ -677,14 +579,7 @@ async function exportImage() {{
       backgroundColor: '#f0f4f8',
       scale: 3,
       useCORS: true,
-      logging: false,
-      onclone: (doc) => {{
-        doc.querySelectorAll('.node-card, .node-card *').forEach(el => {{
-          el.style.color = '#0b1220';
-          el.style.opacity = '1';
-          el.style.webkitTextFillColor = ''; // ensure text paints
-        }});
-      }}
+      logging: false
     }});
 
     canvas.toBlob(blob => {{
@@ -692,6 +587,9 @@ async function exportImage() {{
       triggerDownload(blob, 'orgchart_' + stamp + '.png');
     }}, 'image/png');
 
+  }} catch(err) {{
+    console.error(err);
+    alert('Export failed: ' + err.message);
   }} finally {{
     stage.remove();
     overlay.remove();
@@ -702,6 +600,7 @@ async function exportImage() {{
 
 render();
 </script>
+
 </body>
 </html>
 """
