@@ -1247,8 +1247,12 @@ function buildViewData() {
     const keep = new Set(matching);
     matching.forEach(id => {
       let cur = byId[id];
-      while (cur && cur.manager && byId[cur.manager]) {
+      const seen = new Set([id]); // FIX: Cycle prevention set
+      
+      // FIX: Check if we've seen this manager already to prevent infinite loops
+      while (cur && cur.manager && byId[cur.manager] && !seen.has(cur.manager)) {
         keep.add(cur.manager);
+        seen.add(cur.manager);
         cur = byId[cur.manager];
       }
     });
@@ -1567,7 +1571,8 @@ async function exportPNG() {
   await new Promise(r=>setTimeout(r,100));
 
   const stage = document.createElement('div');
-  stage.style.cssText = 'position:absolute;top:0;left:0;visibility:hidden;pointer-events:none;background:#f8fafc;padding:48px;display:inline-block;white-space:nowrap;';
+  // FIX: Removed "visibility:hidden;" and added "z-index:-1;"
+  stage.style.cssText = 'position:absolute;top:0;left:0;z-index:-1;pointer-events:none;background:#f8fafc;padding:48px;display:inline-block;white-space:nowrap;';
 
   const cloned = document.getElementById('org-tree').cloneNode(true);
   cloned.querySelectorAll('*').forEach(el => { el.style.overflow='visible'; el.style.webkitLineClamp='unset'; el.classList.remove('collapsed'); });
