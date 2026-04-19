@@ -1214,4 +1214,4 @@ render();
 </body>
 </html>"""
 
-    components.html(html_template, height=chart_height, scrolling=True)
+components.html(html_template, height=chart_height, scrolling=True)
