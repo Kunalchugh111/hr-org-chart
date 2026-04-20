@@ -218,8 +218,8 @@ body { display: flex; flex-direction: column; }
   color: var(--text3); font-size: 0.7rem; font-style: italic;
 }
 .map-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 14px; max-width: 820px; margin-bottom: 28px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; max-width: 900px; margin-bottom: 28px;
 }
 .map-card {
   background: var(--bg);
@@ -228,6 +228,7 @@ body { display: flex; flex-direction: column; }
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .map-card:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.08); }
+.map-card.photo-card { border-color: var(--accent-mid); background: var(--accent-light); }
 .map-card-label {
   font-size: 0.7rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.06em;
@@ -258,7 +259,7 @@ body { display: flex; flex-direction: column; }
 .map-select:focus { border-color: var(--accent); background-color: var(--bg); }
 .map-hint { font-size: 0.72rem; color: var(--text3); margin-top: 6px; }
 .data-preview-table {
-  width: 100%; max-width: 820px;
+  width: 100%; max-width: 900px;
   border-collapse: collapse;
   margin-bottom: 28px; font-size: 0.78rem;
 }
@@ -385,6 +386,34 @@ body { display: flex; flex-direction: column; }
   font-size: 0.76rem; color: var(--text3); max-width: 300px; line-height: 1.5;
 }
 
+/* ═══════════════ PHOTO AVATAR ═══════════════ */
+.ncard-photo-wrap { flex-shrink: 0; position: relative; }
+.ncard-photo {
+  width: 38px; height: 38px; border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  display: block;
+  background: var(--bg3);
+}
+.ncard-photo-fallback {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--accent-light); color: var(--accent);
+  font-size: 0.72rem; font-weight: 800;
+  align-items: center; justify-content: center;
+  border: 2px solid var(--accent-mid);
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+/* Preview photo placeholder in card designer */
+.preview-photo-circle {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent-mid));
+  border: 2px solid var(--accent-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 800; color: var(--accent);
+  flex-shrink: 0;
+}
+
 /* ═══════════════ FILTER SETUP ═══════════════ */
 .filter-setup { max-width: 640px; }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
@@ -438,6 +467,12 @@ body { display: flex; flex-direction: column; }
 .btn-ghost:hover { background: var(--bg3); color: var(--text); border-color: var(--border2); }
 .btn-sm { padding: 6px 13px; font-size: 0.78rem; border-radius: 8px; }
 .btn-row { display: flex; gap: 10px; margin-top: 28px; }
+.btn-export-all {
+  background: linear-gradient(135deg, #7c3aed, #0284c7) !important;
+  color: #fff !important; border: none !important;
+  box-shadow: 0 4px 14px rgba(124,58,237,0.35) !important;
+}
+.btn-export-all:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.45) !important; }
 
 /* ═══════════════ CHART SCREEN ═══════════════ */
 .chart-toolbar {
@@ -445,7 +480,9 @@ body { display: flex; flex-direction: column; }
   background: var(--bg); border-bottom: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 16px; gap: 8px;
   box-shadow: var(--shadow-xs); position: relative; z-index: 20;
+  overflow-x: auto;
 }
+.chart-toolbar::-webkit-scrollbar { height: 0; }
 .stats-bar {
   flex-shrink: 0; height: 34px;
   background: var(--bg2); border-bottom: 1px solid var(--border);
@@ -484,6 +521,28 @@ body { display: flex; flex-direction: column; }
 }
 .filter-active-tag .x { cursor: pointer; opacity: 0.6; font-size: 0.65rem; }
 .filter-active-tag .x:hover { opacity: 1; }
+
+/* Depth selector pill */
+.depth-wrap {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 3px 6px 3px 9px;
+  flex-shrink: 0;
+}
+.depth-label {
+  font-size: 0.68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text3); white-space: nowrap;
+}
+.depth-select {
+  background: transparent;
+  border: none; border-radius: 6px;
+  padding: 3px 20px 3px 4px; font-size: 0.78rem; font-weight: 700;
+  color: var(--accent); font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 3px center;
+}
 
 /* Chart canvas */
 .chart-canvas-wrap {
@@ -579,6 +638,10 @@ body { display: flex; flex-direction: column; }
   color: var(--text3); white-space: nowrap;
 }
 .ncard-body { padding: 10px 12px 8px; }
+.ncard-body-inner {
+  display: flex; align-items: center; gap: 9px;
+}
+.ncard-text-wrap { flex: 1; min-width: 0; }
 .ncard-name {
   font-size: 0.86rem; font-weight: 800; color: var(--text);
   margin-bottom: 3px; white-space: nowrap;
@@ -680,6 +743,16 @@ li.collapsed > ul { display: none; }
   border-top-color: var(--accent); border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+.export-steps {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  margin-top: 8px;
+}
+.export-step {
+  font-size: 0.76rem; color: var(--text3); font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+}
+.export-step.active { color: var(--accent); font-weight: 700; }
+.export-step.done   { color: var(--success); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .no-data {
   padding: 40px; color: var(--text3); font-size: 0.9rem; font-weight: 600;
@@ -807,6 +880,9 @@ li.collapsed > ul { display: none; }
 }
 .modal-note { font-size:0.73rem; color:var(--text3); flex:1; display:flex; align-items:center; }
 
+/* toolbar sep */
+.tb-sep { width:1px; height:22px; background:var(--border); flex-shrink:0; }
+
 </style>
 </head>
 <body>
@@ -866,9 +942,9 @@ li.collapsed > ul { display: none; }
         </div>
         <div class="info-card">
           <div class="info-card-title">➕ Optional Columns</div>
+          <div class="info-card-row">Photo URL (image links)</div>
           <div class="info-card-row">Designation, Grade, Level</div>
-          <div class="info-card-row">Location, City, Region</div>
-          <div class="info-card-row">Function, Sub Function</div>
+          <div class="info-card-row">Location, Function, etc.</div>
         </div>
       </div>
     </div>
@@ -897,6 +973,11 @@ li.collapsed > ul { display: none; }
         <div class="map-card-label">🔗 Manager ID <span class="badge-opt">Optional</span></div>
         <select class="map-select" id="map-managerId"></select>
         <div class="map-hint">Links employee to their manager</div>
+      </div>
+      <div class="map-card photo-card">
+        <div class="map-card-label">📸 Photo URL <span class="badge-opt">Optional</span></div>
+        <select class="map-select" id="map-photoUrl"></select>
+        <div class="map-hint">Column with image URLs for avatars</div>
       </div>
     </div>
     <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:9px">Data Preview (first 3 rows)</div>
@@ -944,7 +1025,8 @@ li.collapsed > ul { display: none; }
         <div class="preview-label">Live Card Preview</div>
         <div id="card-preview"></div>
         <div class="preview-hint">
-          Drag a field chip onto any zone. Drop another on it to swap. Click ✕ to clear a zone.
+          Drag a field chip onto any zone. Drop another on it to swap. Click ✕ to clear a zone.<br>
+          <span style="color:var(--accent);font-weight:700">📸 Photo</span> column will auto-show if mapped in Step 2.
         </div>
       </div>
     </div>
@@ -976,36 +1058,65 @@ li.collapsed > ul { display: none; }
     <!-- Toolbar -->
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">← Setup</button>
-      <div style="width:1px;height:22px;background:var(--border);flex-shrink:0"></div>
+      <div class="tb-sep"></div>
+
+      <!-- Search -->
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input id="chart-search" type="text" placeholder="Search by name or ID…" autocomplete="off"/>
         <div id="chart-search-results"></div>
       </div>
-      <div style="width:1px;height:22px;background:var(--border);flex-shrink:0"></div>
+      <div class="tb-sep"></div>
+
+      <!-- Zoom -->
       <div class="zoom-strip">
         <button class="btn-zoom" onclick="zoomBy(-0.1)">−</button>
         <span class="zoom-label" id="zoom-level">100%</span>
         <button class="btn-zoom" onclick="zoomBy(0.1)">+</button>
         <button class="btn-zoom" onclick="fitToScreen(true)" title="Fit to screen">⊡</button>
       </div>
+
       <button class="btn btn-ghost btn-sm" onclick="centerView()">🧭</button>
-      <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞ Expand</button>
-      <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟ Collapse</button>
+      <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
+      <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
+      <div class="tb-sep"></div>
+
+      <!-- Level depth filter -->
+      <div class="depth-wrap" title="Limit visible hierarchy depth">
+        <span class="depth-label">Levels</span>
+        <select class="depth-select" id="depth-select" onchange="setMaxDepth(parseInt(this.value))">
+          <option value="0">All</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div class="tb-sep"></div>
+
       <div style="flex:1"></div>
+
+      <!-- Export buttons -->
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">💾 CSV</button>
       <button class="btn btn-ghost btn-sm" onclick="exportPNG()">🖼️ PNG</button>
-      <button class="btn btn-primary btn-sm" onclick="exportPPTX()">📊 PPTX</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportPPTX()">📊 PPTX</button>
+      <button class="btn btn-sm btn-export-all" onclick="exportAll()">📦 Export All</button>
     </div>
+
     <!-- Stats -->
     <div class="stats-bar">
       <div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div>
       <div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;root nodes</div>
       <div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible cards</div>
+      <div class="stat-item" id="stat-depth-info" style="display:none;color:var(--accent)">📐 Showing <strong id="stat-depth-val">—</strong> levels</div>
       <div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">⚠️ Filtered view</div>
     </div>
+
     <!-- Filter bar -->
     <div class="filter-bar" id="filter-bar" style="display:none"></div>
+
     <!-- Canvas -->
     <div class="chart-canvas-wrap" id="chart-canvas-wrap">
       <div class="chart-canvas-content" id="chart-canvas-content">
@@ -1048,26 +1159,27 @@ li.collapsed > ul { display: none; }
 // APP STATE
 // ════════════════════════════════════════════════
 const S = {
-  rawRows:        [],
-  columns:        [],
-  colSamples:     {},
-  colMap:         { empId: '', empName: '', managerId: '' },
-  cardSlots:      { badge1: '', badge2: '', subtitle: '', footer1: '', footer2: '' },
-  cardAccent:     '#4f46e5',
-  vacantCol:      '',
-  vacantVal:      '',
-  filterCols:     [],
-  activeFilters:  {},
-  managerOverrides: {},   // empId → new managerId (or '' for root)
-  removedIds:       new Set(),   // empIds hidden from chart
-  viewData:       [],
-  childMap:       {},
-  descCount:      {},
-  zoom:           1,
-  highlighted:    null,
-  draggingField:  null,
-  reassignTarget: null,   // node being reassigned
-  reassignPick:   null,   // chosen new manager node
+  rawRows:          [],
+  columns:          [],
+  colSamples:       {},
+  colMap:           { empId: '', empName: '', managerId: '', photoUrl: '' },
+  cardSlots:        { badge1: '', badge2: '', subtitle: '', footer1: '', footer2: '' },
+  cardAccent:       '#4f46e5',
+  vacantCol:        '',
+  vacantVal:        '',
+  filterCols:       [],
+  activeFilters:    {},
+  managerOverrides: {},
+  removedIds:       new Set(),
+  viewData:         [],
+  childMap:         {},
+  descCount:        {},
+  zoom:             1,
+  highlighted:      null,
+  draggingField:    null,
+  reassignTarget:   null,
+  reassignPick:     null,
+  maxDepth:         0,   // 0 = show all levels
 };
 
 // ════════════════════════════════════════════════
@@ -1145,6 +1257,7 @@ function autoDetect(cols) {
     empId:     find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','staff code','person id','worker id']),
     empName:   find(['employee name','emp name','full name','person name','staff name','worker name','name']),
     managerId: find(['l1 manager code','l1 manager','manager code','manager id','reports to','supervisor','mgr code','mgrid']),
+    photoUrl:  find(['photo url','photo_url','image url','image_url','avatar url','avatar_url','photo','image','avatar','picture','pic','headshot']),
   };
 }
 
@@ -1164,11 +1277,18 @@ function buildMapScreen() {
   // Selects
   const blankOpt = '<option value="">— select —</option>';
   const opts = blankOpt + S.columns.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  ['empId','empName','managerId'].forEach(k => {
+  ['empId','empName','managerId','photoUrl'].forEach(k => {
     const sel = document.getElementById('map-'+k);
+    if (!sel) return;
     sel.innerHTML = opts;
     sel.value = S.colMap[k] || '';
   });
+
+  // Photo URL: highlight detected column if found
+  const photoSel = document.getElementById('map-photoUrl');
+  if (photoSel && S.colMap.photoUrl) {
+    photoSel.closest('.map-card')?.classList.add('photo-detected');
+  }
 
   // Data preview table
   const wrap = document.getElementById('data-preview-wrap');
@@ -1187,6 +1307,7 @@ function confirmColumnMap() {
   S.colMap.empId     = document.getElementById('map-empId').value;
   S.colMap.empName   = document.getElementById('map-empName').value;
   S.colMap.managerId = document.getElementById('map-managerId').value;
+  S.colMap.photoUrl  = document.getElementById('map-photoUrl').value;
   if (!S.colMap.empId || !S.colMap.empName) {
     alert('Please map the Employee ID and Employee Name columns.');
     return;
@@ -1204,7 +1325,7 @@ const AUTO_FIELDS = [
 ];
 
 function buildCardScreen() {
-  const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId].filter(Boolean));
+  const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId, S.colMap.photoUrl].filter(Boolean));
   const available = S.columns.filter(c => !core.has(c));
 
   const panel = document.getElementById('card-fields-panel');
@@ -1231,10 +1352,9 @@ function buildCardScreen() {
       ).join('') +
     '</div>';
 
-  // Default: auto-reports in footer2
   if (!S.cardSlots.footer2) S.cardSlots.footer2 = '__auto_reports__';
 
-  // ── Color palette ──
+  // Color palette
   const COLORS = [
     '#4f46e5','#7c3aed','#db2777','#dc2626','#d97706',
     '#059669','#0891b2','#0284c7','#374151','#0f172a',
@@ -1248,12 +1368,12 @@ function buildCardScreen() {
     ).join('');
   }
 
-  // ── Vacant selectors ──
+  // Vacant selectors
   const colSel = document.getElementById('vacant-col');
   if (colSel) {
-    const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId].filter(Boolean));
+    const core2 = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId, S.colMap.photoUrl].filter(Boolean));
     const opts = ['<option value="">Column…</option>'] +
-      S.columns.filter(c => !core.has(c)).map(c =>
+      S.columns.filter(c => !core2.has(c)).map(c =>
         `<option value="${esc(c)}"${S.vacantCol===c?' selected':''}>${esc(c)}</option>`
       ).join('');
     colSel.innerHTML = opts;
@@ -1270,42 +1390,35 @@ function onDragStart(e) {
   e.dataTransfer.effectAllowed = 'move';
 }
 function onDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
-
 function onZoneDragOver(e)  { e.preventDefault(); e.currentTarget.classList.add('drop-target'); }
 function onZoneDragLeave(e) { e.currentTarget.classList.remove('drop-target'); }
-
 function onZoneDrop(e, zone) {
   e.preventDefault();
   e.currentTarget.classList.remove('drop-target');
   if (!S.draggingField) return;
-  // If field was already in another zone, clear it
   Object.keys(S.cardSlots).forEach(z => { if (S.cardSlots[z] === S.draggingField) S.cardSlots[z] = ''; });
   S.cardSlots[zone] = S.draggingField;
   S.draggingField = null;
   renderCardPreview();
   syncChipStates();
 }
-
 function clearZone(zone) {
   S.cardSlots[zone] = '';
   renderCardPreview();
   syncChipStates();
 }
-
 function syncChipStates() {
   const placed = new Set(Object.values(S.cardSlots).filter(Boolean));
   document.querySelectorAll('.field-chip').forEach(c => {
     c.classList.toggle('placed', placed.has(c.dataset.field));
   });
 }
-
 function fieldLabel(id) {
   if (!id) return '';
   const af = AUTO_FIELDS.find(f => f.id === id);
   if (af) return af.icon + ' ' + af.label;
   return id;
 }
-
 function fieldSampleVal(id) {
   if (!id) return '';
   if (id === '__auto_reports__') return '12';
@@ -1313,7 +1426,6 @@ function fieldSampleVal(id) {
   const row = S.rawRows.find(r => r[id]) || S.rawRows[0] || {};
   return String(row[id] || 'Sample').substring(0, 22);
 }
-
 function zoneHtml(zoneId, placeholder, extraClass = '') {
   const v = S.cardSlots[zoneId];
   const dAttrs = `ondragover="onZoneDragOver(event)" ondragleave="onZoneDragLeave(event)" ondrop="onZoneDrop(event,'${zoneId}')"`;
@@ -1330,11 +1442,33 @@ function zoneHtml(zoneId, placeholder, extraClass = '') {
 }
 
 function renderCardPreview() {
-  const sampleName = (() => {
-    const row = S.rawRows.find(r => r[S.colMap.empName]) || S.rawRows[0] || {};
-    return String(row[S.colMap.empName] || 'Employee Name').substring(0, 26);
-  })();
+  const sampleRow = S.rawRows.find(r => r[S.colMap.empName]) || S.rawRows[0] || {};
+  const sampleName = String(sampleRow[S.colMap.empName] || 'Employee Name').substring(0, 26);
+  const samplePhoto = S.colMap.photoUrl ? (String(sampleRow[S.colMap.photoUrl] || '').trim()) : '';
+  const initials = sampleName.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
   const ac = S.cardAccent;
+
+  const photoHtml = S.colMap.photoUrl
+    ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        ${samplePhoto
+          ? `<img src="${esc(samplePhoto)}" crossorigin="anonymous"
+              style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid ${ac}44;flex-shrink:0"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div style="width:38px;height:38px;border-radius:50%;background:${ac}18;color:${ac};font-size:0.72rem;font-weight:800;display:${samplePhoto?'none':'flex'};align-items:center;justify-content:center;border:2px solid ${ac}44;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div class="preview-name-fixed" style="margin-bottom:0">
+            <span class="lock">🔒</span>
+            <span>${esc(sampleName)}</span>
+          </div>
+        </div>
+      </div>
+      ${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}`
+    : `<div class="preview-name-fixed">
+        <span class="lock">🔒</span>
+        <span>${esc(sampleName)}</span>
+      </div>
+      <div style="margin-top:6px">${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div>`;
 
   document.getElementById('card-preview').innerHTML = `
     <div class="preview-card" style="border-top-color:${ac}">
@@ -1342,13 +1476,7 @@ function renderCardPreview() {
         ${zoneHtml('badge1','+ Badge Left')}
         ${zoneHtml('badge2','+ Badge Right')}
       </div>
-      <div class="preview-card-body">
-        <div class="preview-name-fixed">
-          <span class="lock">🔒</span>
-          <span>${esc(sampleName)}</span>
-        </div>
-        <div style="margin-top:6px">${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div>
-      </div>
+      <div class="preview-card-body">${photoHtml}</div>
       <div class="preview-card-footer">
         ${zoneHtml('footer1','+ Footer Left')}
         ${zoneHtml('footer2','+ Footer Right')}
@@ -1357,17 +1485,15 @@ function renderCardPreview() {
     <div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">
       Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span>
       <strong style="color:${ac}">${ac}</strong>
+      ${S.colMap.photoUrl ? `&nbsp;· <span style="color:var(--accent)">📸 Photo column: <strong>${esc(S.colMap.photoUrl)}</strong></span>` : ''}
     </div>`;
 }
 
-// ── Color palette helpers ──
 function setCardAccent(color) {
   S.cardAccent = color;
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.style.background === color));
   renderCardPreview();
 }
-
-// ── Vacant helpers ──
 function onVacantColChange() {
   const col = document.getElementById('vacant-col').value;
   S.vacantCol = col;
@@ -1376,7 +1502,6 @@ function onVacantColChange() {
   if (col) { valSel.style.display = ''; populateVacantValues(col); }
   else { valSel.style.display = 'none'; }
 }
-
 function populateVacantValues(col) {
   const vals = [...new Set(
     S.rawRows.map(r => String(r[col]||'').trim()).filter(v => v && v!=='null' && v!=='undefined')
@@ -1388,13 +1513,10 @@ function populateVacantValues(col) {
   valSel.style.display = '';
   valSel.onchange = () => { S.vacantVal = valSel.value; };
 }
-
 function isVacant(node) {
   return S.vacantCol && S.vacantVal && node[S.vacantCol] === S.vacantVal;
 }
-
 function confirmCardDesign() {
-  // Capture vacant val in case user changed it
   const valSel = document.getElementById('vacant-val');
   if (valSel) S.vacantVal = valSel.value;
   buildFilterScreen();
@@ -1405,7 +1527,7 @@ function confirmCardDesign() {
 // SCREEN 4 — FILTER SETUP
 // ════════════════════════════════════════════════
 function buildFilterScreen() {
-  const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId].filter(Boolean));
+  const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId, S.colMap.photoUrl].filter(Boolean));
   const filterable = S.columns.filter(c => !core.has(c));
 
   const picker = document.getElementById('filter-chip-picker');
@@ -1417,14 +1539,12 @@ function buildFilterScreen() {
 
   renderFilterPreview();
 }
-
 function toggleFilterCol(col) {
   if (S.filterCols.includes(col)) {
     S.filterCols = S.filterCols.filter(c => c !== col);
   } else if (S.filterCols.length < 3) {
     S.filterCols.push(col);
   } else {
-    // Bump oldest, add new
     S.filterCols.shift();
     S.filterCols.push(col);
   }
@@ -1433,15 +1553,12 @@ function toggleFilterCol(col) {
   });
   renderFilterPreview();
 }
-
 function renderFilterPreview() {
   const counter = document.getElementById('filter-counter');
   counter.textContent = `${S.filterCols.length} of 3 filters selected`;
-
   const area = document.getElementById('filter-preview-area');
   if (!S.filterCols.length) {
-    area.innerHTML = `<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">
-      No filters selected — the full org chart will be displayed.</div>`;
+    area.innerHTML = `<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters selected — the full org chart will be displayed.</div>`;
     return;
   }
   area.innerHTML = `<div class="filter-preview-box">
@@ -1459,9 +1576,9 @@ function renderFilterPreview() {
     }).join('')}
   </div>`;
 }
-
 function launchChart() {
   S.activeFilters = {};
+  S.maxDepth = 0;
   buildViewData();
   buildFilterBar();
   renderChart();
@@ -1482,21 +1599,15 @@ function buildViewData() {
   }).filter(n => n.id && !S.removedIds.has(n.id));
 
   const validIds = new Set(nodes.map(n => n.id));
-  // Apply any manual manager reassignments
   nodes.forEach(n => {
-    if (S.managerOverrides.hasOwnProperty(n.id)) {
-      n.manager = S.managerOverrides[n.id];
-    }
+    if (S.managerOverrides.hasOwnProperty(n.id)) n.manager = S.managerOverrides[n.id];
   });
-  // Clear self-references and dangling manager pointers
   nodes.forEach(n => { if (!validIds.has(n.manager) || n.manager === n.id) n.manager = ''; });
 
-  // Apply active filters: keep matching + all their ancestors (cycle-safe)
   const hasFilter = Object.values(S.activeFilters).some(v => v);
   if (hasFilter) {
     const matching = new Set(
-      nodes.filter(n => Object.entries(S.activeFilters).every(([c,v]) => !v || n[c] === v))
-           .map(n => n.id)
+      nodes.filter(n => Object.entries(S.activeFilters).every(([c,v]) => !v || n[c] === v)).map(n => n.id)
     );
     const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
     const keep = new Set(matching);
@@ -1513,15 +1624,11 @@ function buildViewData() {
   }
 
   S.viewData = nodes;
-
-  // Pre-build O(1) children lookup map — critical for render performance
   S.childMap = {};
   nodes.forEach(n => {
     if (!S.childMap[n.manager]) S.childMap[n.manager] = [];
     S.childMap[n.manager].push(n);
   });
-
-  // Pre-compute descendant counts in one DFS pass
   S.descCount = {};
   function calcDesc(id) {
     if (S.descCount[id] !== undefined) return S.descCount[id];
@@ -1531,11 +1638,8 @@ function buildViewData() {
   }
   nodes.filter(n => !n.manager).forEach(r => calcDesc(r.id));
 }
-
-// O(1) children lookup using pre-built map
-function childrenOf(id) { return S.childMap[id] || []; }
-
-function countDescendants(id) { return S.descCount[id] || 0; }
+function childrenOf(id)         { return S.childMap[id] || []; }
+function countDescendants(id)   { return S.descCount[id] || 0; }
 
 // ════════════════════════════════════════════════
 // FILTER BAR
@@ -1544,15 +1648,12 @@ function buildFilterBar() {
   const bar = document.getElementById('filter-bar');
   if (!S.filterCols.length) { bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
-
-  // Collect unique values from raw data for each filter col
   const allVals = {};
   S.filterCols.forEach(col => {
     allVals[col] = [...new Set(
       S.rawRows.map(r => String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined')
     )].sort();
   });
-
   bar.innerHTML =
     '<span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);flex-shrink:0">Filters</span>' +
     S.filterCols.map(col => {
@@ -1568,31 +1669,29 @@ function buildFilterBar() {
       ? `<button class="btn btn-ghost btn-sm" onclick="clearAllFilters()" style="margin-left:auto">✕ Clear All</button>`
       : '');
 }
-
 function applyFilter(col, val) {
   if (val) S.activeFilters[col] = val;
   else delete S.activeFilters[col];
-
-  // Show loading badge so user knows the page is working
   const stat = document.getElementById('stat-filtered');
   if (stat) { stat.style.display = 'flex'; stat.textContent = '⏳ Filtering…'; }
-
-  // Yield to browser for one frame so the UI updates, then do the heavy work
   requestAnimationFrame(() => setTimeout(() => {
-    buildViewData();
-    renderChart();
-    buildFilterBar();
+    buildViewData(); renderChart(); buildFilterBar();
     if (stat) stat.textContent = '⚠️ Filtered view';
   }, 0));
 }
-
 function clearAllFilters() {
   S.activeFilters = {};
-  requestAnimationFrame(() => setTimeout(() => {
-    buildViewData();
-    renderChart();
-    buildFilterBar();
-  }, 0));
+  requestAnimationFrame(() => setTimeout(() => { buildViewData(); renderChart(); buildFilterBar(); }, 0));
+}
+
+// ════════════════════════════════════════════════
+// LEVEL DEPTH FILTER
+// ════════════════════════════════════════════════
+function setMaxDepth(n) {
+  S.maxDepth = n;
+  renderChart();
+  const ds = document.getElementById('depth-select');
+  if (ds) ds.value = n;
 }
 
 // ════════════════════════════════════════════════
@@ -1610,6 +1709,22 @@ function renderChart() {
   const tree = document.getElementById('org-tree');
   tree.innerHTML = '';
 
+  // Sync depth select
+  const ds = document.getElementById('depth-select');
+  if (ds) ds.value = S.maxDepth;
+
+  // Update depth stat
+  const depthInfo = document.getElementById('stat-depth-info');
+  const depthVal  = document.getElementById('stat-depth-val');
+  if (depthInfo && depthVal) {
+    if (S.maxDepth > 0) {
+      depthInfo.style.display = 'flex';
+      depthVal.textContent = S.maxDepth;
+    } else {
+      depthInfo.style.display = 'none';
+    }
+  }
+
   const roots = S.viewData.filter(n => !n.manager);
   if (!roots.length) {
     tree.innerHTML = `<div class="no-data">No root nodes found.<br>Check column mapping or clear active filters.</div>`;
@@ -1618,7 +1733,7 @@ function renderChart() {
   }
 
   const ul = document.createElement('ul');
-  roots.forEach(r => ul.appendChild(mkNodeLI(r)));
+  roots.forEach(r => ul.appendChild(mkNodeLI(r, 0)));
   tree.appendChild(ul);
 
   updateStats(roots);
@@ -1626,18 +1741,17 @@ function renderChart() {
   window._fit = setTimeout(() => fitToScreen(true), 180);
 }
 
-function mkNodeLI(node) {
+function mkNodeLI(node, depth) {
+  depth = depth || 0;
   const li = document.createElement('li');
   li.dataset.id = node.id;
 
-  const vacant  = isVacant(node);
-  const ac      = S.cardAccent;
-  const card    = document.createElement('div');
+  const vacant   = isVacant(node);
+  const ac       = S.cardAccent;
+  const card     = document.createElement('div');
   card.className = 'node-card' +
     (node.id === S.highlighted ? ' highlighted' : '') +
     (vacant ? ' vacant' : '');
-
-  // Apply chosen accent color via inline style (unless vacant — vacant is always red)
   if (!vacant) card.style.borderTopColor = ac;
 
   const reports  = childrenOf(node.id).length;
@@ -1647,34 +1761,59 @@ function mkNodeLI(node) {
   const footer1  = getSlotVal(node, 'footer1') || node.id.substring(0,14);
   const footer2  = getSlotVal(node, 'footer2');
   const hasR     = reports > 0;
-
   const acLight  = ac + '18';
   const acMid    = ac + '55';
+
+  // Photo / avatar
+  const initials  = node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+  const photoUrl  = S.colMap.photoUrl ? (node[S.colMap.photoUrl]||'').trim() : '';
+  const hasPhoto  = !!S.colMap.photoUrl;
+
+  // Build photo HTML snippet carefully
+  let photoHtml = '';
+  if (hasPhoto) {
+    if (photoUrl) {
+      photoHtml =
+        '<div class="ncard-photo-wrap">' +
+          '<img class="ncard-photo" crossorigin="anonymous" src="' + esc(photoUrl) + '"' +
+          ' onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<div class="ncard-photo-fallback" style="display:none;background:' + acLight + ';color:' + ac + ';border-color:' + acMid + '">' + esc(initials) + '</div>' +
+        '</div>';
+    } else {
+      photoHtml =
+        '<div class="ncard-photo-wrap">' +
+          '<div class="ncard-photo-fallback" style="display:flex;background:' + acLight + ';color:' + ac + ';border-color:' + acMid + '">' + esc(initials) + '</div>' +
+        '</div>';
+    }
+  }
 
   card.innerHTML =
     '<div class="ncard-header">' +
       (vacant
         ? '<span class="vacant-badge">🔴 Vacant</span>'
-        : badge1 ? `<span class="ncard-badge" title="${esc(badge1)}"
-            style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`
-                 : '<span></span>') +
+        : badge1
+          ? `<span class="ncard-badge" title="${esc(badge1)}" style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`
+          : '<span></span>') +
       (badge2 && !vacant ? `<span class="ncard-badge2">${esc(badge2)}</span>` : '') +
     '</div>' +
     '<div class="ncard-body">' +
-      `<div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>` +
-      (subtitle ? `<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>` : '') +
+      '<div class="ncard-body-inner">' +
+        photoHtml +
+        '<div class="ncard-text-wrap">' +
+          `<div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>` +
+          (subtitle ? `<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>` : '') +
+        '</div>' +
+      '</div>' +
     '</div>' +
     '<div class="ncard-footer">' +
       `<span class="ncard-fl">${esc(footer1)}</span>` +
       (footer2
         ? `<span class="ncard-fr has-r" style="background:${acLight};color:${ac}">${esc(footer2)}</span>`
-        : `<span class="ncard-fr${hasR?' has-r':''}"
-            ${hasR?`style="background:${acLight};color:${ac}"`:''}>
-            ${reports} ${reports===1?'report':'reports'}</span>`) +
+        : `<span class="ncard-fr${hasR?' has-r':''}" ${hasR?`style="background:${acLight};color:${ac}"`:''}>${reports} ${reports===1?'report':'reports'}</span>`) +
     '</div>' +
-    // Edit / reassign button
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
+  // Collapse button
   if (hasR) {
     const cb = document.createElement('div');
     cb.className = 'collapse-btn';
@@ -1685,12 +1824,15 @@ function mkNodeLI(node) {
   }
 
   li.appendChild(card);
+
+  // Render children — respect maxDepth
   const kids = childrenOf(node.id);
-  if (kids.length) {
+  if (kids.length && (S.maxDepth === 0 || depth < S.maxDepth - 1)) {
     const ul = document.createElement('ul');
-    kids.forEach(k => ul.appendChild(mkNodeLI(k)));
+    kids.forEach(k => ul.appendChild(mkNodeLI(k, depth + 1)));
     li.appendChild(ul);
   }
+
   return li;
 }
 
@@ -1702,7 +1844,6 @@ function toggleCollapse(li, btn) {
   li.querySelector('.node-card')?.classList.toggle('collapsed-node', c);
   setTimeout(() => updateStats(), 60);
 }
-
 function expandAll() {
   document.querySelectorAll('li.collapsed').forEach(li => {
     li.classList.remove('collapsed');
@@ -1712,7 +1853,6 @@ function expandAll() {
   });
   setTimeout(() => updateStats(), 60);
 }
-
 function collapseAll() {
   document.querySelectorAll('li').forEach(li => {
     if (!li.parentElement?.parentElement?.closest('li')) return;
@@ -1725,7 +1865,6 @@ function collapseAll() {
   });
   setTimeout(() => updateStats(), 60);
 }
-
 function updateStats(roots) {
   if (!roots) roots = S.viewData.filter(n => !n.manager);
   document.getElementById('stat-total').textContent = S.viewData.length;
@@ -1738,16 +1877,14 @@ function updateStats(roots) {
 // ════════════════════════════════════════════════
 // ZOOM & PAN
 // ════════════════════════════════════════════════
-function cwrap() { return document.getElementById('chart-canvas-wrap'); }
+function cwrap()    { return document.getElementById('chart-canvas-wrap'); }
 function ccontent() { return document.getElementById('chart-canvas-content'); }
-
 function applyZoom(z) {
   S.zoom = Math.max(0.1, Math.min(3, z));
   ccontent().style.transform = 'scale(' + S.zoom + ')';
   document.getElementById('zoom-level').textContent = Math.round(S.zoom*100)+'%';
 }
 function zoomBy(d) { applyZoom(S.zoom + d); }
-
 function fitToScreen(andCenter) {
   requestAnimationFrame(() => {
     const tree = document.getElementById('org-tree');
@@ -1760,7 +1897,6 @@ function fitToScreen(andCenter) {
     if (andCenter) setTimeout(centerView, 70);
   });
 }
-
 function centerView() {
   const wrap = cwrap();
   const tree = document.getElementById('org-tree');
@@ -1769,7 +1905,6 @@ function centerView() {
   wrap.scrollLeft = Math.max(0, (sw - wrap.clientWidth)/2);
   wrap.scrollTop  = 0;
 }
-
 let _panning=false, _px,_py,_psl,_pst;
 function initPan() {
   const wrap = cwrap();
@@ -1817,7 +1952,6 @@ function initSearch() {
     if (!e.target.closest('.search-wrap')) box.classList.remove('visible');
   });
 }
-
 function highlightNode(id) {
   document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));
   S.highlighted = id;
@@ -1840,281 +1974,9 @@ function highlightNode(id) {
 }
 
 // ════════════════════════════════════════════════
-// EXPORT
+// SHARED RENDER STAGE (shared between PNG & PPTX)
 // ════════════════════════════════════════════════
-function csvEsc(v) { return '"' + String(v??'').replace(/"/g,'""') + '"'; }
-
-function downloadCSV() {
-  const cols = [S.colMap.empId, S.colMap.empName, S.colMap.managerId,
-    ...S.columns.filter(c => c!==S.colMap.empId && c!==S.colMap.empName && c!==S.colMap.managerId)
-  ].filter(Boolean);
-  let csv = cols.map(csvEsc).join(',') + '\n';
-  S.viewData.forEach(n => { csv += cols.map(c=>csvEsc(n[c]||'')).join(',') + '\n'; });
-  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
-  const a = document.createElement('a'); a.href=url; a.download='orgchart_export.csv'; a.click();
-  URL.revokeObjectURL(url);
-}
-
-// Inline computed styles so html2canvas can see real colors (it can't resolve CSS variables)
-function inlineStyles(root) {
-  const PROPS = [
-    'color','backgroundColor','borderTopColor','borderBottomColor',
-    'borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle',
-    'borderRadius','fontFamily','fontSize','fontWeight','fontStyle',
-    'lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight',
-    'margin','display','flexDirection','justifyContent','alignItems','gap',
-    'whiteSpace','overflow','textOverflow','opacity','boxShadow',
-    'backgroundImage',
-  ];
-  root.querySelectorAll('*').forEach(el => {
-    const cs = window.getComputedStyle(el);
-    PROPS.forEach(p => { el.style[p] = cs[p]; });
-    // Remove clamp so text fully shows
-    el.style.webkitLineClamp = 'unset';
-    el.style.overflow        = 'visible';
-    // Remove collapsed state
-    el.classList.remove('collapsed');
-  });
-}
-
-async function exportPNG() {
-  const overlay = document.createElement('div');
-  overlay.className = 'export-overlay';
-  overlay.innerHTML =
-    '<div class="export-spinner"></div>' +
-    '<div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Rendering org chart…</div>' +
-    '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">Large charts may take a moment</div>';
-  document.body.appendChild(overlay);
-
-  const savedZoom = S.zoom;
-  applyZoom(1);
-  await new Promise(r => setTimeout(r, 120));
-
-  // Use position:fixed off-screen so the element IS rendered (visibility:hidden breaks html2canvas)
-  const stage = document.createElement('div');
-  stage.style.cssText = [
-    'position:fixed',
-    'top:0',
-    'left:-99999px',          // off screen but fully rendered by browser
-    'background:#ffffff',
-    'padding:56px',
-    'display:inline-block',
-    'white-space:nowrap',
-    'z-index:-999',
-    'pointer-events:none',
-  ].join(';');
-
-  const cloned = document.getElementById('org-tree').cloneNode(true);
-  // Expand all collapsed subtrees for full export
-  cloned.querySelectorAll('ul').forEach(ul => { ul.style.display = ''; });
-  cloned.querySelectorAll('li').forEach(li => { li.classList.remove('collapsed'); });
-  cloned.querySelectorAll('.collapse-btn').forEach(b => b.remove());
-  stage.appendChild(cloned);
-  document.body.appendChild(stage);
-
-  // Wait for layout so getComputedStyle returns real values
-  await new Promise(r => setTimeout(r, 220));
-  if (document.fonts?.ready) await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 80));
-
-  // NOW inline computed styles — this resolves all CSS variables to real hex values
-  inlineStyles(stage);
-
-  await new Promise(r => setTimeout(r, 60));
-
-  const W = stage.scrollWidth;
-  const H = stage.scrollHeight;
-
-  try {
-    const canvas = await html2canvas(stage, {
-      backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      allowTaint: true,
-      foreignObjectRendering: false,
-      width:  W,
-      height: H,
-      scrollX: 0,
-      scrollY: 0,
-    });
-
-    canvas.toBlob(blob => {
-      if (!blob) { alert('Export produced empty image. Try zooming out first.'); return; }
-      const stamp      = new Date().toISOString().slice(0,10).replace(/-/g,'');
-      const filterPart = Object.values(S.activeFilters).filter(Boolean)
-                          .map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
-      const fname = filterPart ? `orgchart_${filterPart}_${stamp}.png` : `orgchart_${stamp}.png`;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fname; a.click();
-      URL.revokeObjectURL(url);
-    }, 'image/png');
-
-  } catch(err) {
-    alert('Export failed: ' + err.message);
-  } finally {
-    stage.remove();
-    overlay.remove();
-    applyZoom(savedZoom);
-  }
-}
-
-// ════════════════════════════════════════════════
-// REASSIGN MANAGER
-// ════════════════════════════════════════════════
-function openReassignModal(e, nodeId) {
-  e.stopPropagation();
-  const node = S.viewData.find(n => n.id === nodeId);
-  if (!node) return;
-  S.reassignTarget = node;
-  S.reassignPick   = null;
-
-  // Subject label
-  document.getElementById('reassign-subject').innerHTML =
-    `Moving <strong>${esc(node.name)}</strong>`;
-  document.getElementById('reassign-note').textContent = 'Select a new manager above';
-  document.getElementById('reassign-confirm-btn').disabled = true;
-
-  // Populate list — all employees except the node itself and its descendants
-  const descendants = getAllDescendants(nodeId);
-  descendants.add(nodeId);
-
-  const candidates = S.viewData.filter(n => !descendants.has(n.id));
-
-  renderReassignList(candidates, node.manager);
-  document.getElementById('reassign-search').value = '';
-  document.getElementById('reassign-modal').classList.remove('hidden');
-  document.getElementById('reassign-search').focus();
-}
-
-function getAllDescendants(id) {
-  const result = new Set();
-  const queue  = [...(S.childMap[id] || [])];
-  while (queue.length) {
-    const n = queue.shift();
-    result.add(n.id);
-    (S.childMap[n.id] || []).forEach(k => queue.push(k));
-  }
-  return result;
-}
-
-function renderReassignList(candidates, currentManagerId) {
-  const list = document.getElementById('reassign-list');
-
-  // "Make root (no manager)" option at top
-  const rootSel = S.reassignPick === '__ROOT__';
-  let html = `<div class="modal-emp-row make-root${rootSel?' selected':''}"
-    onclick="pickReassignTarget('__ROOT__',this)">
-    <div class="modal-emp-avatar" style="background:#fef9c3;color:#d97706;font-size:0.9rem">🏠</div>
-    <div>
-      <div class="modal-emp-name">Make Root (no manager)</div>
-      <div class="modal-emp-sub">Move to top level of chart</div>
-    </div>
-  </div>`;
-
-  html += candidates.map(n => {
-    const isCur  = n.id === currentManagerId;
-    const isSel  = S.reassignPick && S.reassignPick.id === n.id;
-    const vacant = isVacant(n);
-    const initials = n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
-    const sub    = getSlotVal(n,'subtitle') || n.id;
-    return `<div class="modal-emp-row${isSel?' selected':''}"
-      onclick="pickReassignTarget('${esc(n.id)}',this)">
-      <div class="modal-emp-avatar${vacant?' vacant-av':''}">${initials}</div>
-      <div style="flex:1;min-width:0">
-        <div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div>
-        <div class="modal-emp-sub">${esc(sub)}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  list.innerHTML = html;
-}
-
-function filterReassignList() {
-  const q = document.getElementById('reassign-search').value.trim().toLowerCase();
-  const node = S.reassignTarget;
-  if (!node) return;
-  const descendants = getAllDescendants(node.id);
-  descendants.add(node.id);
-  const all = S.viewData.filter(n => !descendants.has(n.id));
-  const filtered = q ? all.filter(n =>
-    n.name.toLowerCase().includes(q) || n.id.toLowerCase().includes(q)
-  ) : all;
-  renderReassignList(filtered, node.manager);
-}
-
-function pickReassignTarget(id, rowEl) {
-  // Highlight selection
-  document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r => r.classList.remove('selected'));
-  rowEl.classList.add('selected');
-
-  if (id === '__ROOT__') {
-    S.reassignPick = '__ROOT__';
-    document.getElementById('reassign-note').textContent = '→ Will become a root node';
-  } else {
-    S.reassignPick = S.viewData.find(n => n.id === id) || null;
-    document.getElementById('reassign-note').textContent =
-      S.reassignPick ? `→ New manager: ${S.reassignPick.name}` : '';
-  }
-  document.getElementById('reassign-confirm-btn').disabled = !S.reassignPick && S.reassignPick !== '__ROOT__';
-  document.getElementById('reassign-confirm-btn').disabled = false;
-}
-
-function confirmReassign() {
-  if (!S.reassignTarget) return;
-  const empId  = S.reassignTarget.id;
-  const newMgr = S.reassignPick === '__ROOT__' ? '' : (S.reassignPick ? S.reassignPick.id : null);
-  if (newMgr === null) return;
-
-  S.managerOverrides[empId] = newMgr;
-  closeReassignModal();
-
-  // Rebuild and re-render
-  buildViewData();
-  renderChart();
-}
-
-function closeReassignModal() {
-  document.getElementById('reassign-modal').classList.add('hidden');
-  S.reassignTarget = null;
-  S.reassignPick   = null;
-}
-
-function removeCurrentNode() {
-  if (!S.reassignTarget) return;
-  const { id, name } = S.reassignTarget;
-  if (!confirm(`Remove "${name}" from the chart?\n\nTheir direct reports will move up to the next manager. You can undo this by refreshing the page.`)) return;
-  S.removedIds.add(id);
-  // Also clear any override for this person
-  delete S.managerOverrides[id];
-  closeReassignModal();
-  buildViewData();
-  renderChart();
-}
-
-// ════════════════════════════════════════════════
-// PPTX EXPORT
-// ════════════════════════════════════════════════
-async function exportPPTX() {
-  if (typeof JSZip === 'undefined') {
-    alert('ZIP library failed to load. Please refresh the page and try again.');
-    return;
-  }
-
-  const overlay = document.createElement('div');
-  overlay.className = 'export-overlay';
-  overlay.innerHTML =
-    '<div class="export-spinner"></div>' +
-    '<div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Building PowerPoint…</div>' +
-    '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">Rendering chart, then packaging slides</div>';
-  document.body.appendChild(overlay);
-
-  const savedZoom = S.zoom;
-  applyZoom(1);
-  await new Promise(r => setTimeout(r, 120));
-
+async function buildRenderStage() {
   const stage = document.createElement('div');
   stage.style.cssText = [
     'position:fixed','top:0','left:-99999px',
@@ -2135,56 +1997,228 @@ async function exportPPTX() {
   await new Promise(r => setTimeout(r, 80));
   inlineStyles(stage);
   await new Promise(r => setTimeout(r, 60));
+  return stage;
+}
+
+function inlineStyles(root) {
+  const PROPS = [
+    'color','backgroundColor','borderTopColor','borderBottomColor',
+    'borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle',
+    'borderRadius','fontFamily','fontSize','fontWeight','fontStyle',
+    'lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight',
+    'margin','display','flexDirection','justifyContent','alignItems','gap',
+    'whiteSpace','overflow','textOverflow','opacity','boxShadow','backgroundImage',
+  ];
+  root.querySelectorAll('*').forEach(el => {
+    const cs = window.getComputedStyle(el);
+    PROPS.forEach(p => { el.style[p] = cs[p]; });
+    el.style.webkitLineClamp = 'unset';
+    el.style.overflow        = 'visible';
+    el.classList.remove('collapsed');
+  });
+}
+
+async function renderToCanvas(stage) {
+  return html2canvas(stage, {
+    backgroundColor: '#ffffff', scale: 2,
+    useCORS: true, logging: false, allowTaint: true,
+    foreignObjectRendering: false,
+    width: stage.scrollWidth, height: stage.scrollHeight,
+    scrollX: 0, scrollY: 0,
+  });
+}
+
+// ════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════
+function csvEsc(v) { return '"' + String(v??'').replace(/"/g,'""') + '"'; }
+function downloadCSV() {
+  const cols = [S.colMap.empId, S.colMap.empName, S.colMap.managerId,
+    ...S.columns.filter(c => c!==S.colMap.empId && c!==S.colMap.empName && c!==S.colMap.managerId)
+  ].filter(Boolean);
+  let csv = cols.map(csvEsc).join(',') + '\n';
+  S.viewData.forEach(n => { csv += cols.map(c=>csvEsc(n[c]||'')).join(',') + '\n'; });
+  const url = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  const a = document.createElement('a'); a.href=url; a.download='orgchart_export.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPNG() {
+  const overlay = makeOverlay('Rendering org chart…', 'Large charts may take a moment');
+  document.body.appendChild(overlay);
+  const savedZoom = S.zoom;
+  applyZoom(1);
+  await new Promise(r => setTimeout(r, 120));
+  let stage;
+  try {
+    stage = await buildRenderStage();
+    const canvas = await renderToCanvas(stage);
+    canvas.toBlob(blob => {
+      if (!blob) { alert('Export produced empty image.'); return; }
+      const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      const filterPart = Object.values(S.activeFilters).filter(Boolean).map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+      const fname = filterPart ? `orgchart_${filterPart}_${stamp}.png` : `orgchart_${stamp}.png`;
+      triggerDownload(blob, fname);
+    }, 'image/png');
+  } catch(err) {
+    alert('PNG export failed: ' + err.message);
+  } finally {
+    if (stage) stage.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
+  }
+}
+
+// Internal version that reuses an existing stage+canvas (for exportAll)
+async function _exportPNGFromCanvas(canvas) {
+  const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  return new Promise(res => {
+    canvas.toBlob(blob => {
+      if (blob) triggerDownload(blob, `orgchart_${stamp}.png`);
+      res(blob);
+    }, 'image/png');
+  });
+}
+
+function makeOverlay(title, sub) {
+  const o = document.createElement('div');
+  o.className = 'export-overlay';
+  o.innerHTML = `<div class="export-spinner"></div>
+    <div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">${title}</div>
+    <div id="_ov_sub" style="font-size:0.75rem;color:#94a3b8;margin-top:4px">${sub}</div>`;
+  return o;
+}
+
+function triggerDownload(blob, fname) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=fname; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════════
+// EXPORT ALL (CSV + PNG + PPTX in one click)
+// ════════════════════════════════════════════════
+async function exportAll() {
+  const overlay = document.createElement('div');
+  overlay.className = 'export-overlay';
+  overlay.innerHTML = `
+    <div class="export-spinner"></div>
+    <div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Exporting everything…</div>
+    <div class="export-steps">
+      <div class="export-step active" id="_ea_s1">📄 Step 1/3 — CSV</div>
+      <div class="export-step" id="_ea_s2">🖼️ Step 2/3 — PNG</div>
+      <div class="export-step" id="_ea_s3">📊 Step 3/3 — PowerPoint</div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const setStep = (n) => {
+    [1,2,3].forEach(i => {
+      const el = document.getElementById(`_ea_s${i}`);
+      if (!el) return;
+      el.className = 'export-step' + (i < n ? ' done' : i === n ? ' active' : '');
+    });
+  };
+
+  const savedZoom = S.zoom;
+  applyZoom(1);
+  await new Promise(r => setTimeout(r, 120));
+  let stage = null;
 
   try {
-    const canvas = await html2canvas(stage, {
-      backgroundColor: '#ffffff', scale: 2,
-      useCORS: true, logging: false, allowTaint: true,
-      foreignObjectRendering: false,
-      width: stage.scrollWidth, height: stage.scrollHeight,
-      scrollX: 0, scrollY: 0,
-    });
+    // ── Step 1: CSV ──
+    setStep(1);
+    downloadCSV();
+    await new Promise(r => setTimeout(r, 400));
 
-    // Base64 PNG of the chart (strip data URL prefix)
+    // ── Step 2: PNG ──
+    setStep(2);
+    stage = await buildRenderStage();
+    const canvas = await renderToCanvas(stage);
+    await _exportPNGFromCanvas(canvas);
+    await new Promise(r => setTimeout(r, 300));
+
+    // ── Step 3: PPTX — reuse the canvas already rendered ──
+    setStep(3);
     const imgB64 = canvas.toDataURL('image/png').split(',')[1];
-    const cW = canvas.width, cH = canvas.height;
+    await _buildAndDownloadPPTX(imgB64, canvas.width, canvas.height);
 
-    // ── EMU constants (1 inch = 914400 EMU) ──
-    const SW = 12192000, SH = 6858000;   // slide: 13.33" × 7.5"
-    const HBAR = 457200;                  // header bar height: 0.5"
-    const PAD  = 457200;                  // 0.5" padding
+    // Done!
+    [1,2,3].forEach(i => {
+      const el = document.getElementById(`_ea_s${i}`);
+      if (el) el.className = 'export-step done';
+    });
+    overlay.querySelector('div[style*="0f172a"]').textContent = '✅ All exports complete!';
+    await new Promise(r => setTimeout(r, 1000));
 
-    // Scale image to fit slide below header
-    const aspect = cW / cH;
-    const avW = SW - PAD * 2, avH = SH - HBAR - PAD * 2;
-    let iW, iH;
-    if (aspect > avW / avH) { iW = avW; iH = Math.round(avW / aspect); }
-    else                     { iH = avH; iW = Math.round(avH * aspect); }
-    const iX = Math.round((SW - iW) / 2);
-    const iY = HBAR + Math.round((SH - HBAR - iH) / 2);
+  } catch(err) {
+    alert('Export All failed at some step: ' + err.message);
+    console.error(err);
+  } finally {
+    if (stage) stage.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
+  }
+}
 
-    const ac  = S.cardAccent.replace('#','');  // accent hex without #
-    const stamp = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
-    const activeF = Object.entries(S.activeFilters).filter(([,v])=>v);
-    const filterLine = activeF.map(([k,v])=>`${k}: ${v}`).join('  |  ') || 'All Employees';
-    const roots    = S.viewData.filter(n => !n.manager).length;
-    const vacants  = S.vacantCol && S.vacantVal
-      ? S.viewData.filter(n => n[S.vacantCol] === S.vacantVal).length : 0;
+// ════════════════════════════════════════════════
+// PPTX EXPORT
+// ════════════════════════════════════════════════
+async function exportPPTX() {
+  if (typeof JSZip === 'undefined') { alert('ZIP library failed to load. Please refresh.'); return; }
+  const overlay = makeOverlay('Building PowerPoint…', 'Rendering chart then packaging slides');
+  document.body.appendChild(overlay);
+  const savedZoom = S.zoom;
+  applyZoom(1);
+  await new Promise(r => setTimeout(r, 120));
+  let stage;
+  try {
+    stage = await buildRenderStage();
+    const canvas = await renderToCanvas(stage);
+    const imgB64 = canvas.toDataURL('image/png').split(',')[1];
+    await _buildAndDownloadPPTX(imgB64, canvas.width, canvas.height);
+  } catch(err) {
+    alert('PPTX export failed: ' + err.message);
+    console.error(err);
+  } finally {
+    if (stage) stage.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
+  }
+}
 
-    // ── XML helpers ──
-    function xe(s) {
-      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-    }
-    function rect(id, x, y, cx, cy, fill) {
-      return `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
+async function _buildAndDownloadPPTX(imgB64, cW, cH) {
+  const ac    = S.cardAccent.replace('#','');
+  const stamp = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const activeF = Object.entries(S.activeFilters).filter(([,v])=>v);
+  const filterLine = activeF.map(([k,v])=>`${k}: ${v}`).join('  |  ') || 'All Employees';
+  const roots   = S.viewData.filter(n => !n.manager).length;
+  const vacants = S.vacantCol && S.vacantVal
+    ? S.viewData.filter(n => n[S.vacantCol] === S.vacantVal).length : 0;
+
+  const SW = 12192000, SH = 6858000;
+  const HBAR = 457200, PAD = 457200;
+
+  const aspect = cW / cH;
+  const avW = SW - PAD * 2, avH = SH - HBAR - PAD * 2;
+  let iW, iH;
+  if (aspect > avW / avH) { iW = avW; iH = Math.round(avW / aspect); }
+  else                     { iH = avH; iW = Math.round(avH * aspect); }
+  const iX = Math.round((SW - iW) / 2);
+  const iY = HBAR + Math.round((SH - HBAR - iH) / 2);
+
+  function xe(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+  }
+  function rect(id, x, y, cx, cy, fill) {
+    return `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>
 <p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
 <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
 <a:solidFill><a:srgbClr val="${fill}"/></a:solidFill></p:spPr>
 <p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;
-    }
-    function txt(id, x, y, cx, cy, text, sz, bold, color, algn='ctr') {
-      return `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+  }
+  function txt(id, x, y, cx, cy, text, sz, bold, color, algn='ctr') {
+    return `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
 <p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>
 <a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>
 <p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/>
@@ -2192,9 +2226,9 @@ async function exportPPTX() {
 <a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0">
 <a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr>
 <a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;
-    }
-    function slideWrap(bg, content, rels) {
-      return [`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  }
+  function slideWrap(bg, content, rels) {
+    return [`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
   xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
@@ -2205,65 +2239,65 @@ async function exportPPTX() {
 <a:chOff x="0" y="0"/><a:chExt cx="${SW}" cy="${SH}"/></a:xfrm></p:grpSpPr>
 ${content}
 </p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`, rels];
-    }
+  }
 
-    // ── Slide 1: Title ──
-    const [s1xml, s1rels] = slideWrap('F8FAFC',
-      rect(2,'0','0',SW,HBAR,ac) +
-      txt(3, PAD, Math.round(SH*0.28), SW-PAD*2, 1200000, 'Org Chart',     5400, true,  '0F172A') +
-      txt(4, PAD, Math.round(SH*0.28)+1300000, SW-PAD*2, 500000, `Generated: ${stamp}`, 1800, false, '64748B') +
-      txt(5, PAD, Math.round(SH*0.28)+1900000, SW-PAD*2, 450000, filterLine, 1600, true,  ac),
-      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
-    );
+  // Slide 1: Title
+  const [s1xml, s1rels] = slideWrap('F8FAFC',
+    rect(2,'0','0',SW,HBAR,ac) +
+    txt(3, PAD, Math.round(SH*0.28), SW-PAD*2, 1200000, 'Org Chart',     5400, true,  '0F172A') +
+    txt(4, PAD, Math.round(SH*0.28)+1300000, SW-PAD*2, 500000, `Generated: ${stamp}`, 1800, false, '64748B') +
+    txt(5, PAD, Math.round(SH*0.28)+1900000, SW-PAD*2, 450000, filterLine, 1600, true,  ac),
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
+  );
 
-    // ── Slide 2: Org Chart Image ──
-    const picXml = `<p:pic>
+  // Slide 2: Chart image
+  const picXml = `<p:pic>
 <p:nvPicPr><p:cNvPr id="10" name="OrgChart"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>
 <p:blipFill><a:blip r:embed="rId2"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>
 <p:spPr><a:xfrm><a:off x="${iX}" y="${iY}"/><a:ext cx="${iW}" cy="${iH}"/></a:xfrm>
 <a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
-    const [s2xml, ] = slideWrap('F1F5F9',
-      rect(2,'0','0',SW,HBAR,ac) +
-      txt(3, PAD, 0, SW*0.4, HBAR, 'Org Chart', 1600, true, 'FFFFFF', 'l') +
-      txt(4, SW-2400000, 0, 2200000, HBAR, `${S.viewData.length} employees`, 1400, false, 'FFFFFF', 'r') +
-      picXml,
-      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
+  const [s2xml, ] = slideWrap('F1F5F9',
+    rect(2,'0','0',SW,HBAR,ac) +
+    txt(3, PAD, 0, SW*0.4, HBAR, 'Org Chart', 1600, true, 'FFFFFF', 'l') +
+    txt(4, SW-2400000, 0, 2200000, HBAR, `${S.viewData.length} employees`, 1400, false, 'FFFFFF', 'r') +
+    picXml,
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
 <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`
-    );
+  );
 
-    // ── Slide 3: Stats ──
-    const statItems = [
-      { label:'Total Employees', val: S.viewData.length },
-      { label:'Root Nodes',      val: roots },
-      { label:'Vacant Positions',val: vacants },
-      { label:'Reassignments',   val: Object.keys(S.managerOverrides).length },
-    ];
-    const boxW = Math.round(SW * 0.18), boxH = Math.round(SH * 0.22);
-    const totalBW = boxW * 4 + Math.round(SW * 0.025) * 3;
-    const bStartX = Math.round((SW - totalBW) / 2);
-    const bY = Math.round(SH * 0.32);
-    let statContent = rect(2,'0','0',SW,HBAR,ac) +
-      txt(3, PAD, 0, SW*0.5, HBAR, 'Summary', 1600, true, 'FFFFFF', 'l');
-    statItems.forEach((st,i) => {
-      const bx = bStartX + i * (boxW + Math.round(SW * 0.025));
-      statContent += rect(10+i*2, bx, bY, boxW, boxH, 'F8FAFC');
-      statContent += txt(11+i*2, bx, bY + Math.round(boxH*0.1), boxW, Math.round(boxH*0.55),
-        String(st.val), 3600, true, ac);
-      statContent += txt(20+i, bx, bY + Math.round(boxH*0.65), boxW, Math.round(boxH*0.3),
-        st.label, 1200, false, '64748B');
-    });
-    if (activeF.length) {
-      statContent += txt(30, PAD, Math.round(SH*0.72), SW-PAD*2, 380000,
-        'Filters: ' + filterLine, 1200, false, '94A3B8');
-    }
-    const [s3xml, ] = slideWrap('FFFFFF', statContent,
-      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
-    );
+  // Slide 3: Stats
+  const depthLine = S.maxDepth > 0 ? `Depth filter: ${S.maxDepth} levels` : 'All levels shown';
+  const statItems = [
+    { label:'Total Employees', val: S.viewData.length },
+    { label:'Root Nodes',      val: roots },
+    { label:'Vacant Positions',val: vacants },
+    { label:'Depth Shown',     val: S.maxDepth > 0 ? `${S.maxDepth} lvls` : 'All' },
+  ];
+  const boxW = Math.round(SW * 0.18), boxH = Math.round(SH * 0.22);
+  const totalBW = boxW * 4 + Math.round(SW * 0.025) * 3;
+  const bStartX = Math.round((SW - totalBW) / 2);
+  const bY = Math.round(SH * 0.32);
+  let statContent = rect(2,'0','0',SW,HBAR,ac) +
+    txt(3, PAD, 0, SW*0.5, HBAR, 'Summary', 1600, true, 'FFFFFF', 'l');
+  statItems.forEach((st,i) => {
+    const bx = bStartX + i * (boxW + Math.round(SW * 0.025));
+    statContent += rect(10+i*2, bx, bY, boxW, boxH, 'F8FAFC');
+    statContent += txt(11+i*2, bx, bY + Math.round(boxH*0.1), boxW, Math.round(boxH*0.55),
+      String(st.val), 3600, true, ac);
+    statContent += txt(20+i, bx, bY + Math.round(boxH*0.65), boxW, Math.round(boxH*0.3),
+      st.label, 1200, false, '64748B');
+  });
+  if (activeF.length || S.maxDepth > 0) {
+    const infoLine = [filterLine !== 'All Employees' ? 'Filters: '+filterLine : '', S.maxDepth > 0 ? depthLine : ''].filter(Boolean).join('  ·  ');
+    statContent += txt(30, PAD, Math.round(SH*0.72), SW-PAD*2, 380000, infoLine, 1200, false, '94A3B8');
+  }
+  const [s3xml, ] = slideWrap('FFFFFF', statContent,
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
+  );
 
-    // ── Assemble ZIP ──
-    const zip = new JSZip();
-
-    zip.file('[Content_Types].xml',
+  // Assemble ZIP
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
 <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
@@ -2277,14 +2311,12 @@ ${content}
 <Override PartName="/ppt/slides/slide3.xml"         ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>
 <Override PartName="/ppt/theme/theme1.xml"          ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>
 </Types>`);
-
-    zip.file('_rels/.rels',
+  zip.file('_rels/.rels',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/>
 </Relationships>`);
-
-    zip.file('ppt/presentation.xml',
+  zip.file('ppt/presentation.xml',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -2298,8 +2330,7 @@ ${content}
 <p:sldSz cx="${SW}" cy="${SH}" type="screen16x9"/>
 <p:notesSz cx="6858000" cy="9144000"/>
 </p:presentation>`);
-
-    zip.file('ppt/_rels/presentation.xml.rels',
+  zip.file('ppt/_rels/presentation.xml.rels',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/>
@@ -2307,8 +2338,7 @@ ${content}
 <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide2.xml"/>
 <Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide3.xml"/>
 </Relationships>`);
-
-    zip.file('ppt/theme/theme1.xml',
+  zip.file('ppt/theme/theme1.xml',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="OrgTheme">
 <a:themeElements>
@@ -2347,8 +2377,7 @@ ${content}
 </a:bgFillStyleLst>
 </a:fmtScheme>
 </a:themeElements></a:theme>`);
-
-    zip.file('ppt/slideMasters/slideMaster1.xml',
+  zip.file('ppt/slideMasters/slideMaster1.xml',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:sldMaster xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -2365,15 +2394,13 @@ ${content}
 <p:titleStyle><a:lstStyle><a:defPPr><a:defRPr lang="en-US"/></a:defPPr></a:lstStyle></p:titleStyle>
 <p:bodyStyle><a:lstStyle/></p:bodyStyle><p:otherStyle><a:lstStyle/></p:otherStyle>
 </p:txStyles></p:sldMaster>`);
-
-    zip.file('ppt/slideMasters/_rels/slideMaster1.xml.rels',
+  zip.file('ppt/slideMasters/_rels/slideMaster1.xml.rels',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
 <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/>
 </Relationships>`);
-
-    zip.file('ppt/slideLayouts/slideLayout1.xml',
+  zip.file('ppt/slideLayouts/slideLayout1.xml',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:sldLayout xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
   xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -2383,57 +2410,143 @@ ${content}
 <p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/>
 <a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>
 </p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`);
-
-    zip.file('ppt/slideLayouts/_rels/slideLayout1.xml.rels',
+  zip.file('ppt/slideLayouts/_rels/slideLayout1.xml.rels',
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/>
 </Relationships>`);
 
-    // Slides
-    const mkSlideRels = r => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  const mkSlideRels = r => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${r}</Relationships>`;
 
-    zip.file('ppt/slides/slide1.xml', s1xml);
-    zip.file('ppt/slides/_rels/slide1.xml.rels', mkSlideRels(s1rels));
-    zip.file('ppt/slides/slide2.xml', s2xml);
-    zip.file('ppt/slides/_rels/slide2.xml.rels', mkSlideRels(
-      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
+  zip.file('ppt/slides/slide1.xml', s1xml);
+  zip.file('ppt/slides/_rels/slide1.xml.rels', mkSlideRels(s1rels));
+  zip.file('ppt/slides/slide2.xml', s2xml);
+  zip.file('ppt/slides/_rels/slide2.xml.rels', mkSlideRels(
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
 <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`
-    ));
-    zip.file('ppt/slides/slide3.xml', s3xml);
-    zip.file('ppt/slides/_rels/slide3.xml.rels', mkSlideRels(
-      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
-    ));
+  ));
+  zip.file('ppt/slides/slide3.xml', s3xml);
+  zip.file('ppt/slides/_rels/slide3.xml.rels', mkSlideRels(
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`
+  ));
+  zip.file('ppt/media/image1.png', imgB64, { base64: true });
 
-    // Chart image
-    zip.file('ppt/media/image1.png', imgB64, { base64: true });
-
-    // Generate and trigger download
-    const blob = await zip.generateAsync({
-      type: 'blob',
-      mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      compression: 'DEFLATE',
-    });
-
-    const filterPart = Object.values(S.activeFilters).filter(Boolean)
-                        .map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
-    const datePart = new Date().toISOString().slice(0,10).replace(/-/g,'');
-    const fname = (filterPart ? `orgchart_${filterPart}_${datePart}` : `orgchart_${datePart}`) + '.pptx';
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = fname; a.click();
-    URL.revokeObjectURL(url);
-
-  } catch (err) {
-    alert('PPTX export failed: ' + err.message);
-    console.error(err);
-  } finally {
-    stage.remove();
-    overlay.remove();
-    applyZoom(savedZoom);
-  }
+  const blob = await zip.generateAsync({
+    type: 'blob',
+    mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    compression: 'DEFLATE',
+  });
+  const filterPart = Object.values(S.activeFilters).filter(Boolean).map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+  const datePart = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const fname = (filterPart ? `orgchart_${filterPart}_${datePart}` : `orgchart_${datePart}`) + '.pptx';
+  triggerDownload(blob, fname);
 }
+
+// ════════════════════════════════════════════════
+// REASSIGN MANAGER
+// ════════════════════════════════════════════════
+function openReassignModal(e, nodeId) {
+  e.stopPropagation();
+  const node = S.viewData.find(n => n.id === nodeId);
+  if (!node) return;
+  S.reassignTarget = node;
+  S.reassignPick   = null;
+  document.getElementById('reassign-subject').innerHTML = `Moving <strong>${esc(node.name)}</strong>`;
+  document.getElementById('reassign-note').textContent = 'Select a new manager above';
+  document.getElementById('reassign-confirm-btn').disabled = true;
+  const descendants = getAllDescendants(nodeId);
+  descendants.add(nodeId);
+  const candidates = S.viewData.filter(n => !descendants.has(n.id));
+  renderReassignList(candidates, node.manager);
+  document.getElementById('reassign-search').value = '';
+  document.getElementById('reassign-modal').classList.remove('hidden');
+  document.getElementById('reassign-search').focus();
+}
+function getAllDescendants(id) {
+  const result = new Set();
+  const queue  = [...(S.childMap[id] || [])];
+  while (queue.length) {
+    const n = queue.shift();
+    result.add(n.id);
+    (S.childMap[n.id] || []).forEach(k => queue.push(k));
+  }
+  return result;
+}
+function renderReassignList(candidates, currentManagerId) {
+  const list = document.getElementById('reassign-list');
+  const rootSel = S.reassignPick === '__ROOT__';
+  let html = `<div class="modal-emp-row make-root${rootSel?' selected':''}" onclick="pickReassignTarget('__ROOT__',this)">
+    <div class="modal-emp-avatar" style="background:#fef9c3;color:#d97706;font-size:0.9rem">🏠</div>
+    <div><div class="modal-emp-name">Make Root (no manager)</div><div class="modal-emp-sub">Move to top level of chart</div></div>
+  </div>`;
+  html += candidates.map(n => {
+    const isCur = n.id === currentManagerId;
+    const isSel = S.reassignPick && S.reassignPick.id === n.id;
+    const vacant = isVacant(n);
+    const initials = n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    const sub = getSlotVal(n,'subtitle') || n.id;
+    return `<div class="modal-emp-row${isSel?' selected':''}" onclick="pickReassignTarget('${esc(n.id)}',this)">
+      <div class="modal-emp-avatar${vacant?' vacant-av':''}">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div>
+        <div class="modal-emp-sub">${esc(sub)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  list.innerHTML = html;
+}
+function filterReassignList() {
+  const q = document.getElementById('reassign-search').value.trim().toLowerCase();
+  const node = S.reassignTarget;
+  if (!node) return;
+  const descendants = getAllDescendants(node.id);
+  descendants.add(node.id);
+  const all = S.viewData.filter(n => !descendants.has(n.id));
+  const filtered = q ? all.filter(n => n.name.toLowerCase().includes(q) || n.id.toLowerCase().includes(q)) : all;
+  renderReassignList(filtered, node.manager);
+}
+function pickReassignTarget(id, rowEl) {
+  document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r => r.classList.remove('selected'));
+  rowEl.classList.add('selected');
+  if (id === '__ROOT__') {
+    S.reassignPick = '__ROOT__';
+    document.getElementById('reassign-note').textContent = '→ Will become a root node';
+  } else {
+    S.reassignPick = S.viewData.find(n => n.id === id) || null;
+    document.getElementById('reassign-note').textContent = S.reassignPick ? `→ New manager: ${S.reassignPick.name}` : '';
+  }
+  document.getElementById('reassign-confirm-btn').disabled = false;
+}
+function confirmReassign() {
+  if (!S.reassignTarget) return;
+  const empId  = S.reassignTarget.id;
+  const newMgr = S.reassignPick === '__ROOT__' ? '' : (S.reassignPick ? S.reassignPick.id : null);
+  if (newMgr === null) return;
+  S.managerOverrides[empId] = newMgr;
+  closeReassignModal();
+  buildViewData();
+  renderChart();
+}
+function closeReassignModal() {
+  document.getElementById('reassign-modal').classList.add('hidden');
+  S.reassignTarget = null;
+  S.reassignPick   = null;
+}
+function removeCurrentNode() {
+  if (!S.reassignTarget) return;
+  const { id, name } = S.reassignTarget;
+  if (!confirm(`Remove "${name}" from the chart?\n\nTheir direct reports will move up to the next manager.`)) return;
+  S.removedIds.add(id);
+  delete S.managerOverrides[id];
+  closeReassignModal();
+  buildViewData();
+  renderChart();
+}
+
+// ════════════════════════════════════════════════
+// UTILITY
+// ════════════════════════════════════════════════
 function esc(s) {
   return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -2445,7 +2558,6 @@ function esc(s) {
 document.addEventListener('DOMContentLoaded', () => {
   const zone  = document.getElementById('upload-dropzone');
   const input = document.getElementById('file-input');
-
   zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop',      e => {
