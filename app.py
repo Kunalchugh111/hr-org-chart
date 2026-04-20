@@ -1234,9 +1234,10 @@ function buildViewData() {
   }).filter(n => n.id);
 
   const validIds = new Set(nodes.map(n => n.id));
-  nodes.forEach(n => { if (!validIds.has(n.manager)) n.manager = ''; });
+  // Clear self-references and dangling manager pointers
+  nodes.forEach(n => { if (!validIds.has(n.manager) || n.manager === n.id) n.manager = ''; });
 
-  // Apply active filters: keep matching + all their ancestors
+  // Apply active filters: keep matching + all their ancestors (cycle-safe)
   const hasFilter = Object.values(S.activeFilters).some(v => v);
   if (hasFilter) {
     const matching = new Set(
@@ -1247,12 +1248,10 @@ function buildViewData() {
     const keep = new Set(matching);
     matching.forEach(id => {
       let cur = byId[id];
-      const seen = new Set([id]); // FIX: Cycle prevention set
-      
-      // FIX: Check if we've seen this manager already to prevent infinite loops
-      while (cur && cur.manager && byId[cur.manager] && !seen.has(cur.manager)) {
+      const visited = new Set();
+      while (cur && cur.manager && byId[cur.manager] && !visited.has(cur.id)) {
+        visited.add(cur.id);
         keep.add(cur.manager);
-        seen.add(cur.manager);
         cur = byId[cur.manager];
       }
     });
@@ -1260,17 +1259,29 @@ function buildViewData() {
   }
 
   S.viewData = nodes;
+
+  // Pre-build O(1) children lookup map — critical for render performance
+  S.childMap = {};
+  nodes.forEach(n => {
+    if (!S.childMap[n.manager]) S.childMap[n.manager] = [];
+    S.childMap[n.manager].push(n);
+  });
+
+  // Pre-compute descendant counts in one DFS pass
+  S.descCount = {};
+  function calcDesc(id) {
+    if (S.descCount[id] !== undefined) return S.descCount[id];
+    const kids = S.childMap[id] || [];
+    S.descCount[id] = kids.reduce((s, k) => s + 1 + calcDesc(k.id), 0);
+    return S.descCount[id];
+  }
+  nodes.filter(n => !n.manager).forEach(r => calcDesc(r.id));
 }
 
-function childrenOf(id) { return S.viewData.filter(n => n.manager === id); }
+// O(1) children lookup using pre-built map
+function childrenOf(id) { return S.childMap[id] || []; }
 
-function countDescendants(id, memo) {
-  if (!memo) memo = {};
-  if (memo[id] !== undefined) return memo[id];
-  const kids = childrenOf(id);
-  memo[id] = kids.reduce((s, k) => s + 1 + countDescendants(k.id, memo), 0);
-  return memo[id];
-}
+function countDescendants(id) { return S.descCount[id] || 0; }
 
 // ════════════════════════════════════════════════
 // FILTER BAR
@@ -1307,16 +1318,27 @@ function buildFilterBar() {
 function applyFilter(col, val) {
   if (val) S.activeFilters[col] = val;
   else delete S.activeFilters[col];
-  buildViewData();
-  renderChart();
-  buildFilterBar();
+
+  // Show loading badge so user knows the page is working
+  const stat = document.getElementById('stat-filtered');
+  if (stat) { stat.style.display = 'flex'; stat.textContent = '⏳ Filtering…'; }
+
+  // Yield to browser for one frame so the UI updates, then do the heavy work
+  requestAnimationFrame(() => setTimeout(() => {
+    buildViewData();
+    renderChart();
+    buildFilterBar();
+    if (stat) stat.textContent = '⚠️ Filtered view';
+  }, 0));
 }
 
 function clearAllFilters() {
   S.activeFilters = {};
-  buildViewData();
-  renderChart();
-  buildFilterBar();
+  requestAnimationFrame(() => setTimeout(() => {
+    buildViewData();
+    renderChart();
+    buildFilterBar();
+  }, 0));
 }
 
 // ════════════════════════════════════════════════
@@ -1561,46 +1583,105 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
 }
 
+// Inline computed styles so html2canvas can see real colors (it can't resolve CSS variables)
+function inlineStyles(root) {
+  const PROPS = [
+    'color','backgroundColor','borderTopColor','borderBottomColor',
+    'borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle',
+    'borderRadius','fontFamily','fontSize','fontWeight','fontStyle',
+    'lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight',
+    'margin','display','flexDirection','justifyContent','alignItems','gap',
+    'whiteSpace','overflow','textOverflow','opacity','boxShadow',
+    'backgroundImage',
+  ];
+  root.querySelectorAll('*').forEach(el => {
+    const cs = window.getComputedStyle(el);
+    PROPS.forEach(p => { el.style[p] = cs[p]; });
+    // Remove clamp so text fully shows
+    el.style.webkitLineClamp = 'unset';
+    el.style.overflow        = 'visible';
+    // Remove collapsed state
+    el.classList.remove('collapsed');
+  });
+}
+
 async function exportPNG() {
   const overlay = document.createElement('div');
   overlay.className = 'export-overlay';
-  overlay.innerHTML = '<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;margin-top:10px">Rendering org chart…</div><div style="font-size:0.75rem;color:var(--text3);margin-top:4px">Large charts may take a moment</div>';
+  overlay.innerHTML =
+    '<div class="export-spinner"></div>' +
+    '<div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Rendering org chart…</div>' +
+    '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">Large charts may take a moment</div>';
   document.body.appendChild(overlay);
 
-  const savedZoom = S.zoom; applyZoom(1);
-  await new Promise(r=>setTimeout(r,100));
+  const savedZoom = S.zoom;
+  applyZoom(1);
+  await new Promise(r => setTimeout(r, 120));
 
+  // Use position:fixed off-screen so the element IS rendered (visibility:hidden breaks html2canvas)
   const stage = document.createElement('div');
-  // FIX: Removed "visibility:hidden;" and added "z-index:-1;"
-  stage.style.cssText = 'position:absolute;top:0;left:0;z-index:-1;pointer-events:none;background:#f8fafc;padding:48px;display:inline-block;white-space:nowrap;';
+  stage.style.cssText = [
+    'position:fixed',
+    'top:0',
+    'left:-99999px',          // off screen but fully rendered by browser
+    'background:#ffffff',
+    'padding:56px',
+    'display:inline-block',
+    'white-space:nowrap',
+    'z-index:-999',
+    'pointer-events:none',
+  ].join(';');
 
   const cloned = document.getElementById('org-tree').cloneNode(true);
-  cloned.querySelectorAll('*').forEach(el => { el.style.overflow='visible'; el.style.webkitLineClamp='unset'; el.classList.remove('collapsed'); });
-  cloned.querySelectorAll('ul').forEach(ul => ul.style.display='');
-  cloned.querySelectorAll('.collapse-btn').forEach(b=>b.remove());
+  // Expand all collapsed subtrees for full export
+  cloned.querySelectorAll('ul').forEach(ul => { ul.style.display = ''; });
+  cloned.querySelectorAll('li').forEach(li => { li.classList.remove('collapsed'); });
+  cloned.querySelectorAll('.collapse-btn').forEach(b => b.remove());
   stage.appendChild(cloned);
   document.body.appendChild(stage);
 
-  await new Promise(r=>setTimeout(r,120));
+  // Wait for layout so getComputedStyle returns real values
+  await new Promise(r => setTimeout(r, 220));
   if (document.fonts?.ready) await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,80));
+  await new Promise(r => setTimeout(r, 80));
+
+  // NOW inline computed styles — this resolves all CSS variables to real hex values
+  inlineStyles(stage);
+
+  await new Promise(r => setTimeout(r, 60));
+
+  const W = stage.scrollWidth;
+  const H = stage.scrollHeight;
 
   try {
     const canvas = await html2canvas(stage, {
-      backgroundColor:'#f8fafc', scale:2, useCORS:true, logging:false, allowTaint:true,
-      width:stage.scrollWidth, height:stage.scrollHeight,
-      windowWidth:stage.scrollWidth+200, windowHeight:stage.scrollHeight+200, x:0, y:0
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      allowTaint: true,
+      foreignObjectRendering: false,
+      width:  W,
+      height: H,
+      scrollX: 0,
+      scrollY: 0,
     });
+
     canvas.toBlob(blob => {
+      if (!blob) { alert('Export produced empty image. Try zooming out first.'); return; }
       const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download=`orgchart_${stamp}.png`; a.click();
+      const a = document.createElement('a');
+      a.href = url; a.download = `orgchart_${stamp}.png`; a.click();
       URL.revokeObjectURL(url);
     }, 'image/png');
+
   } catch(err) {
     alert('Export failed: ' + err.message);
   } finally {
-    stage.remove(); overlay.remove(); applyZoom(savedZoom);
+    stage.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
   }
 }
 
