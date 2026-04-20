@@ -29,7 +29,7 @@ APP_HTML = r"""<!DOCTYPE html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundled.js"></script>
 <style>
 /* ═══════════════ TOKENS ═══════════════ */
 :root {
@@ -2098,6 +2098,10 @@ function removeCurrentNode() {
 // PPTX EXPORT
 // ════════════════════════════════════════════════
 async function exportPPTX() {
+  if (typeof PptxGenJS === 'undefined') {
+    alert('PowerPoint library failed to load. Please check your internet connection and try again.');
+    return;
+  }
   const overlay = document.createElement('div');
   overlay.className = 'export-overlay';
   overlay.innerHTML =
