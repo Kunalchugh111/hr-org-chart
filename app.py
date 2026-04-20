@@ -29,6 +29,7 @@ APP_HTML = r"""<!DOCTYPE html>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.bundled.js"></script>
 <style>
 /* ═══════════════ TOKENS ═══════════════ */
 :root {
@@ -685,6 +686,127 @@ li.collapsed > ul { display: none; }
   background: var(--bg); border: 1.5px solid var(--border);
   border-radius: var(--r-lg); max-width: 440px;
 }
+
+/* ── Vacant card ─────────────────────── */
+.node-card.vacant {
+  border-top-color: #dc2626 !important;
+  background: #fff5f5 !important;
+}
+.node-card.vacant .ncard-header { background: #fee2e2 !important; }
+.node-card.vacant .ncard-name   { color: #dc2626 !important; }
+.node-card.vacant .ncard-footer { background: #fee2e2 !important; }
+.vacant-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.59rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.05em; background: #fee2e2; color: #dc2626;
+  padding: 2px 8px; border-radius: 999px;
+  border: 1px solid #fca5a5;
+}
+
+/* ── Edit / Reassign button on card hover ── */
+.ncard-edit-btn {
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px;
+  background: var(--bg); border: 1.5px solid var(--border2);
+  border-radius: 6px; font-size: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+  z-index: 8;
+}
+.node-card:hover .ncard-edit-btn { opacity: 1; }
+.ncard-edit-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Color swatch palette ─────────────── */
+.color-palette { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.color-swatch {
+  width: 24px; height: 24px; border-radius: 6px;
+  cursor: pointer; border: 2.5px solid transparent;
+  transition: transform 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 2px #fff inset; }
+
+/* ── Vacant selector ─────────────────── */
+.vacant-setup { margin-top: 14px; }
+.vacant-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.vacant-select {
+  flex: 1; min-width: 100px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 5px 8px;
+  font-size: 0.78rem; font-weight: 600; color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif; outline: none;
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 7px center;
+}
+.vacant-select:focus { border-color: var(--accent); }
+
+/* ── Reassign modal ──────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(15,23,42,0.45);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+  width: 440px; max-width: 100%;
+  display: flex; flex-direction: column; max-height: 80vh;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.modal-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:var(--text); }
+.modal-sub   { font-size:0.76rem; color:var(--text3); margin-top:3px; }
+.modal-close {
+  background: none; border: none; font-size: 1.1rem;
+  cursor: pointer; color: var(--text3); line-height:1;
+  padding: 2px 6px; border-radius: 6px;
+}
+.modal-close:hover { background: var(--bg3); color: var(--text); }
+.modal-body { padding: 16px 20px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.modal-search {
+  width: 100%; background: var(--bg2); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 0.84rem; font-weight: 500; color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif; outline: none;
+}
+.modal-search:focus { border-color: var(--accent); background: var(--bg); }
+.modal-list { display: flex; flex-direction: column; gap: 1px; max-height: 280px; overflow-y: auto; }
+.modal-emp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px; cursor: pointer;
+  transition: background 0.1s; border: 2px solid transparent;
+}
+.modal-emp-row:hover  { background: var(--bg2); }
+.modal-emp-row.selected { background: var(--accent-light); border-color: var(--accent-mid); }
+.modal-emp-avatar {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--accent-light); color: var(--accent);
+  font-size: 0.75rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.modal-emp-avatar.vacant-av { background:#fee2e2; color:#dc2626; }
+.modal-emp-name { font-weight: 700; font-size: 0.82rem; color: var(--text); }
+.modal-emp-sub  { font-size: 0.71rem; color: var(--text3); }
+.modal-emp-row.make-root .modal-emp-name { color: var(--warning); }
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.modal-note { font-size:0.73rem; color:var(--text3); flex:1; display:flex; align-items:center; }
+
 </style>
 </head>
 <body>
@@ -789,12 +911,34 @@ li.collapsed > ul { display: none; }
   <div class="screen" id="screen-card">
     <div class="section-header" style="margin-bottom:18px">
       <div class="section-title">Design Your Card</div>
-      <div class="section-sub">Drag fields from the left panel into the card zones. The name is locked to your mapped column.</div>
+      <div class="section-sub">Drag fields into card zones, pick an accent color, and optionally flag vacant positions.</div>
     </div>
     <div class="card-design-layout">
       <div class="fields-panel">
         <div class="fields-panel-title">Available Fields</div>
         <div id="card-fields-panel"></div>
+
+        <!-- Color palette -->
+        <div class="fields-section" style="margin-top:18px">
+          <div class="fields-section-label" style="margin-bottom:8px">🎨 Card Accent Color</div>
+          <div class="color-palette" id="color-palette"></div>
+        </div>
+
+        <!-- Vacant column -->
+        <div class="fields-section vacant-setup">
+          <div class="fields-section-label" style="margin-bottom:8px">🔴 Mark Vacant Positions</div>
+          <div style="font-size:0.74rem;color:var(--text3);margin-bottom:7px;line-height:1.5">
+            Select a column and value that identifies a vacant role. Those cards will render in red.
+          </div>
+          <div class="vacant-row">
+            <select class="vacant-select" id="vacant-col" onchange="onVacantColChange()">
+              <option value="">Column…</option>
+            </select>
+            <select class="vacant-select" id="vacant-val" style="display:none">
+              <option value="">Value…</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="card-preview-area">
         <div class="preview-label">Live Card Preview</div>
@@ -850,7 +994,8 @@ li.collapsed > ul { display: none; }
       <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟ Collapse</button>
       <div style="flex:1"></div>
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">💾 CSV</button>
-      <button class="btn btn-primary btn-sm" onclick="exportPNG()">🖼️ Save PNG</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportPNG()">🖼️ PNG</button>
+      <button class="btn btn-primary btn-sm" onclick="exportPPTX()">📊 PPTX</button>
     </div>
     <!-- Stats -->
     <div class="stats-bar">
@@ -871,22 +1016,58 @@ li.collapsed > ul { display: none; }
 
 </main>
 
+<!-- ══════════════ REASSIGN MODAL ══════════════ -->
+<div class="modal-overlay hidden" id="reassign-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Reassign Manager</div>
+        <div class="modal-sub" id="reassign-subject">Moving <strong>—</strong></div>
+      </div>
+      <button class="modal-close" onclick="closeReassignModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input class="modal-search" id="reassign-search" type="text"
+        placeholder="Search employee name or ID…" autocomplete="off"
+        oninput="filterReassignList()"/>
+      <div class="modal-list" id="reassign-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm" onclick="removeCurrentNode()"
+        style="background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;margin-right:auto"
+        title="Hide this person from the chart">🗑 Remove Person</button>
+      <span class="modal-note" id="reassign-note">Select a new manager above</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeReassignModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="reassign-confirm-btn" onclick="confirmReassign()" disabled>Reassign</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════
 // APP STATE
 // ════════════════════════════════════════════════
 const S = {
-  rawRows:      [],
-  columns:      [],
-  colSamples:   {},
-  colMap:       { empId: '', empName: '', managerId: '' },
-  cardSlots:    { badge1: '', badge2: '', subtitle: '', footer1: '', footer2: '' },
-  filterCols:   [],
-  activeFilters:{},
-  viewData:     [],
-  zoom:         1,
-  highlighted:  null,
-  draggingField:null,
+  rawRows:        [],
+  columns:        [],
+  colSamples:     {},
+  colMap:         { empId: '', empName: '', managerId: '' },
+  cardSlots:      { badge1: '', badge2: '', subtitle: '', footer1: '', footer2: '' },
+  cardAccent:     '#4f46e5',
+  vacantCol:      '',
+  vacantVal:      '',
+  filterCols:     [],
+  activeFilters:  {},
+  managerOverrides: {},   // empId → new managerId (or '' for root)
+  removedIds:       new Set(),   // empIds hidden from chart
+  viewData:       [],
+  childMap:       {},
+  descCount:      {},
+  zoom:           1,
+  highlighted:    null,
+  draggingField:  null,
+  reassignTarget: null,   // node being reassigned
+  reassignPick:   null,   // chosen new manager node
 };
 
 // ════════════════════════════════════════════════
@@ -1053,6 +1234,32 @@ function buildCardScreen() {
   // Default: auto-reports in footer2
   if (!S.cardSlots.footer2) S.cardSlots.footer2 = '__auto_reports__';
 
+  // ── Color palette ──
+  const COLORS = [
+    '#4f46e5','#7c3aed','#db2777','#dc2626','#d97706',
+    '#059669','#0891b2','#0284c7','#374151','#0f172a',
+  ];
+  const palette = document.getElementById('color-palette');
+  if (palette) {
+    palette.innerHTML = COLORS.map(c =>
+      `<div class="color-swatch${S.cardAccent===c?' selected':''}"
+        style="background:${c}" title="${c}"
+        onclick="setCardAccent('${c}')"></div>`
+    ).join('');
+  }
+
+  // ── Vacant selectors ──
+  const colSel = document.getElementById('vacant-col');
+  if (colSel) {
+    const core = new Set([S.colMap.empId, S.colMap.empName, S.colMap.managerId].filter(Boolean));
+    const opts = ['<option value="">Column…</option>'] +
+      S.columns.filter(c => !core.has(c)).map(c =>
+        `<option value="${esc(c)}"${S.vacantCol===c?' selected':''}>${esc(c)}</option>`
+      ).join('');
+    colSel.innerHTML = opts;
+    if (S.vacantCol) populateVacantValues(S.vacantCol);
+  }
+
   renderCardPreview();
   syncChipStates();
 }
@@ -1127,9 +1334,10 @@ function renderCardPreview() {
     const row = S.rawRows.find(r => r[S.colMap.empName]) || S.rawRows[0] || {};
     return String(row[S.colMap.empName] || 'Employee Name').substring(0, 26);
   })();
+  const ac = S.cardAccent;
 
   document.getElementById('card-preview').innerHTML = `
-    <div class="preview-card">
+    <div class="preview-card" style="border-top-color:${ac}">
       <div class="preview-card-header">
         ${zoneHtml('badge1','+ Badge Left')}
         ${zoneHtml('badge2','+ Badge Right')}
@@ -1145,10 +1353,50 @@ function renderCardPreview() {
         ${zoneHtml('footer1','+ Footer Left')}
         ${zoneHtml('footer2','+ Footer Right')}
       </div>
+    </div>
+    <div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">
+      Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span>
+      <strong style="color:${ac}">${ac}</strong>
     </div>`;
 }
 
+// ── Color palette helpers ──
+function setCardAccent(color) {
+  S.cardAccent = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.style.background === color));
+  renderCardPreview();
+}
+
+// ── Vacant helpers ──
+function onVacantColChange() {
+  const col = document.getElementById('vacant-col').value;
+  S.vacantCol = col;
+  S.vacantVal = '';
+  const valSel = document.getElementById('vacant-val');
+  if (col) { valSel.style.display = ''; populateVacantValues(col); }
+  else { valSel.style.display = 'none'; }
+}
+
+function populateVacantValues(col) {
+  const vals = [...new Set(
+    S.rawRows.map(r => String(r[col]||'').trim()).filter(v => v && v!=='null' && v!=='undefined')
+  )].sort();
+  const valSel = document.getElementById('vacant-val');
+  if (!valSel) return;
+  valSel.innerHTML = '<option value="">Value…</option>' +
+    vals.map(v => `<option value="${esc(v)}"${S.vacantVal===v?' selected':''}>${esc(v)}</option>`).join('');
+  valSel.style.display = '';
+  valSel.onchange = () => { S.vacantVal = valSel.value; };
+}
+
+function isVacant(node) {
+  return S.vacantCol && S.vacantVal && node[S.vacantCol] === S.vacantVal;
+}
+
 function confirmCardDesign() {
+  // Capture vacant val in case user changed it
+  const valSel = document.getElementById('vacant-val');
+  if (valSel) S.vacantVal = valSel.value;
   buildFilterScreen();
   goTo('filter');
 }
@@ -1231,9 +1479,15 @@ function buildViewData() {
     const node = { id, name: String(row[empName]||'Unknown'), manager: mgr };
     S.columns.forEach(col => { node[col] = String(row[col]||''); });
     return node;
-  }).filter(n => n.id);
+  }).filter(n => n.id && !S.removedIds.has(n.id));
 
   const validIds = new Set(nodes.map(n => n.id));
+  // Apply any manual manager reassignments
+  nodes.forEach(n => {
+    if (S.managerOverrides.hasOwnProperty(n.id)) {
+      n.manager = S.managerOverrides[n.id];
+    }
+  });
   // Clear self-references and dangling manager pointers
   nodes.forEach(n => { if (!validIds.has(n.manager) || n.manager === n.id) n.manager = ''; });
 
@@ -1376,8 +1630,15 @@ function mkNodeLI(node) {
   const li = document.createElement('li');
   li.dataset.id = node.id;
 
-  const card = document.createElement('div');
-  card.className = 'node-card' + (node.id === S.highlighted ? ' highlighted' : '');
+  const vacant  = isVacant(node);
+  const ac      = S.cardAccent;
+  const card    = document.createElement('div');
+  card.className = 'node-card' +
+    (node.id === S.highlighted ? ' highlighted' : '') +
+    (vacant ? ' vacant' : '');
+
+  // Apply chosen accent color via inline style (unless vacant — vacant is always red)
+  if (!vacant) card.style.borderTopColor = ac;
 
   const reports  = childrenOf(node.id).length;
   const badge1   = getSlotVal(node, 'badge1');
@@ -1387,10 +1648,17 @@ function mkNodeLI(node) {
   const footer2  = getSlotVal(node, 'footer2');
   const hasR     = reports > 0;
 
+  const acLight  = ac + '18';
+  const acMid    = ac + '55';
+
   card.innerHTML =
     '<div class="ncard-header">' +
-      (badge1 ? `<span class="ncard-badge" title="${esc(badge1)}">${esc(badge1)}</span>` : '<span></span>') +
-      (badge2 ? `<span class="ncard-badge2">${esc(badge2)}</span>` : '') +
+      (vacant
+        ? '<span class="vacant-badge">🔴 Vacant</span>'
+        : badge1 ? `<span class="ncard-badge" title="${esc(badge1)}"
+            style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`
+                 : '<span></span>') +
+      (badge2 && !vacant ? `<span class="ncard-badge2">${esc(badge2)}</span>` : '') +
     '</div>' +
     '<div class="ncard-body">' +
       `<div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>` +
@@ -1399,9 +1667,13 @@ function mkNodeLI(node) {
     '<div class="ncard-footer">' +
       `<span class="ncard-fl">${esc(footer1)}</span>` +
       (footer2
-        ? `<span class="ncard-fr has-r">${esc(footer2)}</span>`
-        : `<span class="ncard-fr${hasR?' has-r':''}">${reports} ${reports===1?'report':'reports'}</span>`) +
-    '</div>';
+        ? `<span class="ncard-fr has-r" style="background:${acLight};color:${ac}">${esc(footer2)}</span>`
+        : `<span class="ncard-fr${hasR?' has-r':''}"
+            ${hasR?`style="background:${acLight};color:${ac}"`:''}>
+            ${reports} ${reports===1?'report':'reports'}</span>`) +
+    '</div>' +
+    // Edit / reassign button
+    `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
   if (hasR) {
     const cb = document.createElement('div');
@@ -1669,10 +1941,13 @@ async function exportPNG() {
 
     canvas.toBlob(blob => {
       if (!blob) { alert('Export produced empty image. Try zooming out first.'); return; }
-      const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      const stamp      = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      const filterPart = Object.values(S.activeFilters).filter(Boolean)
+                          .map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+      const fname = filterPart ? `orgchart_${filterPart}_${stamp}.png` : `orgchart_${stamp}.png`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `orgchart_${stamp}.png`; a.click();
+      a.href = url; a.download = fname; a.click();
       URL.revokeObjectURL(url);
     }, 'image/png');
 
@@ -1686,8 +1961,343 @@ async function exportPNG() {
 }
 
 // ════════════════════════════════════════════════
-// UTILS
+// REASSIGN MANAGER
 // ════════════════════════════════════════════════
+function openReassignModal(e, nodeId) {
+  e.stopPropagation();
+  const node = S.viewData.find(n => n.id === nodeId);
+  if (!node) return;
+  S.reassignTarget = node;
+  S.reassignPick   = null;
+
+  // Subject label
+  document.getElementById('reassign-subject').innerHTML =
+    `Moving <strong>${esc(node.name)}</strong>`;
+  document.getElementById('reassign-note').textContent = 'Select a new manager above';
+  document.getElementById('reassign-confirm-btn').disabled = true;
+
+  // Populate list — all employees except the node itself and its descendants
+  const descendants = getAllDescendants(nodeId);
+  descendants.add(nodeId);
+
+  const candidates = S.viewData.filter(n => !descendants.has(n.id));
+
+  renderReassignList(candidates, node.manager);
+  document.getElementById('reassign-search').value = '';
+  document.getElementById('reassign-modal').classList.remove('hidden');
+  document.getElementById('reassign-search').focus();
+}
+
+function getAllDescendants(id) {
+  const result = new Set();
+  const queue  = [...(S.childMap[id] || [])];
+  while (queue.length) {
+    const n = queue.shift();
+    result.add(n.id);
+    (S.childMap[n.id] || []).forEach(k => queue.push(k));
+  }
+  return result;
+}
+
+function renderReassignList(candidates, currentManagerId) {
+  const list = document.getElementById('reassign-list');
+
+  // "Make root (no manager)" option at top
+  const rootSel = S.reassignPick === '__ROOT__';
+  let html = `<div class="modal-emp-row make-root${rootSel?' selected':''}"
+    onclick="pickReassignTarget('__ROOT__',this)">
+    <div class="modal-emp-avatar" style="background:#fef9c3;color:#d97706;font-size:0.9rem">🏠</div>
+    <div>
+      <div class="modal-emp-name">Make Root (no manager)</div>
+      <div class="modal-emp-sub">Move to top level of chart</div>
+    </div>
+  </div>`;
+
+  html += candidates.map(n => {
+    const isCur  = n.id === currentManagerId;
+    const isSel  = S.reassignPick && S.reassignPick.id === n.id;
+    const vacant = isVacant(n);
+    const initials = n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    const sub    = getSlotVal(n,'subtitle') || n.id;
+    return `<div class="modal-emp-row${isSel?' selected':''}"
+      onclick="pickReassignTarget('${esc(n.id)}',this)">
+      <div class="modal-emp-avatar${vacant?' vacant-av':''}">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div>
+        <div class="modal-emp-sub">${esc(sub)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = html;
+}
+
+function filterReassignList() {
+  const q = document.getElementById('reassign-search').value.trim().toLowerCase();
+  const node = S.reassignTarget;
+  if (!node) return;
+  const descendants = getAllDescendants(node.id);
+  descendants.add(node.id);
+  const all = S.viewData.filter(n => !descendants.has(n.id));
+  const filtered = q ? all.filter(n =>
+    n.name.toLowerCase().includes(q) || n.id.toLowerCase().includes(q)
+  ) : all;
+  renderReassignList(filtered, node.manager);
+}
+
+function pickReassignTarget(id, rowEl) {
+  // Highlight selection
+  document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r => r.classList.remove('selected'));
+  rowEl.classList.add('selected');
+
+  if (id === '__ROOT__') {
+    S.reassignPick = '__ROOT__';
+    document.getElementById('reassign-note').textContent = '→ Will become a root node';
+  } else {
+    S.reassignPick = S.viewData.find(n => n.id === id) || null;
+    document.getElementById('reassign-note').textContent =
+      S.reassignPick ? `→ New manager: ${S.reassignPick.name}` : '';
+  }
+  document.getElementById('reassign-confirm-btn').disabled = !S.reassignPick && S.reassignPick !== '__ROOT__';
+  document.getElementById('reassign-confirm-btn').disabled = false;
+}
+
+function confirmReassign() {
+  if (!S.reassignTarget) return;
+  const empId  = S.reassignTarget.id;
+  const newMgr = S.reassignPick === '__ROOT__' ? '' : (S.reassignPick ? S.reassignPick.id : null);
+  if (newMgr === null) return;
+
+  S.managerOverrides[empId] = newMgr;
+  closeReassignModal();
+
+  // Rebuild and re-render
+  buildViewData();
+  renderChart();
+}
+
+function closeReassignModal() {
+  document.getElementById('reassign-modal').classList.add('hidden');
+  S.reassignTarget = null;
+  S.reassignPick   = null;
+}
+
+function removeCurrentNode() {
+  if (!S.reassignTarget) return;
+  const { id, name } = S.reassignTarget;
+  if (!confirm(`Remove "${name}" from the chart?\n\nTheir direct reports will move up to the next manager. You can undo this by refreshing the page.`)) return;
+  S.removedIds.add(id);
+  // Also clear any override for this person
+  delete S.managerOverrides[id];
+  closeReassignModal();
+  buildViewData();
+  renderChart();
+}
+
+// ════════════════════════════════════════════════
+// PPTX EXPORT
+// ════════════════════════════════════════════════
+async function exportPPTX() {
+  const overlay = document.createElement('div');
+  overlay.className = 'export-overlay';
+  overlay.innerHTML =
+    '<div class="export-spinner"></div>' +
+    '<div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Building PowerPoint…</div>' +
+    '<div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">Rendering chart, then packaging slides</div>';
+  document.body.appendChild(overlay);
+
+  const savedZoom = S.zoom;
+  applyZoom(1);
+  await new Promise(r => setTimeout(r, 120));
+
+  // Build the off-screen stage (same as PNG export)
+  const stage = document.createElement('div');
+  stage.style.cssText = [
+    'position:fixed', 'top:0', 'left:-99999px',
+    'background:#ffffff', 'padding:56px',
+    'display:inline-block', 'white-space:nowrap',
+    'z-index:-999', 'pointer-events:none',
+  ].join(';');
+
+  const cloned = document.getElementById('org-tree').cloneNode(true);
+  cloned.querySelectorAll('ul').forEach(ul => { ul.style.display = ''; });
+  cloned.querySelectorAll('li').forEach(li => { li.classList.remove('collapsed'); });
+  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn').forEach(b => b.remove());
+  stage.appendChild(cloned);
+  document.body.appendChild(stage);
+
+  await new Promise(r => setTimeout(r, 220));
+  if (document.fonts?.ready) await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 80));
+  inlineStyles(stage);
+  await new Promise(r => setTimeout(r, 60));
+
+  try {
+    // Capture chart as high-res canvas
+    const canvas = await html2canvas(stage, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      allowTaint: true,
+      foreignObjectRendering: false,
+      width:  stage.scrollWidth,
+      height: stage.scrollHeight,
+      scrollX: 0, scrollY: 0,
+    });
+
+    const imgData   = canvas.toDataURL('image/png');
+    const chartW    = canvas.width;
+    const chartH    = canvas.height;
+
+    // ── Build PPTX ──────────────────────────
+    const pptx = new PptxGenJS();
+    pptx.layout = 'LAYOUT_WIDE';               // 13.33 × 7.5 in
+
+    const SLIDE_W = 13.33;
+    const SLIDE_H = 7.5;
+    const MARGIN  = 0.25;
+
+    // Title slide
+    const titleSlide = pptx.addSlide();
+    titleSlide.background = { color: 'F8FAFC' };
+    titleSlide.addShape(pptx.ShapeType.rect, {
+      x: 0, y: 0, w: SLIDE_W, h: 0.06,
+      fill: { color: S.cardAccent.replace('#','') }
+    });
+    titleSlide.addText('Org Chart', {
+      x: 0.5, y: 2.4, w: SLIDE_W - 1, h: 1,
+      fontSize: 40, fontFace: 'Calibri', bold: true,
+      color: '0F172A', align: 'center',
+    });
+    const stamp = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    titleSlide.addText(`Generated: ${stamp}  •  ${S.viewData.length} Employees`, {
+      x: 0.5, y: 3.6, w: SLIDE_W - 1, h: 0.5,
+      fontSize: 14, fontFace: 'Calibri', color: '64748B', align: 'center',
+    });
+
+    // Active filters on title slide
+    const activeF = Object.entries(S.activeFilters).filter(([,v])=>v);
+    if (activeF.length) {
+      const filterTxt = activeF.map(([k,v]) => `${k}: ${v}`).join('   |   ');
+      titleSlide.addText(filterTxt, {
+        x: 0.5, y: 4.3, w: SLIDE_W - 1, h: 0.4,
+        fontSize: 12, fontFace: 'Calibri', color: S.cardAccent.replace('#',''),
+        align: 'center', bold: true,
+      });
+    }
+
+    // ── Org chart slide(s) ──────────────────
+    // Scale the chart image to fit within slide, preserving aspect ratio
+    const imgAspect = chartW / chartH;
+    const availW = SLIDE_W - MARGIN * 2;
+    const availH = SLIDE_H - MARGIN * 2 - 0.55;   // leave room for header strip
+
+    let finalW, finalH;
+    if (imgAspect > availW / availH) {
+      finalW = availW;
+      finalH = availW / imgAspect;
+    } else {
+      finalH = availH;
+      finalW = availH * imgAspect;
+    }
+    const imgX = (SLIDE_W - finalW) / 2;
+    const imgY = MARGIN + 0.55;
+
+    const chartSlide = pptx.addSlide();
+    chartSlide.background = { color: 'F1F5F9' };
+
+    // Accent header strip
+    chartSlide.addShape(pptx.ShapeType.rect, {
+      x: 0, y: 0, w: SLIDE_W, h: 0.45,
+      fill: { color: S.cardAccent.replace('#','') }
+    });
+    chartSlide.addText('Org Chart', {
+      x: 0.2, y: 0, w: 4, h: 0.45,
+      fontSize: 14, fontFace: 'Calibri', bold: true, color: 'FFFFFF',
+      valign: 'middle',
+    });
+    chartSlide.addText(`${S.viewData.length} employees`, {
+      x: SLIDE_W - 2.5, y: 0, w: 2.3, h: 0.45,
+      fontSize: 11, fontFace: 'Calibri', color: 'FFFFFF',
+      align: 'right', valign: 'middle',
+    });
+
+    // Chart image
+    chartSlide.addImage({ data: imgData, x: imgX, y: imgY, w: finalW, h: finalH });
+
+    // ── Summary stats slide ─────────────────
+    const statsSlide = pptx.addSlide();
+    statsSlide.background = { color: 'FFFFFF' };
+    statsSlide.addShape(pptx.ShapeType.rect, {
+      x: 0, y: 0, w: SLIDE_W, h: 0.45,
+      fill: { color: S.cardAccent.replace('#','') }
+    });
+    statsSlide.addText('Summary', {
+      x: 0.2, y: 0, w: 6, h: 0.45,
+      fontSize: 14, fontFace: 'Calibri', bold: true, color: 'FFFFFF', valign: 'middle',
+    });
+
+    const roots    = S.viewData.filter(n => !n.manager).length;
+    const vacants  = S.vacantCol && S.vacantVal
+      ? S.viewData.filter(n => n[S.vacantCol] === S.vacantVal).length : 0;
+    const overrides = Object.keys(S.managerOverrides).length;
+
+    const stats = [
+      { label: 'Total Employees', val: S.viewData.length, icon: '👥' },
+      { label: 'Root Nodes',      val: roots,             icon: '🏠' },
+      { label: 'Vacant Positions',val: vacants,           icon: '🔴' },
+      { label: 'Manual Reassignments', val: overrides,    icon: '✎'  },
+    ];
+    const BOX_W = 2.8, BOX_H = 1.5, BOX_GAP = 0.3;
+    const totalRow = (BOX_W + BOX_GAP) * stats.length - BOX_GAP;
+    const startX = (SLIDE_W - totalRow) / 2;
+
+    stats.forEach((st, i) => {
+      const bx = startX + i * (BOX_W + BOX_GAP);
+      const by = 1.4;
+      statsSlide.addShape(pptx.ShapeType.rect, {
+        x: bx, y: by, w: BOX_W, h: BOX_H,
+        fill: { color: 'F8FAFC' },
+        line: { color: 'E2E8F0', width: 1.5 },
+        rectRadius: 0.12,
+      });
+      statsSlide.addText(String(st.val), {
+        x: bx, y: by + 0.22, w: BOX_W, h: 0.6,
+        fontSize: 32, fontFace: 'Calibri', bold: true,
+        color: S.cardAccent.replace('#',''), align: 'center',
+      });
+      statsSlide.addText(st.label, {
+        x: bx, y: by + 0.85, w: BOX_W, h: 0.45,
+        fontSize: 11, fontFace: 'Calibri', color: '64748B', align: 'center',
+      });
+    });
+
+    // Active filter note
+    if (activeF.length) {
+      statsSlide.addText('Active Filters: ' + activeF.map(([k,v])=>`${k} = ${v}`).join(' | '), {
+        x: 0.5, y: 3.5, w: SLIDE_W - 1, h: 0.4,
+        fontSize: 11, fontFace: 'Calibri', color: '94A3B8', align: 'center', italic: true,
+      });
+    }
+
+    // Save
+    const filterPart = Object.values(S.activeFilters).filter(Boolean)
+                        .map(v => v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+    const fname = filterPart
+      ? `orgchart_${filterPart}_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`
+      : `orgchart_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.pptx`;
+    await pptx.writeFile({ fileName: fname });
+
+  } catch (err) {
+    alert('PPTX export failed: ' + err.message);
+    console.error(err);
+  } finally {
+    stage.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
+  }
+}
 function esc(s) {
   return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
