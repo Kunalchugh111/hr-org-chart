@@ -205,7 +205,6 @@ body{display:flex;flex-direction:column}
 .org-tree li:first-child::after{border-radius:6px 0 0 0}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
-/* Keep collapsed uls hidden for export - use explicit style not just class */
 .org-tree li.collapsed > ul{display:none!important}
 
 .node-card{display:inline-block;width:220px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
@@ -227,7 +226,6 @@ body{display:flex;flex-direction:column}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* SEARCH — fixed position, never clipped by toolbar */
 .search-wrap{position:relative;flex:1;max-width:240px}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;pointer-events:none;opacity:0.45}
 #chart-search{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px 6px 29px;font-size:0.8rem;font-weight:500;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.15s}
@@ -261,7 +259,6 @@ body{display:flex;flex-direction:column}
 .node-card.vacant .ncard-footer{background:#fee2e2!important}
 .vacant-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:999px;border:1px solid #fca5a5}
 
-/* Card action buttons */
 .ncard-edit-btn,.ncard-export-btn{position:absolute;top:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
 .ncard-edit-btn{right:6px}
 .ncard-export-btn{right:32px;font-size:0.62rem}
@@ -441,12 +438,13 @@ body{display:flex;flex-direction:column}
       <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
       <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
       <div class="tb-sep"></div>
-      <div class="depth-wrap" title="Show N levels counting from the bottom (leaves up)">
-        <span class="depth-label">Levels ↑</span>
+      <!-- FIX 2: Label changed from "Levels ↑" to "Levels ↓" and tooltip updated -->
+      <div class="depth-wrap" title="Show N levels from the top (root = L1, direct reports = L2, …)">
+        <span class="depth-label">Levels ↓</span>
         <select class="depth-select" id="depth-select" onchange="setMaxDepth(parseInt(this.value))">
           <option value="0">All</option>
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="1">L1</option><option value="2">L2</option><option value="3">L3</option>
+          <option value="4">L4</option><option value="5">L5</option><option value="6">L6</option>
         </select>
       </div>
       <div class="summarize-wrap" id="summarize-wrap" title="Replace individual cards with count summaries after this level">
@@ -520,6 +518,8 @@ const S={
   filterCols:[],activeFilters:{},
   managerOverrides:{},removedIds:new Set(),
   viewData:[],childMap:{},descCount:{},nodeHeight:{},
+  // FIX 2: nodeDepth tracks distance from root (root=0, direct reports=1, …)
+  nodeDepth:{},
   zoom:1,highlighted:null,draggingField:null,
   reassignTarget:null,reassignPick:null,
   maxDepth:0,
@@ -787,6 +787,17 @@ function buildViewData(){
   function calcH(id){if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id));
   nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id);});
+
+  // ── FIX 2: Depth from root (root = 0, direct reports = 1, grandchildren = 2, …) ──
+  // This is used by the "Levels ↓" filter to show only the first N tiers from the top.
+  S.nodeDepth={};
+  function calcDepthFromRoot(id,d){
+    S.nodeDepth[id]=d;
+    (S.childMap[id]||[]).forEach(k=>calcDepthFromRoot(k.id,d+1));
+  }
+  nodes.filter(n=>!n.manager).forEach(r=>calcDepthFromRoot(r.id,0));
+  // Guard: any node not reached via a root (orphan) gets depth 0
+  nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});
 }
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
@@ -807,7 +818,12 @@ function buildFilterBar(){
 function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 
-function setMaxDepth(n){S.maxDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
+// ── FIX 2: setMaxDepth — uses depth from root (top-down) ──
+function setMaxDepth(n){
+  S.maxDepth=n;
+  const ds=document.getElementById('depth-select');if(ds)ds.value=n;
+  renderChart();
+}
 
 // ════════════════════════════════════════════════
 // ORG CHART RENDER
@@ -823,11 +839,10 @@ function renderChart(){
   const tree=document.getElementById('org-tree');tree.innerHTML='';
   updateSummarizeUI();
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.maxDepth;
-  let roots;
-  if(S.maxDepth>0){
-    const vis=new Set(S.viewData.filter(n=>(S.nodeHeight[n.id]||0)<S.maxDepth).map(n=>n.id));
-    roots=S.viewData.filter(n=>vis.has(n.id)&&(!n.manager||!vis.has(n.manager)));
-  } else {roots=S.viewData.filter(n=>!n.manager);}
+
+  // FIX 2: Always start from true root nodes; mkNodeLI cuts depth via S.nodeDepth
+  const roots=S.viewData.filter(n=>!n.manager);
+
   if(!roots.length){tree.innerHTML=`<div class="no-data">No nodes found for the current settings.</div>`;updateStats(roots);return;}
   const ul=document.createElement('ul');
   roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
@@ -873,15 +888,19 @@ function mkNodeLI(node,depth){
     `<div class="ncard-export-btn" title="Export this person's team only" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
-  if(hasR){
+  // FIX 2: Filter children by depth from root (top-down).
+  // S.maxDepth = N means show only nodes where nodeDepth < N.
+  // e.g. maxDepth=2 → show root (depth 0) + direct reports (depth 1) only.
+  let kids=childrenOf(node.id);
+  if(S.maxDepth>0)kids=kids.filter(k=>(S.nodeDepth[k.id]||0)<S.maxDepth);
+
+  if(kids.length){
     const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';
     cb.addEventListener('click',e=>{e.stopPropagation();toggleCollapse(li,cb);});
     card.appendChild(cb);
   }
   li.appendChild(card);
 
-  let kids=childrenOf(node.id);
-  if(S.maxDepth>0)kids=kids.filter(k=>(S.nodeHeight[k.id]||0)<S.maxDepth);
   if(kids.length){
     if(S.summarizeAfterLevel>0&&depth>=S.summarizeAfterLevel-1){
       const ul=document.createElement('ul');ul.appendChild(mkSummaryNodeLI(node.id));li.appendChild(ul);
@@ -895,7 +914,6 @@ function mkNodeLI(node,depth){
 function toggleCollapse(li,btn){
   li.classList.toggle('collapsed');
   const c=li.classList.contains('collapsed');
-  // ★ Also set explicit style so html2canvas sees it regardless of CSS cascade
   const childUl=li.querySelector(':scope > ul');
   if(childUl)childUl.style.display=c?'none':'';
   btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';
@@ -955,7 +973,7 @@ function initPan(){
 }
 
 // ════════════════════════════════════════════════
-// SEARCH — fixed dropdown, never clipped by toolbar
+// SEARCH
 // ════════════════════════════════════════════════
 function initSearch(){
   const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;
@@ -986,15 +1004,7 @@ function highlightNode(id){
 }
 
 // ════════════════════════════════════════════════
-// ★ CORE RENDER STAGE — builds an off-screen tree for capture
-//
-// rootNodeId : if provided, builds a fresh tree for ONLY that node
-//              + its descendants (downward only), ignoring the DOM.
-//              The caller must have already restricted S.viewData /
-//              S.childMap to just those nodes.
-//
-// NO expand-all: we respect the current collapsed / visible state of
-//                cloned DOM nodes so "export what you see" works.
+// SHARED RENDER HELPERS
 // ════════════════════════════════════════════════
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor',
@@ -1005,42 +1015,52 @@ function inlineStyles(root){
   root.querySelectorAll('*').forEach(el=>{
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
-    // keep overflow visible so text is not cut
     if(el.style.overflow==='hidden'&&!el.classList.contains('node-card')&&!el.classList.contains('ncard-name')&&!el.classList.contains('ncard-sub'))el.style.overflow='visible';
     el.classList.remove('collapsed');
   });
 }
 
+// ════════════════════════════════════════════════
+// FIX 1: buildRenderStage — rebuild fresh tree for exports so that
+//   S.summarizeAfterLevel, S.maxDepth, and card design are faithfully
+//   captured. DOM clones can miss dynamically-applied CSS variables and
+//   computed colours, causing summary cards to look wrong in exports.
+//
+// rootNodeId: if set → subtree-only export (downward only, no ancestors)
+// no rootNodeId → full export respecting current summarize/depth settings
+// ════════════════════════════════════════════════
 async function buildRenderStage(rootNodeId){
-  // Minimal padding — just enough for card drop-shadows not to clip
   const PAD=20;
   const stage=document.createElement('div');
   stage.style.cssText=`position:fixed;top:0;left:-99999px;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
 
   let sourceTree;
   if(rootNodeId){
-    // ★ Build a completely fresh tree from S.childMap (already scoped to subtree).
-    //   This guarantees ONLY downward nodes appear — no ancestors, no siblings.
+    // Subtree export: build fresh tree rooted at this node only
     sourceTree=document.createElement('div');
     sourceTree.className='org-tree';
     const ul=document.createElement('ul');
     const node=S.viewData.find(n=>n.id===rootNodeId);
     if(node)ul.appendChild(mkNodeLI(node,0));
     sourceTree.appendChild(ul);
-    // Freshly built tree has no collapsed state — full subtree is shown
     sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
     sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   } else {
-    // ★ Clone the LIVE DOM tree as-is — preserves exactly what the user sees.
-    //   Collapsed branches remain collapsed; visible branches stay visible.
-    //   We do NOT call any expand-all here.
-    sourceTree=document.getElementById('org-tree').cloneNode(true);
-    // Ensure collapsed uls have inline display:none so html2canvas sees it
-    // (CSS rules don't always transfer to the off-screen stage)
-    sourceTree.querySelectorAll('li.collapsed > ul').forEach(ul=>{ul.style.display='none';});
+    // FIX 1: Full export — rebuild fresh so S.summarizeAfterLevel is respected.
+    // Building fresh from S state guarantees summary cards, depth cuts, and
+    // card colours are all current regardless of CSS cascade issues in clones.
+    sourceTree=document.createElement('div');
+    sourceTree.className='org-tree';
+    const exportRoots=S.viewData.filter(n=>!n.manager);
+    const exportUl=document.createElement('ul');
+    exportRoots.forEach(r=>exportUl.appendChild(mkNodeLI(r,0)));
+    sourceTree.appendChild(exportUl);
+    // Uncollapse everything in the export — the full summarized tree is shown
+    sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
+    sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   }
 
-  // Strip interactive chrome
+  // Strip interactive chrome (buttons not needed in export)
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
 
   stage.appendChild(sourceTree);
@@ -1055,13 +1075,12 @@ async function buildRenderStage(rootNodeId){
   return stage;
 }
 
-// ★ renderToCanvas — tight dimensions, no wasted canvas pixels
 async function renderToCanvas(stage){
   const W=Math.ceil(stage.scrollWidth);
   const H=Math.ceil(stage.scrollHeight);
   return html2canvas(stage,{
     backgroundColor:'#f8fafc',
-    scale:3,          // 3× for crisp text and cards
+    scale:3,
     useCORS:true,
     logging:false,
     allowTaint:true,
@@ -1084,15 +1103,14 @@ function buildCSVContent(){
 function downloadCSV(){triggerDownload(new Blob([buildCSVContent()],{type:'text/csv;charset=utf-8;'}),'orgchart_export.csv');}
 
 // ════════════════════════════════════════════════
-// PNG EXPORT — respects visible/collapsed state
+// PNG EXPORT
 // ════════════════════════════════════════════════
 async function exportPNG(){
-  const overlay=makeOverlay('Rendering org chart…','Capturing visible state at 3× resolution');
+  const overlay=makeOverlay('Rendering org chart…','Capturing summarized/filtered state at 3× resolution');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
   try{
-    // No rootNodeId → clone live DOM as-is (collapsed = collapsed in export)
     stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
@@ -1109,15 +1127,12 @@ function makeOverlay(title,sub){
 }
 
 // ════════════════════════════════════════════════
-// ★ SUBTREE EXPORT (📸 per-card button)
-//   Exports ONLY that person + their downward team.
-//   Parents / siblings / rest of org are NOT included.
+// SUBTREE EXPORT (📸 per-card button)
 // ════════════════════════════════════════════════
 async function exportSubtree(e,nodeId){
   e.stopPropagation();
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
 
-  // Collect nodeId + all descendants
   const includeIds=new Set([nodeId]);
   function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}
   collectDesc(nodeId);
@@ -1125,38 +1140,33 @@ async function exportSubtree(e,nodeId){
   const overlay=makeOverlay(`Exporting ${node.name}'s team (${includeIds.size} people)…`,'Building downward subtree only at 3× resolution');
   document.body.appendChild(overlay);
 
-  // ── Save full state ──
   const savedViewData=S.viewData;
   const savedChildMap=S.childMap;
   const savedDescCount=S.descCount;
   const savedNodeHeight=S.nodeHeight;
+  const savedNodeDepth=S.nodeDepth;
   const savedSummarize=S.summarizeAfterLevel;
   const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);
   const prevOverride=S.managerOverrides[nodeId];
 
-  // ── Scope state to just the subtree ──
   S.viewData=savedViewData.filter(n=>includeIds.has(n.id));
-  // Make root node have no manager so it renders as root
   S.managerOverrides[nodeId]='';
-  // Rebuild childMap for subtree only
   S.childMap={};
   S.viewData.forEach(n=>{
     const mgr=(n.id===nodeId)?'':n.manager;
     if(!S.childMap[mgr])S.childMap[mgr]=[];
     S.childMap[mgr].push(n);
   });
-  // Recalculate counts for subtree
-  S.descCount={};S.nodeHeight={};
+  S.descCount={};S.nodeHeight={};S.nodeDepth={};
   function calcD(id){const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id),0);return S.descCount[id];}
   function calcH(id){const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
-  calcD(nodeId);calcH(nodeId);
-  S.summarizeAfterLevel=0; // always full subtree in this export
+  function calcDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDep(k.id,d+1));}
+  calcD(nodeId);calcH(nodeId);calcDep(nodeId,0);
+  S.summarizeAfterLevel=0;
 
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
   try{
-    // ★ Pass nodeId → buildRenderStage builds fresh tree from scoped S.childMap
-    //   ONLY descendants appear; no ancestors, no siblings
     stage=await buildRenderStage(nodeId);
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
@@ -1164,24 +1174,17 @@ async function exportSubtree(e,nodeId){
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));
   }catch(ex){alert('Subtree export failed: '+ex.message);}
   finally{
-    // ── Restore full state ──
     if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);
     if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];
     S.viewData=savedViewData;S.childMap=savedChildMap;
-    S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;
+    S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
     S.summarizeAfterLevel=savedSummarize;
     renderChart();
   }
 }
 
 // ════════════════════════════════════════════════
-// PPTX — full-bleed image, maximum coverage
-// Slide layout:
-//   Slide 1: Bold title with stats
-//   Slide 2: Org chart image fills the ENTIRE slide (edge to edge)
-//             using "contain" logic so nothing is clipped —
-//             white background for any remaining letterbox area
-//   Slide 3: Stats summary dashboard
+// PPTX
 // ════════════════════════════════════════════════
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 const SW=12192000,SH=6858000;
@@ -1202,7 +1205,6 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   const roots=S.viewData.filter(n=>!n.manager).length;
   const vacants=S.vacantCol&&S.vacantVal?S.viewData.filter(n=>n[S.vacantCol]===S.vacantVal).length:0;
 
-  // ── SLIDE 1: Title ──
   const [s1xml,s1rels]=pptxSlide('F1F5F9',
     pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+
     pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
@@ -1215,30 +1217,17 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
     pptxTxt(10,Math.round(SW*0.55),Math.round(SH*0.74),Math.round(SW*0.35),310000,'Root Nodes',1600,false,'64748B','l'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
 
-  // ── SLIDE 2: Full-bleed org chart image ──
-  // Fit the canvas to fill as much of the slide as possible (contain).
-  // Use white slide background for any letterbox strips.
   const imgAspect=cW/cH;
   const slideAspect=SW/SH;
   let iW,iH,iX,iY;
-  if(imgAspect>=slideAspect){
-    // Wider than slide: fill full width, bars top/bottom
-    iW=SW;iH=Math.round(SW/imgAspect);
-    iX=0;iY=Math.round((SH-iH)/2);
-  } else {
-    // Taller than slide: fill full height, bars left/right
-    iH=SH;iW=Math.round(SH*imgAspect);
-    iX=Math.round((SW-iW)/2);iY=0;
-  }
-  // Small caption overlay (no background rectangle — just white text)
-  // placed at bottom-right, on top of image
+  if(imgAspect>=slideAspect){iW=SW;iH=Math.round(SW/imgAspect);iX=0;iY=Math.round((SH-iH)/2);}
+  else{iH=SH;iW=Math.round(SH*imgAspect);iX=Math.round((SW-iW)/2);iY=0;}
   const capY=SH-Math.round(SH*0.065);
   const [s2xml,]=pptxSlide('FFFFFF',
     pptxImg(20,iX,iY,iW,iH,'rId2')+
     pptxTxt(21,Math.round(SW*0.04),capY,Math.round(SW*0.92),Math.round(SH*0.055),filterLine+' · '+stamp+' · '+S.viewData.length+' employees',1000,false,'64748B','r'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`);
 
-  // ── SLIDE 3: Stats dashboard ──
   const statItems=[
     {label:'Total Employees',val:S.viewData.length,color:ac},
     {label:'Root Nodes',val:roots,color:'0891b2'},
@@ -1285,12 +1274,12 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
 
 async function exportPPTX(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
-  const overlay=makeOverlay('Building PowerPoint…','Rendering visible state then packaging');
+  const overlay=makeOverlay('Building PowerPoint…','Rendering summarized/filtered state then packaging');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
   try{
-    stage=await buildRenderStage();  // no rootNodeId → respects collapsed state
+    stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
     const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
     const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
