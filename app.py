@@ -49,7 +49,6 @@ APP_HTML = r"""<!DOCTYPE html>
 html,body{height:100%;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);overflow:hidden;font-size:14px}
 body{display:flex;flex-direction:column}
 
-/* NAV */
 .topnav{flex-shrink:0;height:54px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;z-index:100;box-shadow:var(--shadow-xs)}
 .brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text);display:flex;align-items:center;gap:9px;letter-spacing:-0.02em;flex-shrink:0}
 .brand-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;box-shadow:0 3px 10px rgba(79,70,229,0.3)}
@@ -63,13 +62,11 @@ body{display:flex;flex-direction:column}
 .step-item.done .step-dot{background:var(--success);border-color:var(--success);color:#fff;font-size:0.7rem}
 .step-arrow{color:var(--border2);font-size:0.8rem;margin:0 1px}
 
-/* MAIN / SCREENS */
 .main{flex:1;overflow:hidden;position:relative}
 .screen{position:absolute;inset:0;overflow-y:auto;display:flex;flex-direction:column;padding:32px 36px;background:var(--bg);opacity:0;pointer-events:none;transform:translateX(18px);transition:opacity 0.22s ease,transform 0.22s ease}
 .screen.active{opacity:1;pointer-events:auto;transform:translateX(0)}
 #screen-chart{padding:0;overflow:hidden}
 
-/* UPLOAD */
 .upload-center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:24px;padding:24px}
 .upload-hero{text-align:center}
 .upload-hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--text);letter-spacing:-0.03em;margin-bottom:8px}
@@ -87,12 +84,10 @@ body{display:flex;flex-direction:column}
 .info-card-row{font-size:0.8rem;color:var(--text2);font-weight:500;padding:3px 0;display:flex;align-items:center;gap:6px}
 .info-card-row::before{content:'';width:5px;height:5px;background:var(--border2);border-radius:50%;flex-shrink:0}
 
-/* SECTION */
 .section-header{margin-bottom:24px}
 .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.45rem;color:var(--text);letter-spacing:-0.02em;margin-bottom:4px}
 .section-sub{font-size:0.84rem;color:var(--text2)}
 
-/* COL MAP */
 .detected-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px}
 .col-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:999px;font-size:0.76rem;font-weight:600;color:var(--text2)}
 .col-chip .chip-sample{color:var(--text3);font-size:0.7rem;font-style:italic}
@@ -110,7 +105,6 @@ body{display:flex;flex-direction:column}
 .data-preview-table td{padding:6px 12px;border:1px solid var(--border);color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .data-preview-table tr:nth-child(even) td{background:var(--bg2)}
 
-/* CARD DESIGNER */
 .card-design-layout{display:grid;grid-template-columns:260px 1fr;gap:24px;flex:1;min-height:0}
 .fields-panel{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px;overflow-y:auto}
 .fields-panel-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:12px}
@@ -140,12 +134,9 @@ body{display:flex;flex-direction:column}
 .preview-name-fixed{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:6px 10px}
 .preview-name-fixed span{font-size:0.8rem;color:var(--text2);font-weight:600}
 .preview-name-fixed .lock{font-size:0.75rem;opacity:0.5}
-
-/* PHOTO */
 .ncard-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.8);display:block;flex-shrink:0}
 .ncard-photo-fallback{width:38px;height:38px;border-radius:50%;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-/* FILTER SETUP */
 .filter-setup{max-width:640px}
 .filter-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .filter-chip{padding:7px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
@@ -159,7 +150,6 @@ body{display:flex;flex-direction:column}
 .fpr-vals{display:flex;flex-wrap:wrap;gap:5px;flex:1}
 .fv-pill{padding:2px 9px;background:var(--bg);border:1px solid var(--border);border-radius:999px;font-size:0.72rem;font-weight:500;color:var(--text2)}
 
-/* BUTTONS */
 .btn{padding:9px 20px;border-radius:var(--r);font-size:0.84rem;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:7px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1;white-space:nowrap}
 .btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.3)}
 .btn-primary:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.4)}
@@ -170,7 +160,6 @@ body{display:flex;flex-direction:column}
 .btn-export-all{background:linear-gradient(135deg,#7c3aed,#0284c7)!important;color:#fff!important;border:none!important;box-shadow:0 4px 14px rgba(124,58,237,0.35)!important}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
 
-/* CHART SCREEN */
 .chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
 .stats-bar{flex-shrink:0;height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:18px;font-size:0.73rem}
 .stat-item{display:flex;align-items:center;gap:6px;color:var(--text3);font-weight:600}
@@ -180,30 +169,21 @@ body{display:flex;flex-direction:column}
 .filter-dropdown-wrap{display:flex;align-items:center;gap:6px;font-size:0.79rem}
 .filter-dropdown-label{font-weight:700;color:var(--text2)}
 .filter-dropdown{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;font-size:0.79rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color 0.15s}
-.filter-dropdown:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
-
-/* Photo button in toolbar */
+.filter-dropdown:focus{border-color:var(--accent)}
 .photo-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0}
 .photo-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 .photo-btn.loaded{border-color:#059669;color:#059669;background:#d1fae5}
 .photo-count{background:#059669;color:#fff;border-radius:999px;padding:1px 6px;font-size:0.65rem;font-weight:800}
-
-/* Depth wrap */
 .depth-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .depth-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
 .depth-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
-
-/* Summarize wrap — new feature */
 .summarize-wrap{display:flex;align-items:center;gap:5px;background:#fef9c3;border:1.5px solid #fde68a;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summarize-wrap.active{background:#fef3c7;border-color:var(--warning)}
 .summarize-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#92400e;white-space:nowrap}
 .summarize-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:#d97706;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d97706'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
-.groupby-select{background:var(--bg);border:1.5px solid #fde68a;border-radius:8px;padding:4px 24px 4px 9px;font-size:0.75rem;font-weight:700;color:#92400e;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d97706'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:border-color 0.15s;flex-shrink:0;max-width:130px;display:none}
+.groupby-select{background:var(--bg);border:1.5px solid #fde68a;border-radius:8px;padding:4px 24px 4px 9px;font-size:0.75rem;font-weight:700;color:#92400e;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d97706'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;flex-shrink:0;max-width:130px;display:none}
 .groupby-select.visible{display:block}
-
-/* SUMMARY NODE CARD */
-.summary-node-card{cursor:default!important;background:var(--bg2)!important;min-width:180px;max-width:250px;width:auto!important}
-.summary-node-card:hover{transform:translateY(-2px)!important}
+.summary-node-card{cursor:default!important;background:var(--bg2)!important;min-width:160px;max-width:240px;width:auto!important}
 .summary-grid{display:flex;flex-direction:column;gap:0;padding:10px 14px 8px}
 .summary-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)}
 .summary-row:last-child{border-bottom:none}
@@ -211,7 +191,6 @@ body{display:flex;flex-direction:column}
 .summary-label{font-size:0.74rem;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;flex:1}
 .summary-more{font-size:0.68rem;color:var(--text3);padding:4px 0 2px;font-style:italic}
 
-/* CHART CANVAS */
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-wrap::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(148,163,184,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.12) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
@@ -226,8 +205,9 @@ body{display:flex;flex-direction:column}
 .org-tree li:first-child::after{border-radius:6px 0 0 0}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
+/* Keep collapsed uls hidden for export - use explicit style not just class */
+.org-tree li.collapsed > ul{display:none!important}
 
-/* NODE CARD */
 .node-card{display:inline-block;width:220px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);border-color:var(--accent);z-index:10}
 .node-card.highlighted{border-color:var(--warning)!important;border-top-color:var(--warning)!important;box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
@@ -246,69 +226,57 @@ body{display:flex;flex-direction:column}
 .ncard-fr.has-r{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-li.collapsed>ul{display:none}
 
-/* SEARCH — fixed position dropdown */
+/* SEARCH — fixed position, never clipped by toolbar */
 .search-wrap{position:relative;flex:1;max-width:240px}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;pointer-events:none;opacity:0.45}
 #chart-search{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px 6px 29px;font-size:0.8rem;font-weight:500;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.15s}
 #chart-search:focus{border-color:var(--accent);background:var(--bg)}
 #chart-search::placeholder{color:var(--text3)}
-/* FIXED POSITIONING so toolbar overflow doesn't clip it */
-#chart-search-results{position:fixed;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:280px;overflow-y:auto;z-index:99999;display:none}
+#chart-search-results{position:fixed;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:300px;overflow-y:auto;z-index:99999;display:none;min-width:260px}
 #chart-search-results.visible{display:block}
-.sr-item{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s}
+.sr-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s}
 .sr-item:last-child{border-bottom:none}
 .sr-item:hover{background:var(--bg3)}
-.sr-name{font-weight:700;font-size:0.82rem}
+.sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
 
-/* ZOOM */
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
 .zoom-label{font-size:0.72rem;font-weight:800;color:var(--text);min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
 
-/* EXPORT OVERLAY */
-.export-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.export-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.94);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .export-spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
 .export-steps{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:6px}
-.export-step{font-size:0.76rem;color:var(--text3);font-weight:500;display:flex;align-items:center;gap:8px;min-width:260px}
+.export-step{font-size:0.76rem;color:var(--text3);font-weight:500;display:flex;align-items:center;gap:8px;min-width:280px}
 .export-step.active{color:var(--accent);font-weight:700}
 .export-step.done{color:var(--success)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .no-data{padding:40px;color:var(--text3);font-size:0.9rem;font-weight:600;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);max-width:440px}
 
-/* VACANT */
 .node-card.vacant{border-top-color:#dc2626!important;background:#fff5f5!important}
 .node-card.vacant .ncard-header{background:#fee2e2!important}
 .node-card.vacant .ncard-name{color:#dc2626!important}
 .node-card.vacant .ncard-footer{background:#fee2e2!important}
 .vacant-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:999px;border:1px solid #fca5a5}
 
-/* ACTION BUTTONS ON CARD */
-.ncard-edit-btn{position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
-.node-card:hover .ncard-edit-btn{opacity:1}
+/* Card action buttons */
+.ncard-edit-btn,.ncard-export-btn{position:absolute;top:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
+.ncard-edit-btn{right:6px}
+.ncard-export-btn{right:32px;font-size:0.62rem}
+.node-card:hover .ncard-edit-btn,.node-card:hover .ncard-export-btn{opacity:1}
 .ncard-edit-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-
-/* Subtree export button */
-.ncard-export-btn{position:absolute;top:6px;right:32px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.62rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
-.node-card:hover .ncard-export-btn{opacity:1}
 .ncard-export-btn:hover{background:#059669;border-color:#059669;color:#fff}
 
-/* COLOR PALETTE */
 .color-palette{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
 .color-swatch{width:24px;height:24px;border-radius:6px;cursor:pointer;border:2.5px solid transparent;transition:transform 0.1s,border-color 0.1s;flex-shrink:0}
 .color-swatch:hover{transform:scale(1.15)}
 .color-swatch.selected{border-color:var(--text);box-shadow:0 0 0 2px #fff inset}
-
-/* VACANT SELECTOR */
 .vacant-setup{margin-top:14px}
 .vacant-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .vacant-select{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:0.78rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
-.vacant-select:focus{border-color:var(--accent)}
 
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;z-index:8000;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.hidden{display:none}
 .modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:440px;max-width:100%;display:flex;flex-direction:column;max-height:80vh;overflow:hidden}
@@ -332,7 +300,6 @@ li.collapsed>ul{display:none}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 .modal-note{font-size:0.73rem;color:var(--text3);flex:1;display:flex;align-items:center}
 .tb-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
-
 .photo-folder-input{display:none}
 </style>
 </head>
@@ -355,8 +322,6 @@ li.collapsed>ul{display:none}
 </nav>
 
 <main class="main">
-
-  <!-- Screen 1: Upload -->
   <div class="screen active" id="screen-upload">
     <div class="upload-center">
       <div class="upload-hero">
@@ -386,7 +351,6 @@ li.collapsed>ul{display:none}
     </div>
   </div>
 
-  <!-- Screen 2: Column Map -->
   <div class="screen" id="screen-map">
     <div class="section-header">
       <div class="section-title">Map Your Columns</div>
@@ -395,21 +359,9 @@ li.collapsed>ul{display:none}
     <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:9px">Detected Columns</div>
     <div class="detected-chips" id="detected-columns"></div>
     <div class="map-grid">
-      <div class="map-card">
-        <div class="map-card-label">👤 Employee ID <span class="badge-req">Required</span></div>
-        <select class="map-select" id="map-empId"></select>
-        <div class="map-hint">Unique identifier — also used to match photos</div>
-      </div>
-      <div class="map-card">
-        <div class="map-card-label">🏷️ Employee Name <span class="badge-req">Required</span></div>
-        <select class="map-select" id="map-empName"></select>
-        <div class="map-hint">Full name shown on the card</div>
-      </div>
-      <div class="map-card">
-        <div class="map-card-label">🔗 Manager ID <span class="badge-opt">Optional</span></div>
-        <select class="map-select" id="map-managerId"></select>
-        <div class="map-hint">Links employee to their manager</div>
-      </div>
+      <div class="map-card"><div class="map-card-label">👤 Employee ID <span class="badge-req">Required</span></div><select class="map-select" id="map-empId"></select><div class="map-hint">Unique identifier — also used to match photos</div></div>
+      <div class="map-card"><div class="map-card-label">🏷️ Employee Name <span class="badge-req">Required</span></div><select class="map-select" id="map-empName"></select><div class="map-hint">Full name shown on the card</div></div>
+      <div class="map-card"><div class="map-card-label">🔗 Manager ID <span class="badge-opt">Optional</span></div><select class="map-select" id="map-managerId"></select><div class="map-hint">Links employee to their manager</div></div>
     </div>
     <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:9px">Data Preview (first 3 rows)</div>
     <div id="data-preview-wrap" style="margin-bottom:24px;overflow-x:auto"></div>
@@ -419,7 +371,6 @@ li.collapsed>ul{display:none}
     </div>
   </div>
 
-  <!-- Screen 3: Card Designer -->
   <div class="screen" id="screen-card">
     <div class="section-header" style="margin-bottom:18px">
       <div class="section-title">Design Your Card</div>
@@ -454,7 +405,6 @@ li.collapsed>ul{display:none}
     </div>
   </div>
 
-  <!-- Screen 4: Filter Setup -->
   <div class="screen" id="screen-filter">
     <div class="section-header">
       <div class="section-title">Set Up Filters</div>
@@ -471,7 +421,6 @@ li.collapsed>ul{display:none}
     </div>
   </div>
 
-  <!-- Screen 5: Chart -->
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">← Setup</button>
@@ -492,8 +441,6 @@ li.collapsed>ul{display:none}
       <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
       <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
       <div class="tb-sep"></div>
-
-      <!-- Bottom-up level depth -->
       <div class="depth-wrap" title="Show N levels counting from the bottom (leaves up)">
         <span class="depth-label">Levels ↑</span>
         <select class="depth-select" id="depth-select" onchange="setMaxDepth(parseInt(this.value))">
@@ -502,8 +449,6 @@ li.collapsed>ul{display:none}
           <option value="4">4</option><option value="5">5</option><option value="6">6</option>
         </select>
       </div>
-
-      <!-- ★ NEW: Summarize from level (top-down aggregation) -->
       <div class="summarize-wrap" id="summarize-wrap" title="Replace individual cards with count summaries after this level">
         <span class="summarize-label">Summarize ↓</span>
         <select class="summarize-select" id="summarize-level-select" onchange="setSummarizeLevel(parseInt(this.value))">
@@ -512,26 +457,20 @@ li.collapsed>ul{display:none}
           <option value="4">L4+</option><option value="5">L5+</option>
         </select>
       </div>
-      <!-- Group-by field shown only when summarize is on -->
       <select class="groupby-select" id="groupby-select" onchange="setGroupByField(this.value)" title="Group summary by this field"></select>
-
       <div class="tb-sep"></div>
-
-      <!-- Photo folder picker -->
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple/>
-      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()" title="Select employee photos named by Employee ID">
+      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">
         📸 <span id="photo-btn-label">Load Photos</span>
         <span class="photo-count" id="photo-count" style="display:none">0</span>
       </div>
       <div class="tb-sep"></div>
-
       <div style="flex:1"></div>
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">💾 CSV</button>
       <button class="btn btn-ghost btn-sm" onclick="exportPNG()">🖼️ PNG</button>
       <button class="btn btn-ghost btn-sm" onclick="exportPPTX()">📊 PPTX</button>
       <button class="btn btn-sm btn-export-all" onclick="exportAll()">📦 Export All</button>
     </div>
-
     <div class="stats-bar">
       <div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div>
       <div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;root nodes</div>
@@ -540,9 +479,7 @@ li.collapsed>ul{display:none}
       <div class="stat-item" id="stat-summarize-info" style="display:none;color:#d97706">⬛ <strong id="stat-summarize-val">—</strong></div>
       <div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">⚠️ Filtered</div>
     </div>
-
     <div class="filter-bar" id="filter-bar" style="display:none"></div>
-
     <div class="chart-canvas-wrap" id="chart-canvas-wrap">
       <div class="chart-canvas-content" id="chart-canvas-content">
         <div class="org-tree" id="org-tree"></div>
@@ -551,14 +488,10 @@ li.collapsed>ul{display:none}
   </div>
 </main>
 
-<!-- REASSIGN MODAL -->
 <div class="modal-overlay hidden" id="reassign-modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div>
-        <div class="modal-title">Reassign Manager</div>
-        <div class="modal-sub" id="reassign-subject">Moving <strong>—</strong></div>
-      </div>
+      <div><div class="modal-title">Reassign Manager</div><div class="modal-sub" id="reassign-subject">Moving <strong>—</strong></div></div>
       <button class="modal-close" onclick="closeReassignModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -578,7 +511,7 @@ li.collapsed>ul{display:none}
 // ════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════
-const S = {
+const S={
   rawRows:[],columns:[],colSamples:{},
   colMap:{empId:'',empName:'',managerId:''},
   cardSlots:{badge1:'',badge2:'',subtitle:'',footer1:'',footer2:''},
@@ -586,16 +519,13 @@ const S = {
   vacantCol:'',vacantVal:'',
   filterCols:[],activeFilters:{},
   managerOverrides:{},removedIds:new Set(),
-  viewData:[],childMap:{},descCount:{},
-  nodeHeight:{},
-  zoom:1,highlighted:null,
-  draggingField:null,
+  viewData:[],childMap:{},descCount:{},nodeHeight:{},
+  zoom:1,highlighted:null,draggingField:null,
   reassignTarget:null,reassignPick:null,
   maxDepth:0,
-  summarizeAfterLevel:0,  // ★ NEW: 0=off; N=summarize children of nodes at depth N-1 (1-indexed)
-  summarizeField:'',      // ★ NEW: column to group summaries by
-  photoMap:{},
-  photoObjUrls:[],
+  summarizeAfterLevel:0,
+  summarizeField:'',
+  photoMap:{},photoObjUrls:[],
 };
 
 // ════════════════════════════════════════════════
@@ -625,139 +555,86 @@ function goTo(step){
 function handleFile(file){
   const ext=file.name.split('.').pop().toLowerCase();
   if(ext==='csv'){
-    Papa.parse(file,{header:true,skipEmptyLines:true,
-      complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});
+    Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});
   } else if(['xlsx','xls'].includes(ext)){
     const reader=new FileReader();
     reader.onload=e=>{
       const wb=XLSX.read(e.target.result,{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      initData(XLSX.utils.sheet_to_json(ws,{defval:''}));
+      initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));
     };
     reader.readAsArrayBuffer(file);
-  } else { alert('Please upload a CSV or Excel (.xlsx/.xls) file.'); }
+  } else {alert('Please upload a CSV or Excel (.xlsx/.xls) file.');}
 }
-
 function initData(rows){
-  S.rawRows=rows;
-  S.columns=rows.length?Object.keys(rows[0]):[];
+  S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];
   S.colSamples={};
-  S.columns.forEach(col=>{
-    S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);
-  });
-  S.colMap=autoDetect(S.columns);
-  buildMapScreen();
-  goTo('map');
+  S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});
+  S.colMap=autoDetect(S.columns);buildMapScreen();goTo('map');
 }
-
 function autoDetect(cols){
   const lc=cols.map(c=>c.toLowerCase());
   const find=pats=>{for(const p of pats){const i=lc.findIndex(c=>c.includes(p));if(i>=0)return cols[i];}return '';};
   return {
-    empId:   find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','staff code','person id','worker id']),
-    empName: find(['employee name','emp name','full name','person name','staff name','worker name','name']),
+    empId:find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','staff code','person id','worker id']),
+    empName:find(['employee name','emp name','full name','person name','staff name','worker name','name']),
     managerId:find(['l1 manager code','l1 manager','manager code','manager id','reports to','supervisor','mgr code','mgrid']),
   };
 }
 
 // ════════════════════════════════════════════════
-// PHOTO LOADING
+// PHOTOS
 // ════════════════════════════════════════════════
 async function openPhotoFolder(){
   if('showDirectoryPicker' in window){
-    try{
-      const dirHandle=await window.showDirectoryPicker({mode:'read'});
-      await loadFromDirectoryHandle(dirHandle);
-    }catch(e){
-      if(e.name!=='AbortError')document.getElementById('photo-folder-input').click();
-    }
-  } else {
-    document.getElementById('photo-folder-input').click();
-  }
+    try{const d=await window.showDirectoryPicker({mode:'read'});await loadFromDirectoryHandle(d);}
+    catch(e){if(e.name!=='AbortError')document.getElementById('photo-folder-input').click();}
+  } else {document.getElementById('photo-folder-input').click();}
 }
-
 async function loadFromDirectoryHandle(dirHandle){
   S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];
-  const newMap={};const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
+  const newMap={};const IMG=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
   for await(const[name,handle] of dirHandle.entries()){
-    if(handle.kind==='file'){
-      const ext=name.split('.').pop().toLowerCase();
-      if(IMG_EXTS.has(ext)){
-        const file=await handle.getFile();
-        const key=name.replace(/\.[^.]+$/,'').toLowerCase().trim();
-        const url=URL.createObjectURL(file);
-        newMap[key]=url;S.photoObjUrls.push(url);
-      }
-    }
+    if(handle.kind==='file'){const ext=name.split('.').pop().toLowerCase();if(IMG.has(ext)){const f=await handle.getFile();const k=name.replace(/\.[^.]+$/,'').toLowerCase().trim();const u=URL.createObjectURL(f);newMap[k]=u;S.photoObjUrls.push(u);}}
   }
   S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();
 }
-
 function loadFromFileInput(files){
   S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];
-  const newMap={};const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
-  Array.from(files).forEach(file=>{
-    const name=file.name;const ext=name.split('.').pop().toLowerCase();
-    if(IMG_EXTS.has(ext)){
-      const key=name.replace(/\.[^.]+$/,'').toLowerCase().trim();
-      const url=URL.createObjectURL(file);
-      newMap[key]=url;S.photoObjUrls.push(url);
-    }
-  });
+  const newMap={};const IMG=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
+  Array.from(files).forEach(file=>{const ext=file.name.split('.').pop().toLowerCase();if(IMG.has(ext)){const k=file.name.replace(/\.[^.]+$/,'').toLowerCase().trim();const u=URL.createObjectURL(file);newMap[k]=u;S.photoObjUrls.push(u);}});
   S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();
 }
-
 function updatePhotoUI(){
   const count=Object.keys(S.photoMap).length;
-  const btn=document.getElementById('photo-btn');
-  const label=document.getElementById('photo-btn-label');
-  const badge=document.getElementById('photo-count');
-  const stat=document.getElementById('stat-photos');
-  const statVal=document.getElementById('stat-photos-val');
-  if(count>0){
-    btn.classList.add('loaded');label.textContent='Photos';
-    badge.textContent=count;badge.style.display='';
-    if(stat){stat.style.display='flex';statVal.textContent=count;}
-  } else {
-    btn.classList.remove('loaded');label.textContent='Load Photos';
-    badge.style.display='none';if(stat)stat.style.display='none';
-  }
+  document.getElementById('photo-btn').classList.toggle('loaded',count>0);
+  document.getElementById('photo-btn-label').textContent=count>0?'Photos':'Load Photos';
+  const badge=document.getElementById('photo-count');badge.textContent=count;badge.style.display=count>0?'':'none';
+  const stat=document.getElementById('stat-photos');const sv=document.getElementById('stat-photos-val');
+  if(stat){stat.style.display=count>0?'flex':'none';if(sv)sv.textContent=count;}
 }
-
 function getPhotoUrl(node){
   if(!Object.keys(S.photoMap).length)return '';
-  const empId=node.id.toLowerCase().trim();
-  if(S.photoMap[empId])return S.photoMap[empId];
-  const nameKey=node.name.toLowerCase().trim().replace(/\s+/g,'_');
-  if(S.photoMap[nameKey])return S.photoMap[nameKey];
-  const nameKey2=node.name.toLowerCase().trim().replace(/\s+/g,'');
-  if(S.photoMap[nameKey2])return S.photoMap[nameKey2];
+  const id=node.id.toLowerCase().trim();if(S.photoMap[id])return S.photoMap[id];
+  const nk=node.name.toLowerCase().trim().replace(/\s+/g,'_');if(S.photoMap[nk])return S.photoMap[nk];
+  const nk2=node.name.toLowerCase().trim().replace(/\s+/g,'');if(S.photoMap[nk2])return S.photoMap[nk2];
   return '';
 }
 
 // ════════════════════════════════════════════════
-// SCREEN 2 — COLUMN MAP
+// SCREEN 2
 // ════════════════════════════════════════════════
 function buildMapScreen(){
   document.getElementById('col-count').textContent=S.columns.length;
-  const chips=document.getElementById('detected-columns');
-  chips.innerHTML=S.columns.map(c=>{
-    const s=S.colSamples[c].join(', ');
-    return`<div class="col-chip">📋 ${esc(c)}${s?`<span class="chip-sample">${esc(s)}</span>`:''}</div>`;
-  }).join('');
+  document.getElementById('detected-columns').innerHTML=S.columns.map(c=>`<div class="col-chip">📋 ${esc(c)}${S.colSamples[c].length?`<span class="chip-sample">${esc(S.colSamples[c].join(', '))}</span>`:''}</div>`).join('');
   const blank='<option value="">— select —</option>';
   const opts=blank+S.columns.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  ['empId','empName','managerId'].forEach(k=>{
-    const sel=document.getElementById('map-'+k);if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';
-  });
-  const wrap=document.getElementById('data-preview-wrap');
-  const preview=S.rawRows.slice(0,3);
+  ['empId','empName','managerId'].forEach(k=>{const sel=document.getElementById('map-'+k);if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';});
+  const wrap=document.getElementById('data-preview-wrap');const preview=S.rawRows.slice(0,3);
   if(!preview.length){wrap.innerHTML='';return;}
   let html='<table class="data-preview-table"><thead><tr>'+S.columns.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr></thead><tbody>';
   preview.forEach(row=>{html+='<tr>'+S.columns.map(c=>`<td title="${esc(String(row[c]||''))}">${esc(String(row[c]||'').substring(0,22))}</td>`).join('')+'</tr>';});
-  html+='</tbody></table>';wrap.innerHTML=html;
+  wrap.innerHTML=html+'</tbody></table>';
 }
-
 function confirmColumnMap(){
   S.colMap.empId=document.getElementById('map-empId').value;
   S.colMap.empName=document.getElementById('map-empName').value;
@@ -773,89 +650,42 @@ const AUTO_FIELDS=[
   {id:'__auto_reports__',icon:'📊',label:'Direct Reports',desc:'Count of direct reports'},
   {id:'__auto_teamsize__',icon:'👥',label:'Total Team Size',desc:'All descendants count'},
 ];
-
 function buildCardScreen(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const available=S.columns.filter(c=>!core.has(c));
-  const panel=document.getElementById('card-fields-panel');
-  panel.innerHTML=
+  document.getElementById('card-fields-panel').innerHTML=
     '<div class="fields-section"><div class="fields-section-label">Column Fields</div>'+
     (available.length?available.map(f=>`<div class="field-chip" draggable="true" data-field="${esc(f)}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)"><span class="drag-icon">⠿</span>${esc(f)}</div>`).join('')
       :'<div style="font-size:0.78rem;color:var(--text3);font-style:italic">No extra columns</div>')+
     '</div><div class="fields-section"><div class="fields-section-label">Auto-Calculated</div>'+
-    AUTO_FIELDS.map(f=>`<div class="field-chip" draggable="true" data-field="${f.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" title="${f.desc}"><span class="drag-icon">⠿</span><span>${f.icon}</span>${f.label}</div>`).join('')+
-    '</div>';
+    AUTO_FIELDS.map(f=>`<div class="field-chip" draggable="true" data-field="${f.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" title="${f.desc}"><span class="drag-icon">⠿</span><span>${f.icon}</span>${f.label}</div>`).join('')+'</div>';
   if(!S.cardSlots.footer2)S.cardSlots.footer2='__auto_reports__';
   const COLORS=['#4f46e5','#7c3aed','#db2777','#dc2626','#d97706','#059669','#0891b2','#0284c7','#374151','#0f172a'];
-  document.getElementById('color-palette').innerHTML=COLORS.map(c=>
-    `<div class="color-swatch${S.cardAccent===c?' selected':''}" style="background:${c}" title="${c}" onclick="setCardAccent('${c}')"></div>`
-  ).join('');
+  document.getElementById('color-palette').innerHTML=COLORS.map(c=>`<div class="color-swatch${S.cardAccent===c?' selected':''}" style="background:${c}" onclick="setCardAccent('${c}')"></div>`).join('');
   const core2=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const colSel=document.getElementById('vacant-col');
-  if(colSel){
-    colSel.innerHTML='<option value="">Column…</option>'+S.columns.filter(c=>!core2.has(c)).map(c=>`<option value="${esc(c)}"${S.vacantCol===c?' selected':''}>${esc(c)}</option>`).join('');
-    if(S.vacantCol)populateVacantValues(S.vacantCol);
-  }
+  if(colSel){colSel.innerHTML='<option value="">Column…</option>'+S.columns.filter(c=>!core2.has(c)).map(c=>`<option value="${esc(c)}"${S.vacantCol===c?' selected':''}>${esc(c)}</option>`).join('');if(S.vacantCol)populateVacantValues(S.vacantCol);}
   renderCardPreview();syncChipStates();
 }
-
 function onDragStart(e){S.draggingField=e.currentTarget.dataset.field;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
 function onDragEnd(e){e.currentTarget.classList.remove('dragging');}
 function onZoneDragOver(e){e.preventDefault();e.currentTarget.classList.add('drop-target');}
 function onZoneDragLeave(e){e.currentTarget.classList.remove('drop-target');}
-function onZoneDrop(e,zone){
-  e.preventDefault();e.currentTarget.classList.remove('drop-target');
-  if(!S.draggingField)return;
-  Object.keys(S.cardSlots).forEach(z=>{if(S.cardSlots[z]===S.draggingField)S.cardSlots[z]='';});
-  S.cardSlots[zone]=S.draggingField;S.draggingField=null;
-  renderCardPreview();syncChipStates();
-}
+function onZoneDrop(e,zone){e.preventDefault();e.currentTarget.classList.remove('drop-target');if(!S.draggingField)return;Object.keys(S.cardSlots).forEach(z=>{if(S.cardSlots[z]===S.draggingField)S.cardSlots[z]='';});S.cardSlots[zone]=S.draggingField;S.draggingField=null;renderCardPreview();syncChipStates();}
 function clearZone(zone){S.cardSlots[zone]='';renderCardPreview();syncChipStates();}
-function syncChipStates(){
-  const placed=new Set(Object.values(S.cardSlots).filter(Boolean));
-  document.querySelectorAll('.field-chip').forEach(c=>c.classList.toggle('placed',placed.has(c.dataset.field)));
-}
+function syncChipStates(){const placed=new Set(Object.values(S.cardSlots).filter(Boolean));document.querySelectorAll('.field-chip').forEach(c=>c.classList.toggle('placed',placed.has(c.dataset.field)));}
 function fieldLabel(id){if(!id)return '';const af=AUTO_FIELDS.find(f=>f.id===id);if(af)return af.icon+' '+af.label;return id;}
-function fieldSampleVal(id){
-  if(!id)return '';if(id==='__auto_reports__')return '12';if(id==='__auto_teamsize__')return '48';
-  const row=S.rawRows.find(r=>r[id])||S.rawRows[0]||{};return String(row[id]||'Sample').substring(0,22);
-}
-function zoneHtml(zoneId,placeholder,extraClass=''){
-  const v=S.cardSlots[zoneId];
-  const dA=`ondragover="onZoneDragOver(event)" ondragleave="onZoneDragLeave(event)" ondrop="onZoneDrop(event,'${zoneId}')"`;
-  if(v)return`<div class="card-zone filled ${extraClass}" ${dA}><span class="zone-field">${esc(fieldLabel(v))}</span><span class="zone-val">${esc(fieldSampleVal(v))}</span><span class="zone-remove" onclick="clearZone('${zoneId}')">✕</span></div>`;
-  return`<div class="card-zone ${extraClass}" ${dA}><span class="zone-ph">${placeholder}</span></div>`;
-}
+function fieldSampleVal(id){if(!id)return '';if(id==='__auto_reports__')return '12';if(id==='__auto_teamsize__')return '48';const row=S.rawRows.find(r=>r[id])||S.rawRows[0]||{};return String(row[id]||'Sample').substring(0,22);}
+function zoneHtml(zoneId,placeholder,extraClass){extraClass=extraClass||'';const v=S.cardSlots[zoneId];const dA=`ondragover="onZoneDragOver(event)" ondragleave="onZoneDragLeave(event)" ondrop="onZoneDrop(event,'${zoneId}')"`;if(v)return`<div class="card-zone filled ${extraClass}" ${dA}><span class="zone-field">${esc(fieldLabel(v))}</span><span class="zone-val">${esc(fieldSampleVal(v))}</span><span class="zone-remove" onclick="clearZone('${zoneId}')">✕</span></div>`;return`<div class="card-zone ${extraClass}" ${dA}><span class="zone-ph">${placeholder}</span></div>`;}
 function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
   const ac=S.cardAccent;
-  document.getElementById('card-preview').innerHTML=`
-    <div class="preview-card" style="border-top-color:${ac}">
-      <div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div>
-      <div class="preview-card-body">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">
-          <div style="width:38px;height:38px;border-radius:50%;background:${ac}18;color:${ac};font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid ${ac}44;flex-shrink:0">AB</div>
-          <div class="preview-name-fixed" style="flex:1;margin:0"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div>
-        </div>
-        ${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}
-      </div>
-      <div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div>
-    </div>
-    <div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
+  document.getElementById('card-preview').innerHTML=`<div class="preview-card" style="border-top-color:${ac}"><div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div><div class="preview-card-body"><div style="display:flex;align-items:center;gap:9px;margin-bottom:7px"><div style="width:38px;height:38px;border-radius:50%;background:${ac}18;color:${ac};font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid ${ac}44;flex-shrink:0">AB</div><div class="preview-name-fixed" style="flex:1;margin:0"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div></div>${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div><div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div></div><div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
 }
 function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();}
-function onVacantColChange(){
-  const col=document.getElementById('vacant-col').value;S.vacantCol=col;S.vacantVal='';
-  const v=document.getElementById('vacant-val');
-  if(col){v.style.display='';populateVacantValues(col);}else{v.style.display='none';}
-}
-function populateVacantValues(col){
-  const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();
-  const v=document.getElementById('vacant-val');if(!v)return;
-  v.innerHTML='<option value="">Value…</option>'+vals.map(x=>`<option value="${esc(x)}"${S.vacantVal===x?' selected':''}>${esc(x)}</option>`).join('');
-  v.style.display='';v.onchange=()=>{S.vacantVal=v.value;};
-}
+function onVacantColChange(){const col=document.getElementById('vacant-col').value;S.vacantCol=col;S.vacantVal='';const v=document.getElementById('vacant-val');if(col){v.style.display='';populateVacantValues(col);}else{v.style.display='none';}}
+function populateVacantValues(col){const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();const v=document.getElementById('vacant-val');if(!v)return;v.innerHTML='<option value="">Value…</option>'+vals.map(x=>`<option value="${esc(x)}"${S.vacantVal===x?' selected':''}>${esc(x)}</option>`).join('');v.style.display='';v.onchange=()=>{S.vacantVal=v.value;};}
 function isVacant(node){return S.vacantCol&&S.vacantVal&&node[S.vacantCol]===S.vacantVal;}
 function confirmCardDesign(){const v=document.getElementById('vacant-val');if(v)S.vacantVal=v.value;buildFilterScreen();goTo('filter');}
 
@@ -865,14 +695,12 @@ function confirmCardDesign(){const v=document.getElementById('vacant-val');if(v)
 function buildFilterScreen(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const filterable=S.columns.filter(c=>!core.has(c));
-  document.getElementById('filter-chip-picker').innerHTML=filterable.map(col=>
-    `<div class="filter-chip ${S.filterCols.includes(col)?'selected':''}" data-col="${esc(col)}" onclick="toggleFilterCol('${esc(col)}')">${esc(col)}</div>`
-  ).join('');
+  document.getElementById('filter-chip-picker').innerHTML=filterable.map(col=>`<div class="filter-chip ${S.filterCols.includes(col)?'selected':''}" data-col="${esc(col)}" onclick="toggleFilterCol('${esc(col)}')">${esc(col)}</div>`).join('');
   renderFilterPreview();
 }
 function toggleFilterCol(col){
-  if(S.filterCols.includes(col)){S.filterCols=S.filterCols.filter(c=>c!==col);}
-  else if(S.filterCols.length<3){S.filterCols.push(col);}
+  if(S.filterCols.includes(col))S.filterCols=S.filterCols.filter(c=>c!==col);
+  else if(S.filterCols.length<3)S.filterCols.push(col);
   else{S.filterCols.shift();S.filterCols.push(col);}
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('selected',S.filterCols.includes(c.dataset.col)));
   renderFilterPreview();
@@ -881,111 +709,50 @@ function renderFilterPreview(){
   document.getElementById('filter-counter').textContent=`${S.filterCols.length} of 3 filters selected`;
   const area=document.getElementById('filter-preview-area');
   if(!S.filterCols.length){area.innerHTML=`<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>`;return;}
-  area.innerHTML=`<div class="filter-preview-box">
-    ${S.filterCols.map((col,i)=>{
-      const isLast=i===S.filterCols.length-1;
-      const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);
-      return`<div class="fpr-row">
-        <span class="fpr-col">${esc(col)}${isLast?` <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>`:''}</span>
-        <div class="fpr-vals">${vals.map(v=>`<span class="fv-pill">${esc(v)}</span>`).join('')}${vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':''}</div>
-      </div>`;
-    }).join('')}
-  </div>`;
+  area.innerHTML=`<div class="filter-preview-box">${S.filterCols.map((col,i)=>{const isLast=i===S.filterCols.length-1;const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);return`<div class="fpr-row"><span class="fpr-col">${esc(col)}${isLast?` <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>`:''}</span><div class="fpr-vals">${vals.map(v=>`<span class="fv-pill">${esc(v)}</span>`).join('')}${vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':''}</div></div>`;}).join('')}</div>`;
 }
 function launchChart(){S.activeFilters={};S.maxDepth=0;S.summarizeAfterLevel=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
 // ════════════════════════════════════════════════
-// ★ NEW: SUMMARIZE CONTROLS
+// SUMMARIZE CONTROLS
 // ════════════════════════════════════════════════
 function populateSummarizeFields(){
   const sel=document.getElementById('groupby-select');if(!sel)return;
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
-  const fields=S.columns.filter(c=>!core.has(c));
-  sel.innerHTML='<option value="">— Group by field —</option>'+fields.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
+  sel.innerHTML='<option value="">— Group by field —</option>'+S.columns.filter(c=>!core.has(c)).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
   if(S.summarizeField)sel.value=S.summarizeField;
-  // Sync UI
-  const lvlSel=document.getElementById('summarize-level-select');
-  if(lvlSel)lvlSel.value=S.summarizeAfterLevel;
+  document.getElementById('summarize-level-select').value=S.summarizeAfterLevel;
   updateSummarizeUI();
 }
-
-function setSummarizeLevel(n){
-  S.summarizeAfterLevel=n;
-  updateSummarizeUI();
-  renderChart();
-}
-
-function setGroupByField(f){
-  S.summarizeField=f;
-  if(S.summarizeAfterLevel>0)renderChart();
-}
-
+function setSummarizeLevel(n){S.summarizeAfterLevel=n;updateSummarizeUI();renderChart();}
+function setGroupByField(f){S.summarizeField=f;if(S.summarizeAfterLevel>0)renderChart();}
 function updateSummarizeUI(){
-  const wrap=document.getElementById('summarize-wrap');
-  const gb=document.getElementById('groupby-select');
-  if(wrap)wrap.classList.toggle('active',S.summarizeAfterLevel>0);
-  if(gb)gb.classList.toggle('visible',S.summarizeAfterLevel>0);
-  const info=document.getElementById('stat-summarize-info');
-  const val=document.getElementById('stat-summarize-val');
-  if(info&&val){
-    info.style.display=S.summarizeAfterLevel>0?'flex':'none';
-    if(S.summarizeAfterLevel>0)val.textContent=`Summarized from L${S.summarizeAfterLevel}${S.summarizeField?' by '+S.summarizeField:''}`;
-  }
+  document.getElementById('summarize-wrap').classList.toggle('active',S.summarizeAfterLevel>0);
+  document.getElementById('groupby-select').classList.toggle('visible',S.summarizeAfterLevel>0);
+  const info=document.getElementById('stat-summarize-info');const val=document.getElementById('stat-summarize-val');
+  if(info&&val){info.style.display=S.summarizeAfterLevel>0?'flex':'none';if(S.summarizeAfterLevel>0)val.textContent=`Summarized from L${S.summarizeAfterLevel}${S.summarizeField?' by '+S.summarizeField:''}`;}
 }
-
-// Get all descendants of a node (recursively) grouped by field
 function getDescendantSummary(nodeId,field){
-  const allDesc=[];
-  function collect(id){
-    (S.childMap[id]||[]).forEach(k=>{allDesc.push(k);collect(k.id);});
-  }
-  collect(nodeId);
-  if(!allDesc.length)return[];
-  if(!field){return[{label:'Employees',count:allDesc.length}];}
-  const groups={};
-  allDesc.forEach(n=>{
-    const v=String(n[field]||'—').trim()||'—';
-    groups[v]=(groups[v]||0)+1;
-  });
+  const all=[];
+  function col(id){(S.childMap[id]||[]).forEach(k=>{all.push(k);col(k.id);});}col(nodeId);
+  if(!all.length)return[];
+  if(!field)return[{label:'Employees',count:all.length}];
+  const groups={};all.forEach(n=>{const v=String(n[field]||'—').trim()||'—';groups[v]=(groups[v]||0)+1;});
   return Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([label,count])=>({label,count}));
 }
-
-// Build a summary LI node (shows aggregated counts instead of individual cards)
 function mkSummaryNodeLI(parentNodeId){
   const li=document.createElement('li');
   const summary=getDescendantSummary(parentNodeId,S.summarizeField);
   const total=summary.reduce((s,g)=>s+g.count,0);
-  const ac=S.cardAccent;
-  const acLight=ac+'18',acMid=ac+'44';
-
+  const ac=S.cardAccent,acLight=ac+'18',acMid=ac+'44';
   const card=document.createElement('div');
   card.className='node-card summary-node-card';
-  card.style.borderTopColor=ac;
-  card.style.width='auto';
-  card.style.minWidth='160px';
-  card.style.maxWidth='220px';
-
-  let rowsHtml='';
-  const toShow=summary.slice(0,9);
-  const extra=summary.length-toShow.length;
-  toShow.forEach(g=>{
-    rowsHtml+=`<div class="summary-row"><span class="summary-count" style="color:${ac}">${g.count}</span><span class="summary-label">${esc(g.label)}</span></div>`;
-  });
+  card.style.cssText=`border-top-color:${ac};width:auto;min-width:160px;max-width:220px`;
+  const toShow=summary.slice(0,9);const extra=summary.length-toShow.length;
+  let rowsHtml=toShow.map(g=>`<div class="summary-row"><span class="summary-count" style="color:${ac}">${g.count}</span><span class="summary-label">${esc(g.label)}</span></div>`).join('');
   if(extra>0)rowsHtml+=`<div class="summary-more">+${extra} more categories</div>`;
-
-  card.innerHTML=
-    `<div class="ncard-header" style="background:${acLight};border-bottom-color:${acMid}">
-      <span class="ncard-badge" style="background:${acLight};color:${ac};border-color:${acMid}">Summary</span>
-      <span class="ncard-badge2" style="color:${ac};font-weight:800">${total}</span>
-    </div>
-    <div class="summary-grid">${rowsHtml||'<div style="font-size:0.75rem;color:var(--text3);padding:4px 0">No data</div>'}</div>
-    <div class="ncard-footer" style="background:${acLight}">
-      <span class="ncard-fl">${total} total</span>
-      <span class="ncard-fr has-r" style="background:${acLight};color:${ac};border-color:${acMid}">${summary.length} ${summary.length===1?'group':'groups'}</span>
-    </div>`;
-
-  li.appendChild(card);
-  return li;
+  card.innerHTML=`<div class="ncard-header" style="background:${acLight};border-bottom-color:${acMid}"><span class="ncard-badge" style="background:${acLight};color:${ac};border-color:${acMid}">Summary</span><span class="ncard-badge2" style="color:${ac};font-weight:800">${total}</span></div><div class="summary-grid">${rowsHtml||'<div style="font-size:0.75rem;color:var(--text3);padding:4px 0">No data</div>'}</div><div class="ncard-footer" style="background:${acLight}"><span class="ncard-fl">${total} total</span><span class="ncard-fr has-r" style="background:${acLight};color:${ac};border-color:${acMid}">${summary.length} group${summary.length!==1?'s':''}</span></div>`;
+  li.appendChild(card);return li;
 }
 
 // ════════════════════════════════════════════════
@@ -1000,45 +767,27 @@ function buildViewData(){
     S.columns.forEach(col=>{node[col]=String(row[col]||'');});
     return node;
   }).filter(n=>n.id&&!S.removedIds.has(n.id));
-
   const validIds=new Set(nodes.map(n=>n.id));
   nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});
   nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});
-
   const hasFilter=Object.values(S.activeFilters).some(v=>v);
   if(hasFilter){
     const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));
     const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));
     const keep=new Set(matching);
-    matching.forEach(id=>{
-      let cur=byId[id];const visited=new Set();
-      while(cur&&cur.manager&&byId[cur.manager]&&!visited.has(cur.id)){visited.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}
-    });
+    matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});
     nodes=nodes.filter(n=>keep.has(n.id));
   }
-
-  S.viewData=nodes;
-  S.childMap={};
+  S.viewData=nodes;S.childMap={};
   nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});
-
   S.descCount={};
-  function calcDesc(id){
-    if(S.descCount[id]!==undefined)return S.descCount[id];
-    const kids=S.childMap[id]||[];
-    S.descCount[id]=kids.reduce((s,k)=>s+1+calcDesc(k.id),0);return S.descCount[id];
-  }
-  nodes.filter(n=>!n.manager).forEach(r=>calcDesc(r.id));
-
+  function calcD(id){if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id),0);return S.descCount[id];}
+  nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id));
   S.nodeHeight={};
-  function calcHeight(id){
-    if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];
-    const kids=S.childMap[id]||[];
-    S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcHeight(k.id))):0;return S.nodeHeight[id];
-  }
-  nodes.filter(n=>!n.manager).forEach(r=>calcHeight(r.id));
-  nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcHeight(n.id);});
+  function calcH(id){if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
+  nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id));
+  nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id);});
 }
-
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
@@ -1050,31 +799,15 @@ function buildFilterBar(){
   if(!S.filterCols.length){bar.style.display='none';return;}
   bar.style.display='flex';
   const allVals={};
-  S.filterCols.forEach(col=>{
-    allVals[col]=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();
-  });
+  S.filterCols.forEach(col=>{allVals[col]=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();});
   bar.innerHTML='<span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);flex-shrink:0">Filters</span>'+
-    S.filterCols.map(col=>{
-      const cur=S.activeFilters[col]||'';
-      const opts=`<option value="">All ${esc(col)}</option>`+allVals[col].map(v=>`<option value="${esc(v)}"${cur===v?' selected':''}>${esc(v)}</option>`).join('');
-      return`<div class="filter-dropdown-wrap"><span class="filter-dropdown-label">${esc(col)}</span><select class="filter-dropdown" onchange="applyFilter('${esc(col)}',this.value)">${opts}</select></div>`;
-    }).join('')+
+    S.filterCols.map(col=>`<div class="filter-dropdown-wrap"><span class="filter-dropdown-label">${esc(col)}</span><select class="filter-dropdown" onchange="applyFilter('${esc(col)}',this.value)"><option value="">All ${esc(col)}</option>${allVals[col].map(v=>`<option value="${esc(v)}"${(S.activeFilters[col]===v)?' selected':''}>${esc(v)}</option>`).join('')}</select></div>`).join('')+
     (Object.values(S.activeFilters).some(v=>v)?`<button class="btn btn-ghost btn-sm" onclick="clearAllFilters()" style="margin-left:auto">✕ Clear All</button>`:'');
 }
-function applyFilter(col,val){
-  if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];
-  requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));
-}
+function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 
-// ════════════════════════════════════════════════
-// BOTTOM-UP DEPTH
-// ════════════════════════════════════════════════
-function setMaxDepth(n){
-  S.maxDepth=n;
-  const ds=document.getElementById('depth-select');if(ds)ds.value=n;
-  renderChart();
-}
+function setMaxDepth(n){S.maxDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
 
 // ════════════════════════════════════════════════
 // ORG CHART RENDER
@@ -1087,45 +820,28 @@ function getSlotVal(node,slot){
 }
 
 function renderChart(){
-  const tree=document.getElementById('org-tree');
-  tree.innerHTML='';
+  const tree=document.getElementById('org-tree');tree.innerHTML='';
   updateSummarizeUI();
-
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.maxDepth;
-
   let roots;
   if(S.maxDepth>0){
-    const visible=new Set(S.viewData.filter(n=>(S.nodeHeight[n.id]||0)<S.maxDepth).map(n=>n.id));
-    roots=S.viewData.filter(n=>visible.has(n.id)&&(!n.manager||!visible.has(n.manager)));
-  } else {
-    roots=S.viewData.filter(n=>!n.manager);
-  }
-
-  if(!roots.length){
-    tree.innerHTML=`<div class="no-data">No nodes found for the current settings.</div>`;
-    updateStats(roots);return;
-  }
-
+    const vis=new Set(S.viewData.filter(n=>(S.nodeHeight[n.id]||0)<S.maxDepth).map(n=>n.id));
+    roots=S.viewData.filter(n=>vis.has(n.id)&&(!n.manager||!vis.has(n.manager)));
+  } else {roots=S.viewData.filter(n=>!n.manager);}
+  if(!roots.length){tree.innerHTML=`<div class="no-data">No nodes found for the current settings.</div>`;updateStats(roots);return;}
   const ul=document.createElement('ul');
   roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
-  tree.appendChild(ul);
-  updateStats(roots);
-  clearTimeout(window._fit);
-  window._fit=setTimeout(()=>fitToScreen(true),180);
+  tree.appendChild(ul);updateStats(roots);
+  clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
 }
 
-// ★ mkNodeLI now accepts depth parameter for summarize feature
 function mkNodeLI(node,depth){
   depth=depth||0;
-  const li=document.createElement('li');
-  li.dataset.id=node.id;
-
-  const vacant=isVacant(node);
-  const ac=S.cardAccent;
+  const li=document.createElement('li');li.dataset.id=node.id;
+  const vacant=isVacant(node);const ac=S.cardAccent;
   const card=document.createElement('div');
   card.className='node-card'+(node.id===S.highlighted?' highlighted':'')+(vacant?' vacant':'');
   if(!vacant)card.style.borderTopColor=ac;
-
   const acLight=ac+'18',acMid=ac+'55';
   const reports=childrenOf(node.id).length;
   const badge1=getSlotVal(node,'badge1'),badge2=getSlotVal(node,'badge2');
@@ -1134,20 +850,13 @@ function mkNodeLI(node,depth){
   const footer2=getSlotVal(node,'footer2');
   const hasR=reports>0;
   const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
-
   const photoUrl=getPhotoUrl(node);
   let photoHtml='';
-  if(photoUrl){
-    photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">` +
-      `<div class="ncard-photo-fallback" style="display:none;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;
-  } else if(Object.keys(S.photoMap).length>0){
-    photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;
-  }
-
+  if(photoUrl){photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ncard-photo-fallback" style="display:none;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;}
+  else if(Object.keys(S.photoMap).length>0){photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;}
   card.innerHTML=
     '<div class="ncard-header">'+
-      (vacant?'<span class="vacant-badge">🔴 Vacant</span>':
-        badge1?`<span class="ncard-badge" title="${esc(badge1)}" style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`:'<span></span>')+
+      (vacant?'<span class="vacant-badge">🔴 Vacant</span>':(badge1?`<span class="ncard-badge" title="${esc(badge1)}" style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`:'<span></span>'))+
       (badge2&&!vacant?`<span class="ncard-badge2">${esc(badge2)}</span>`:'')+
     '</div>'+
     '<div class="ncard-body"><div class="ncard-body-inner">'+
@@ -1155,53 +864,63 @@ function mkNodeLI(node,depth){
       '<div class="ncard-text-wrap">'+
         `<div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>`+
         (subtitle?`<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>`:'')+
-      '</div>'+
-    '</div></div>'+
+      '</div></div></div>'+
     '<div class="ncard-footer">'+
       `<span class="ncard-fl">${esc(footer1)}</span>`+
       (footer2?`<span class="ncard-fr has-r" style="background:${acLight};color:${ac}">${esc(footer2)}</span>`:
-        `<span class="ncard-fr${hasR?' has-r':''}" ${hasR?`style="background:${acLight};color:${ac}"`:''}>` +
-        `${reports} ${reports===1?'report':'reports'}</span>`)+
+        `<span class="ncard-fr${hasR?' has-r':''}" ${hasR?`style="background:${acLight};color:${ac}"`:''}>${reports} ${reports===1?'report':'reports'}</span>`)+
     '</div>'+
-    // ★ Subtree export button (📸) next to edit button (✎)
-    `<div class="ncard-export-btn" title="Export this team as PNG" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
+    `<div class="ncard-export-btn" title="Export this person's team only" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
-  // Collapse button
   if(hasR){
-    const cb=document.createElement('div');
-    cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';
+    const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';
     cb.addEventListener('click',e=>{e.stopPropagation();toggleCollapse(li,cb);});
     card.appendChild(cb);
   }
   li.appendChild(card);
 
-  // ★ Children: check if we should summarize (top-down depth check)
   let kids=childrenOf(node.id);
-  if(S.maxDepth>0){
-    kids=kids.filter(k=>(S.nodeHeight[k.id]||0)<S.maxDepth);
-  }
-
+  if(S.maxDepth>0)kids=kids.filter(k=>(S.nodeHeight[k.id]||0)<S.maxDepth);
   if(kids.length){
-    // summarizeAfterLevel=N means nodes at depth >= N-1 show summary children
-    // depth is 0-indexed (root=0), summarizeAfterLevel is 1-indexed (L1=root, L2=root's children)
-    if(S.summarizeAfterLevel>0 && depth >= S.summarizeAfterLevel-1){
-      // Show summary card instead of individual children
-      const ul=document.createElement('ul');
-      ul.appendChild(mkSummaryNodeLI(node.id));
-      li.appendChild(ul);
+    if(S.summarizeAfterLevel>0&&depth>=S.summarizeAfterLevel-1){
+      const ul=document.createElement('ul');ul.appendChild(mkSummaryNodeLI(node.id));li.appendChild(ul);
     } else {
-      const ul=document.createElement('ul');
-      kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-      li.appendChild(ul);
+      const ul=document.createElement('ul');kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));li.appendChild(ul);
     }
   }
   return li;
 }
 
-function toggleCollapse(li,btn){li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';li.querySelector('.node-card')?.classList.toggle('collapsed-node',c);setTimeout(()=>updateStats(),60);}
-function expandAll(){document.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');li.querySelector('.node-card')?.classList.remove('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}});setTimeout(()=>updateStats(),60);}
-function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.parentElement?.parentElement?.closest('li'))return;if(li.querySelector(':scope > ul')){li.classList.add('collapsed');li.querySelector('.node-card')?.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}}}); setTimeout(()=>updateStats(),60);}
+function toggleCollapse(li,btn){
+  li.classList.toggle('collapsed');
+  const c=li.classList.contains('collapsed');
+  // ★ Also set explicit style so html2canvas sees it regardless of CSS cascade
+  const childUl=li.querySelector(':scope > ul');
+  if(childUl)childUl.style.display=c?'none':'';
+  btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';
+  li.querySelector('.node-card')?.classList.toggle('collapsed-node',c);
+  setTimeout(()=>updateStats(),60);
+}
+function expandAll(){
+  document.querySelectorAll('li.collapsed').forEach(li=>{
+    li.classList.remove('collapsed');
+    const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display='';
+    li.querySelector('.node-card')?.classList.remove('collapsed-node');
+    const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}
+  });setTimeout(()=>updateStats(),60);
+}
+function collapseAll(){
+  document.querySelectorAll('li').forEach(li=>{
+    if(!li.parentElement?.parentElement?.closest('li'))return;
+    if(li.querySelector(':scope > ul')){
+      li.classList.add('collapsed');
+      const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display='none';
+      li.querySelector('.node-card')?.classList.add('collapsed-node');
+      const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}
+    }
+  });setTimeout(()=>updateStats(),60);
+}
 function updateStats(roots){
   if(!roots)roots=S.viewData.filter(n=>!n.manager);
   document.getElementById('stat-total').textContent=S.viewData.length;
@@ -1236,137 +955,144 @@ function initPan(){
 }
 
 // ════════════════════════════════════════════════
-// ★ SEARCH — fixed position dropdown (toolbar overflow fix)
+// SEARCH — fixed dropdown, never clipped by toolbar
 // ════════════════════════════════════════════════
 function initSearch(){
-  const input=document.getElementById('chart-search');
-  const box=document.getElementById('chart-search-results');
-  if(!input)return;
-
+  const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;
   function positionBox(){
-    const rect=input.getBoundingClientRect();
-    box.style.top=(rect.bottom+5)+'px';
-    box.style.left=rect.left+'px';
-    box.style.width=Math.max(260,rect.width)+'px';
+    const r=input.getBoundingClientRect();
+    box.style.top=(r.bottom+4)+'px';
+    box.style.left=r.left+'px';
+    box.style.width=Math.max(270,r.width)+'px';
   }
-
   input.addEventListener('input',function(){
-    const q=this.value.trim().toLowerCase();
-    if(!q){box.classList.remove('visible');return;}
+    const q=this.value.trim().toLowerCase();if(!q){box.classList.remove('visible');return;}
     const hits=S.viewData.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)).slice(0,10);
     box.innerHTML=hits.length
       ?hits.map(n=>`<div class="sr-item" onclick="highlightNode('${esc(n.id)}')"><div class="sr-name">${esc(n.name)}</div><div class="sr-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div>`).join('')
-      :'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results found</div>';
-    positionBox();
-    box.classList.add('visible');
+      :'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
+    positionBox();box.classList.add('visible');
   });
-  input.addEventListener('focus',function(){if(this.value.trim())positionBox();});
+  input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});
   document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});
   window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});
-  window.addEventListener('scroll',()=>{if(box.classList.contains('visible'))positionBox();},true);
 }
-
 function highlightNode(id){
   document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));
   S.highlighted=id;expandAll();
   const li=document.querySelector(`li[data-id="${CSS.escape(id)}"]`);
-  if(li){
-    const card=li.querySelector('.node-card');if(card){
-      card.classList.add('highlighted');
-      setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);
-    }
-  }
-  document.getElementById('chart-search').value='';
-  document.getElementById('chart-search-results').classList.remove('visible');
+  if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}
+  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
 }
 
 // ════════════════════════════════════════════════
-// SHARED EXPORT HELPERS
+// ★ CORE RENDER STAGE — builds an off-screen tree for capture
+//
+// rootNodeId : if provided, builds a fresh tree for ONLY that node
+//              + its descendants (downward only), ignoring the DOM.
+//              The caller must have already restricted S.viewData /
+//              S.childMap to just those nodes.
+//
+// NO expand-all: we respect the current collapsed / visible state of
+//                cloned DOM nodes so "export what you see" works.
 // ════════════════════════════════════════════════
 function inlineStyles(root){
-  const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow'];
+  const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor',
+    'borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle',
+    'lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin',
+    'display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow',
+    'textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
     const cs=window.getComputedStyle(el);
-    PROPS.forEach(p=>{try{el.style[p]=cs[p];}catch(e){}});
-    el.style.webkitLineClamp='unset';el.style.overflow='visible';
+    PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
+    // keep overflow visible so text is not cut
+    if(el.style.overflow==='hidden'&&!el.classList.contains('node-card')&&!el.classList.contains('ncard-name')&&!el.classList.contains('ncard-sub'))el.style.overflow='visible';
     el.classList.remove('collapsed');
   });
 }
 
 async function buildRenderStage(rootNodeId){
+  // Minimal padding — just enough for card drop-shadows not to clip
+  const PAD=20;
   const stage=document.createElement('div');
-  stage.style.cssText='position:fixed;top:0;left:-99999px;background:#ffffff;padding:64px 80px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none';
+  stage.style.cssText=`position:fixed;top:0;left:-99999px;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
 
   let sourceTree;
   if(rootNodeId){
-    // Build a subtree element for just this node
+    // ★ Build a completely fresh tree from S.childMap (already scoped to subtree).
+    //   This guarantees ONLY downward nodes appear — no ancestors, no siblings.
     sourceTree=document.createElement('div');
     sourceTree.className='org-tree';
     const ul=document.createElement('ul');
-    // Temporarily render the subtree
     const node=S.viewData.find(n=>n.id===rootNodeId);
     if(node)ul.appendChild(mkNodeLI(node,0));
     sourceTree.appendChild(ul);
+    // Freshly built tree has no collapsed state — full subtree is shown
+    sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
+    sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   } else {
+    // ★ Clone the LIVE DOM tree as-is — preserves exactly what the user sees.
+    //   Collapsed branches remain collapsed; visible branches stay visible.
+    //   We do NOT call any expand-all here.
     sourceTree=document.getElementById('org-tree').cloneNode(true);
+    // Ensure collapsed uls have inline display:none so html2canvas sees it
+    // (CSS rules don't always transfer to the off-screen stage)
+    sourceTree.querySelectorAll('li.collapsed > ul').forEach(ul=>{ul.style.display='none';});
   }
 
-  sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
-  sourceTree.querySelectorAll('li').forEach(li=>{li.classList.remove('collapsed');});
+  // Strip interactive chrome
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
 
   stage.appendChild(sourceTree);
   document.body.appendChild(stage);
-  await new Promise(r=>setTimeout(r,250));
+
+  // Let layout settle then inline computed styles for html2canvas
+  await new Promise(r=>setTimeout(r,300));
   if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,100));
+  await new Promise(r=>setTimeout(r,120));
   inlineStyles(stage);
   await new Promise(r=>setTimeout(r,80));
   return stage;
 }
 
+// ★ renderToCanvas — tight dimensions, no wasted canvas pixels
 async function renderToCanvas(stage){
+  const W=Math.ceil(stage.scrollWidth);
+  const H=Math.ceil(stage.scrollHeight);
   return html2canvas(stage,{
-    backgroundColor:'#ffffff',
-    scale:3,           // ★ Higher resolution (was 2)
+    backgroundColor:'#f8fafc',
+    scale:3,          // 3× for crisp text and cards
     useCORS:true,
     logging:false,
     allowTaint:true,
     foreignObjectRendering:false,
-    width:stage.scrollWidth,
-    height:stage.scrollHeight,
+    width:W,
+    height:H,
     scrollX:0,
     scrollY:0,
-    onclone:(doc,el)=>{
-      // Make sure everything is visible in the clone
-      el.querySelectorAll('li').forEach(l=>l.classList.remove('collapsed'));
-      el.querySelectorAll('ul').forEach(u=>{u.style.display='';});
-    }
+    windowWidth:W+200,
+    windowHeight:H+200,
   });
 }
 
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
-
 function csvEsc(v){return '"'+String(v??'').replace(/"/g,'""')+'"';}
 function buildCSVContent(){
   const cols=[S.colMap.empId,S.colMap.empName,S.colMap.managerId,...S.columns.filter(c=>c!==S.colMap.empId&&c!==S.colMap.empName&&c!==S.colMap.managerId)].filter(Boolean);
-  let csv=cols.map(csvEsc).join(',')+'\n';
-  S.viewData.forEach(n=>{csv+=cols.map(c=>csvEsc(n[c]||'')).join(',')+'\n';});
-  return csv;
+  return cols.map(csvEsc).join(',')+'\n'+S.viewData.map(n=>cols.map(c=>csvEsc(n[c]||'')).join(',')).join('\n');
 }
-function downloadCSV(){
-  triggerDownload(new Blob([buildCSVContent()],{type:'text/csv;charset=utf-8;'}),'orgchart_export.csv');
-}
+function downloadCSV(){triggerDownload(new Blob([buildCSVContent()],{type:'text/csv;charset=utf-8;'}),'orgchart_export.csv');}
 
 // ════════════════════════════════════════════════
-// PNG EXPORT
+// PNG EXPORT — respects visible/collapsed state
 // ════════════════════════════════════════════════
 async function exportPNG(){
-  const overlay=makeOverlay('Rendering org chart…','Building high-resolution image (scale 3×)');
+  const overlay=makeOverlay('Rendering org chart…','Capturing visible state at 3× resolution');
   document.body.appendChild(overlay);
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
   try{
+    // No rootNodeId → clone live DOM as-is (collapsed = collapsed in export)
     stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
@@ -1378,12 +1104,14 @@ async function exportPNG(){
 
 function makeOverlay(title,sub){
   const o=document.createElement('div');o.className='export-overlay';
-  o.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ov_title">${title}</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px" id="_ov_sub">${sub}</div>`;
+  o.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ov_title">${title}</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">${sub}</div>`;
   return o;
 }
 
 // ════════════════════════════════════════════════
-// ★ NEW: SUBTREE EXPORT (per-card 📸 button)
+// ★ SUBTREE EXPORT (📸 per-card button)
+//   Exports ONLY that person + their downward team.
+//   Parents / siblings / rest of org are NOT included.
 // ════════════════════════════════════════════════
 async function exportSubtree(e,nodeId){
   e.stopPropagation();
@@ -1393,12 +1121,11 @@ async function exportSubtree(e,nodeId){
   const includeIds=new Set([nodeId]);
   function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}
   collectDesc(nodeId);
-  const total=includeIds.size;
 
-  const overlay=makeOverlay(`Exporting ${node.name}'s team (${total} people)…`,'Building subtree image at 3× resolution');
+  const overlay=makeOverlay(`Exporting ${node.name}'s team (${includeIds.size} people)…`,'Building downward subtree only at 3× resolution');
   document.body.appendChild(overlay);
 
-  // Save state
+  // ── Save full state ──
   const savedViewData=S.viewData;
   const savedChildMap=S.childMap;
   const savedDescCount=S.descCount;
@@ -1407,61 +1134,65 @@ async function exportSubtree(e,nodeId){
   const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);
   const prevOverride=S.managerOverrides[nodeId];
 
-  // Make this node a root temporarily
-  S.managerOverrides[nodeId]='';
+  // ── Scope state to just the subtree ──
   S.viewData=savedViewData.filter(n=>includeIds.has(n.id));
-
-  // Rebuild childMap for subtree
+  // Make root node have no manager so it renders as root
+  S.managerOverrides[nodeId]='';
+  // Rebuild childMap for subtree only
   S.childMap={};
   S.viewData.forEach(n=>{
     const mgr=(n.id===nodeId)?'':n.manager;
     if(!S.childMap[mgr])S.childMap[mgr]=[];
     S.childMap[mgr].push(n);
   });
-
-  // Recalculate counts
+  // Recalculate counts for subtree
   S.descCount={};S.nodeHeight={};
   function calcD(id){const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id),0);return S.descCount[id];}
   function calcH(id){const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   calcD(nodeId);calcH(nodeId);
-  S.summarizeAfterLevel=0; // always show full subtree in export
+  S.summarizeAfterLevel=0; // always full subtree in this export
 
-  const savedZoom=S.zoom;applyZoom(1);
-
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
   try{
-    stage=await buildRenderStage();
+    // ★ Pass nodeId → buildRenderStage builds fresh tree from scoped S.childMap
+    //   ONLY descendants appear; no ancestors, no siblings
+    stage=await buildRenderStage(nodeId);
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');
-    await new Promise(res=>canvas.toBlob(blob=>{
-      if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();
-    },'image/png'));
+    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));
   }catch(ex){alert('Subtree export failed: '+ex.message);}
   finally{
+    // ── Restore full state ──
     if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);
-    // Restore
     if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];
-    S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;
+    S.viewData=savedViewData;S.childMap=savedChildMap;
+    S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;
     S.summarizeAfterLevel=savedSummarize;
     renderChart();
   }
 }
 
 // ════════════════════════════════════════════════
-// PPTX HELPERS — improved layout & visibility
+// PPTX — full-bleed image, maximum coverage
+// Slide layout:
+//   Slide 1: Bold title with stats
+//   Slide 2: Org chart image fills the ENTIRE slide (edge to edge)
+//             using "contain" logic so nothing is clipped —
+//             white background for any remaining letterbox area
+//   Slide 3: Stats summary dashboard
 // ════════════════════════════════════════════════
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
-function pptxRect(id,x,y,cx,cy,fill,rad){rad=rad||0;return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val ${rad}"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
-function pptxTxt(id,x,y,cx,cy,text,sz,bold,color,algn){algn=algn||'ctr';return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/><a:p><a:pPr algn="${algn}"/><a:r><a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr><a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;}
-
 const SW=12192000,SH=6858000;
 
-function pptxSlideWrap(bg,content,rels){
+function pptxRect(id,x,y,cx,cy,fill){return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
+function pptxTxt(id,x,y,cx,cy,text,sz,bold,color,algn){algn=algn||'ctr';return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/><a:p><a:pPr algn="${algn}"/><a:r><a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr><a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;}
+function pptxImg(id,x,y,cx,cy,rId){return`<p:pic><p:nvPicPr><p:cNvPr id="${id}" name="img${id}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;}
+function pptxSlide(bg,content,rels){
   return[`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgPr><a:solidFill><a:srgbClr val="${bg}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${SW}" cy="${SH}"/><a:chOff x="0" y="0"/><a:chExt cx="${SW}" cy="${SH}"/></a:xfrm></p:grpSpPr>${content}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`,rels];
 }
 
-// ★ Improved PPTX: image uses nearly the full slide, only a slim header bar
 async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   titleSuffix=titleSuffix||'';
   const ac=S.cardAccent.replace('#','');
@@ -1471,65 +1202,67 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   const roots=S.viewData.filter(n=>!n.manager).length;
   const vacants=S.vacantCol&&S.vacantVal?S.viewData.filter(n=>n[S.vacantCol]===S.vacantVal).length:0;
 
-  // ★ Slim header 38px equivalent (457200 EMU), image takes rest
-  const HBAR=457200,PAD=152400; // slim top bar + tiny padding
-  const aspect=cW/cH;
-  const avW=SW-PAD*2,avH=SH-HBAR-PAD;
-  let iW,iH;
-  if(aspect>avW/avH){iW=avW;iH=Math.round(avW/aspect);}else{iH=avH;iW=Math.round(avH*aspect);}
-  const iX=Math.round((SW-iW)/2),iY=HBAR+Math.round((avH-iH)/2)+PAD;
-
-  // SLIDE 1: Title slide
-  const titleContent=
-    pptxRect(2,'0','0',SW,SH,'F1F5F9')+
-    pptxRect(3,'0','0',SW,Math.round(SH*0.55),ac)+
-    pptxRect(4,'0',Math.round(SH*0.55),SW,Math.round(SH*0.45),'FFFFFF')+
-    pptxTxt(5,Math.round(SW*0.08),Math.round(SH*0.18),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7200,true,'FFFFFF','l')+
-    pptxTxt(6,Math.round(SW*0.08),Math.round(SH*0.38),Math.round(SW*0.84),380000,filterLine,2000,true,'FFFFFF','l')+
-    pptxTxt(7,Math.round(SW*0.08),Math.round(SH*0.44),Math.round(SW*0.84),330000,'Generated: '+stamp,1400,false,'C7D2FE','l')+
-    pptxTxt(8,Math.round(SW*0.08),Math.round(SH*0.6),Math.round(SW*0.4),380000,`${S.viewData.length} Employees`,3600,true,ac,'l')+
-    pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.6),Math.round(SW*0.35),380000,`${roots} Root Nodes`,2600,true,'64748B','l');
-  const [s1xml,s1rels]=pptxSlideWrap('F1F5F9',titleContent,
+  // ── SLIDE 1: Title ──
+  const [s1xml,s1rels]=pptxSlide('F1F5F9',
+    pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+
+    pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
+    pptxTxt(4,Math.round(SW*0.08),Math.round(SH*0.12),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7600,true,'FFFFFF','l')+
+    pptxTxt(5,Math.round(SW*0.08),Math.round(SH*0.35),Math.round(SW*0.84),420000,filterLine,2200,true,'FFFFFF','l')+
+    pptxTxt(6,Math.round(SW*0.08),Math.round(SH*0.44),Math.round(SW*0.84),340000,'Generated: '+stamp,1500,false,'C7D2FE','l')+
+    pptxTxt(7,Math.round(SW*0.08),Math.round(SH*0.59),Math.round(SW*0.38),400000,String(S.viewData.length),5200,true,ac,'l')+
+    pptxTxt(8,Math.round(SW*0.08),Math.round(SH*0.74),Math.round(SW*0.38),310000,'Total Employees',1600,false,'64748B','l')+
+    pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.59),Math.round(SW*0.35),400000,String(roots),4000,true,'64748B','l')+
+    pptxTxt(10,Math.round(SW*0.55),Math.round(SH*0.74),Math.round(SW*0.35),310000,'Root Nodes',1600,false,'64748B','l'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
 
-  // SLIDE 2: Chart image — full slide with slim header
-  const picXml=`<p:pic><p:nvPicPr><p:cNvPr id="20" name="OrgChart"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId2"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${iX}" y="${iY}"/><a:ext cx="${iW}" cy="${iH}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
-  // Slim colored header bar at top with title
-  const chartSlideContent=
-    pptxRect(2,'0','0',SW,HBAR,ac)+
-    pptxTxt(3,PAD,0,Math.round(SW*0.5),HBAR,'Org Chart — '+filterLine,1400,true,'FFFFFF','l')+
-    pptxTxt(4,Math.round(SW*0.75),0,Math.round(SW*0.22),HBAR,`${S.viewData.length} employees  |  ${stamp}`,1100,false,'C7D2FE','r')+
-    picXml;
-  const [s2xml,]=pptxSlideWrap('FFFFFF',chartSlideContent,
+  // ── SLIDE 2: Full-bleed org chart image ──
+  // Fit the canvas to fill as much of the slide as possible (contain).
+  // Use white slide background for any letterbox strips.
+  const imgAspect=cW/cH;
+  const slideAspect=SW/SH;
+  let iW,iH,iX,iY;
+  if(imgAspect>=slideAspect){
+    // Wider than slide: fill full width, bars top/bottom
+    iW=SW;iH=Math.round(SW/imgAspect);
+    iX=0;iY=Math.round((SH-iH)/2);
+  } else {
+    // Taller than slide: fill full height, bars left/right
+    iH=SH;iW=Math.round(SH*imgAspect);
+    iX=Math.round((SW-iW)/2);iY=0;
+  }
+  // Small caption overlay (no background rectangle — just white text)
+  // placed at bottom-right, on top of image
+  const capY=SH-Math.round(SH*0.065);
+  const [s2xml,]=pptxSlide('FFFFFF',
+    pptxImg(20,iX,iY,iW,iH,'rId2')+
+    pptxTxt(21,Math.round(SW*0.04),capY,Math.round(SW*0.92),Math.round(SH*0.055),filterLine+' · '+stamp+' · '+S.viewData.length+' employees',1000,false,'64748B','r'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`);
 
-  // SLIDE 3: Stats
+  // ── SLIDE 3: Stats dashboard ──
   const statItems=[
     {label:'Total Employees',val:S.viewData.length,color:ac},
     {label:'Root Nodes',val:roots,color:'0891b2'},
     {label:'Vacant Roles',val:vacants,color:'dc2626'},
-    {label:'Org Levels',val:S.maxDepth>0?`${S.maxDepth} shown`:'All',color:'059669'},
+    {label:'Org Depth',val:S.maxDepth>0?`L${S.maxDepth}`:'Full',color:'059669'},
   ];
-  const boxW=Math.round(SW*0.19),boxH=Math.round(SH*0.28);
+  const boxW=Math.round(SW*0.19),boxH=Math.round(SH*0.3);
   const gap=Math.round((SW-boxW*4)*0.2);
-  const totalW=boxW*4+gap*3,bStartX=Math.round((SW-totalW)/2),bY=Math.round(SH*0.28);
-  let sc=pptxRect(2,'0','0',SW,HBAR,ac)+
-    pptxTxt(3,Math.round(SW*0.04),0,Math.round(SW*0.6),HBAR,'Summary Dashboard',1500,true,'FFFFFF','l')+
-    pptxTxt(4,Math.round(SW*0.75),0,Math.round(SW*0.22),HBAR,stamp,1100,false,'C7D2FE','r')+
-    pptxTxt(5,Math.round(SW*0.04),Math.round(SH*0.1),Math.round(SW*0.92),Math.round(SH*0.1),'Org Chart',4400,true,'0F172A','l');
-  if(filterLine!=='All Employees')
-    sc+=pptxTxt(6,Math.round(SW*0.04),Math.round(SH*0.2),Math.round(SW*0.92),280000,filterLine,1600,false,'64748B','l');
+  const totalBW=boxW*4+gap*3,bStartX=Math.round((SW-totalBW)/2),bY=Math.round(SH*0.3);
+  let sc=pptxRect(2,0,0,SW,Math.round(SH*0.2),ac)+
+    pptxTxt(3,Math.round(SW*0.04),0,Math.round(SW*0.6),Math.round(SH*0.2),'Summary Dashboard',1800,true,'FFFFFF','l')+
+    pptxTxt(4,Math.round(SW*0.65),0,Math.round(SW*0.3),Math.round(SH*0.2),stamp,1200,false,'C7D2FE','r')+
+    pptxTxt(5,Math.round(SW*0.04),Math.round(SH*0.22),Math.round(SW*0.92),Math.round(SH*0.06),filterLine,1600,false,'64748B','l');
   statItems.forEach((st,i)=>{
     const bx=bStartX+i*(boxW+gap);
-    sc+=pptxRect(10+i*3,bx,bY,boxW,boxH,'F8FAFC',50000)+
-      pptxRect(11+i*3,bx,bY,boxW,Math.round(boxH*0.06),st.color)+
-      pptxTxt(12+i*3,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.5),String(st.val),4400,true,st.color)+
-      pptxTxt(20+i,bx,bY+Math.round(boxH*0.65),boxW,Math.round(boxH*0.28),st.label,1400,false,'64748B');
+    sc+=pptxRect(10+i*2,bx,bY,boxW,boxH,'F8FAFC')+
+      pptxRect(11+i*2,bx,bY,boxW,Math.round(boxH*0.05),st.color)+
+      pptxTxt(20+i*2,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.52),String(st.val),5200,true,st.color)+
+      pptxTxt(21+i*2,bx,bY+Math.round(boxH*0.7),boxW,Math.round(boxH*0.28),st.label,1300,false,'64748B');
   });
-  const [s3xml,]=pptxSlideWrap('FFFFFF',sc,
+  const [s3xml,]=pptxSlide('FFFFFF',sc,
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
 
-  const BOILERPLATE={
+  const BP={
     '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide2.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide3.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>`,
     '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/></Relationships>`,
     'ppt/presentation.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst><p:sldId id="256" r:id="rId2"/><p:sldId id="257" r:id="rId3"/><p:sldId id="258" r:id="rId4"/></p:sldIdLst><p:sldSz cx="${SW}" cy="${SH}" type="screen16x9"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>`,
@@ -1540,28 +1273,24 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
     'ppt/slideLayouts/slideLayout1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sldLayout xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" type="blank"><p:cSld name="Blank"><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`,
     'ppt/slideLayouts/_rels/slideLayout1.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>`
   };
-
   const mkRels=r=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${r}</Relationships>`;
   const zip=new JSZip();
-  Object.entries(BOILERPLATE).forEach(([k,v])=>zip.file(k,v));
-  zip.file('ppt/slides/slide1.xml',s1xml);
-  zip.file('ppt/slides/_rels/slide1.xml.rels',mkRels(s1rels));
-  zip.file('ppt/slides/slide2.xml',s2xml);
-  zip.file('ppt/slides/_rels/slide2.xml.rels',mkRels(`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`));
-  zip.file('ppt/slides/slide3.xml',s3xml);
-  zip.file('ppt/slides/_rels/slide3.xml.rels',mkRels(`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`));
+  Object.entries(BP).forEach(([k,v])=>zip.file(k,v));
+  zip.file('ppt/slides/slide1.xml',s1xml);zip.file('ppt/slides/_rels/slide1.xml.rels',mkRels(s1rels));
+  zip.file('ppt/slides/slide2.xml',s2xml);zip.file('ppt/slides/_rels/slide2.xml.rels',mkRels(`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`));
+  zip.file('ppt/slides/slide3.xml',s3xml);zip.file('ppt/slides/_rels/slide3.xml.rels',mkRels(`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`));
   zip.file('ppt/media/image1.png',imgB64,{base64:true});
   return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.presentationml.presentation',compression:'DEFLATE'});
 }
 
 async function exportPPTX(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
-  const overlay=makeOverlay('Building PowerPoint…','Rendering 3× then packaging slides');
+  const overlay=makeOverlay('Building PowerPoint…','Rendering visible state then packaging');
   document.body.appendChild(overlay);
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
   try{
-    stage=await buildRenderStage();
+    stage=await buildRenderStage();  // no rootNodeId → respects collapsed state
     const canvas=await renderToCanvas(stage);
     const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
     const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
@@ -1578,66 +1307,47 @@ async function exportAll(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
   const lastFilterCol=S.filterCols[S.filterCols.length-1]||null;
   if(!lastFilterCol){await _exportAllSingleView();return;}
-
   const parentFilters=Object.entries(S.activeFilters).filter(([k])=>k!==lastFilterCol);
   const relevantRows=S.rawRows.filter(row=>parentFilters.every(([col,val])=>!val||String(row[col]||'').trim()===val));
   const lastVals=[...new Set(relevantRows.map(r=>String(r[lastFilterCol]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();
   if(!lastVals.length){await _exportAllSingleView();return;}
-
   const overlay=document.createElement('div');overlay.className='export-overlay';
-  overlay.innerHTML=`<div class="export-spinner"></div>
-    <div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ea_title">Exporting ${lastVals.length} charts…</div>
-    <div class="export-steps">
-      <div id="_ea_step" class="export-step active" style="min-width:320px">Preparing…</div>
-      <div id="_ea_prog" style="font-size:0.7rem;color:var(--text3);margin-top:4px">0 / ${lastVals.length}</div>
-    </div>`;
+  overlay.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ea_title">Exporting ${lastVals.length} charts…</div><div class="export-steps"><div id="_ea_step" class="export-step active" style="min-width:320px">Preparing…</div><div id="_ea_prog" style="font-size:0.7rem;color:var(--text3);margin-top:4px">0 / ${lastVals.length}</div></div>`;
   document.body.appendChild(overlay);
-
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   const savedFilters={...S.activeFilters};
   const outerZip=new JSZip();let successCount=0;
-
   try{
     for(let i=0;i<lastVals.length;i++){
       const val=lastVals[i];const safeName=val.replace(/[^a-zA-Z0-9]/g,'_');
-      const stepEl=document.getElementById('_ea_step');const progEl=document.getElementById('_ea_prog');
-      if(stepEl)stepEl.textContent=`📊 ${val}`;
-      if(progEl)progEl.textContent=`${i+1} / ${lastVals.length}`;
+      document.getElementById('_ea_step').textContent=`📊 ${val}`;
+      document.getElementById('_ea_prog').textContent=`${i+1} / ${lastVals.length}`;
       S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();
       await new Promise(r=>setTimeout(r,320));
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
-      const stage=await buildRenderStage();
-      let canvas;try{canvas=await renderToCanvas(stage);}finally{stage.remove();}
+      const stage=await buildRenderStage();let canvas;
+      try{canvas=await renderToCanvas(stage);}finally{stage.remove();}
       const pngBlob=await new Promise(res=>canvas.toBlob(res,'image/png'));
       if(pngBlob)outerZip.file(`${safeName}/${safeName}.png`,pngBlob);
-      try{
-        const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height,val);
-        outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);
-      }catch(pe){console.warn('PPTX skip: '+val,pe);}
+      try{const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height,val);outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);}catch(pe){console.warn('PPTX skip:',pe);}
       successCount++;
     }
-    const titleEl=document.getElementById('_ea_title');
-    if(titleEl)titleEl.textContent=`Packaging ${successCount} exports…`;
+    document.getElementById('_ea_title').textContent=`Packaging ${successCount} exports…`;
     const masterBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});
     const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
-    const colSafe=lastFilterCol.replace(/[^a-zA-Z0-9]/g,'_');
-    triggerDownload(masterBlob,`orgchart_all_${colSafe}_${dp}.zip`);
-    if(titleEl)titleEl.textContent=`✅ ${successCount} charts exported!`;
+    triggerDownload(masterBlob,`orgchart_all_${lastFilterCol.replace(/[^a-zA-Z0-9]/g,'_')}_${dp}.zip`);
+    document.getElementById('_ea_title').textContent=`✅ ${successCount} charts exported!`;
     await new Promise(r=>setTimeout(r,1200));
-  }catch(e){alert('Export All failed: '+e.message);console.error(e);}
-  finally{
-    S.activeFilters=savedFilters;buildViewData();buildFilterBar();renderChart();
-    overlay.remove();applyZoom(savedZoom);
-  }
+  }catch(e){alert('Export All failed: '+e.message);}
+  finally{S.activeFilters=savedFilters;buildViewData();buildFilterBar();renderChart();overlay.remove();applyZoom(savedZoom);}
 }
 
 async function _exportAllSingleView(){
   const overlay=document.createElement('div');overlay.className='export-overlay';
-  overlay.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Exporting current view…</div>
-    <div class="export-steps"><div class="export-step active" id="_sv_s1">💾 CSV</div><div class="export-step" id="_sv_s2">🖼️ PNG (3×)</div><div class="export-step" id="_sv_s3">📊 PPTX</div></div>`;
+  overlay.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Exporting current view…</div><div class="export-steps"><div class="export-step active" id="_sv_s1">💾 CSV</div><div class="export-step" id="_sv_s2">🖼️ PNG</div><div class="export-step" id="_sv_s3">📊 PPTX</div></div>`;
   document.body.appendChild(overlay);
   const setStep=n=>[1,2,3].forEach(i=>{const el=document.getElementById(`_sv_s${i}`);if(el)el.className='export-step'+(i<n?' done':i===n?' active':'');});
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
   try{
     setStep(1);downloadCSV();await new Promise(r=>setTimeout(r,400));
@@ -1646,8 +1356,7 @@ async function _exportAllSingleView(){
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${stamp}.png`);res();},'image/png'));
     await new Promise(r=>setTimeout(r,300));
-    setStep(3);
-    const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
+    setStep(3);const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
     triggerDownload(blob,`orgchart_${stamp}.pptx`);
     [1,2,3].forEach(i=>{const el=document.getElementById(`_sv_s${i}`);if(el)el.className='export-step done';});
     await new Promise(r=>setTimeout(r,900));
@@ -1675,60 +1384,24 @@ function getAllDescendants(id){const r=new Set();const q=[...(S.childMap[id]||[]
 function renderReassignList(candidates,curMgrId){
   const list=document.getElementById('reassign-list');
   let html=`<div class="modal-emp-row make-root${S.reassignPick==='__ROOT__'?' selected':''}" onclick="pickReassignTarget('__ROOT__',this)"><div class="modal-emp-avatar" style="background:#fef9c3;color:#d97706;font-size:0.9rem">🏠</div><div><div class="modal-emp-name">Make Root (no manager)</div><div class="modal-emp-sub">Move to top level</div></div></div>`;
-  html+=candidates.map(n=>{
-    const isCur=n.id===curMgrId;const isSel=S.reassignPick&&S.reassignPick.id===n.id;
-    const init=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
-    return`<div class="modal-emp-row${isSel?' selected':''}" onclick="pickReassignTarget('${esc(n.id)}',this)"><div class="modal-emp-avatar${isVacant(n)?' vacant-av':''}">${init}</div><div style="flex:1;min-width:0"><div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div><div class="modal-emp-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div></div>`;
-  }).join('');
+  html+=candidates.map(n=>{const isCur=n.id===curMgrId;const isSel=S.reassignPick&&S.reassignPick.id===n.id;const init=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();return`<div class="modal-emp-row${isSel?' selected':''}" onclick="pickReassignTarget('${esc(n.id)}',this)"><div class="modal-emp-avatar${isVacant(n)?' vacant-av':''}">${init}</div><div style="flex:1;min-width:0"><div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div><div class="modal-emp-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div></div>`;}).join('');
   list.innerHTML=html;
 }
-function filterReassignList(){
-  const q=document.getElementById('reassign-search').value.trim().toLowerCase();
-  const node=S.reassignTarget;if(!node)return;
-  const desc=getAllDescendants(node.id);desc.add(node.id);
-  const all=S.viewData.filter(n=>!desc.has(n.id));
-  renderReassignList(q?all.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):all,node.manager);
-}
-function pickReassignTarget(id,rowEl){
-  document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r=>r.classList.remove('selected'));
-  rowEl.classList.add('selected');
-  if(id==='__ROOT__'){S.reassignPick='__ROOT__';document.getElementById('reassign-note').textContent='→ Will become a root node';}
-  else{S.reassignPick=S.viewData.find(n=>n.id===id)||null;document.getElementById('reassign-note').textContent=S.reassignPick?`→ New manager: ${S.reassignPick.name}`:'';}
-  document.getElementById('reassign-confirm-btn').disabled=false;
-}
-function confirmReassign(){
-  if(!S.reassignTarget)return;
-  const newMgr=S.reassignPick==='__ROOT__'?'':(S.reassignPick?S.reassignPick.id:null);
-  if(newMgr===null)return;
-  S.managerOverrides[S.reassignTarget.id]=newMgr;
-  closeReassignModal();buildViewData();renderChart();
-}
+function filterReassignList(){const q=document.getElementById('reassign-search').value.trim().toLowerCase();const node=S.reassignTarget;if(!node)return;const desc=getAllDescendants(node.id);desc.add(node.id);const all=S.viewData.filter(n=>!desc.has(n.id));renderReassignList(q?all.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):all,node.manager);}
+function pickReassignTarget(id,rowEl){document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r=>r.classList.remove('selected'));rowEl.classList.add('selected');if(id==='__ROOT__'){S.reassignPick='__ROOT__';document.getElementById('reassign-note').textContent='→ Will become a root node';}else{S.reassignPick=S.viewData.find(n=>n.id===id)||null;document.getElementById('reassign-note').textContent=S.reassignPick?`→ New manager: ${S.reassignPick.name}`:'';}document.getElementById('reassign-confirm-btn').disabled=false;}
+function confirmReassign(){if(!S.reassignTarget)return;const newMgr=S.reassignPick==='__ROOT__'?'':(S.reassignPick?S.reassignPick.id:null);if(newMgr===null)return;S.managerOverrides[S.reassignTarget.id]=newMgr;closeReassignModal();buildViewData();renderChart();}
 function closeReassignModal(){document.getElementById('reassign-modal').classList.add('hidden');S.reassignTarget=null;S.reassignPick=null;}
-function removeCurrentNode(){
-  if(!S.reassignTarget)return;
-  const{id,name}=S.reassignTarget;
-  if(!confirm(`Remove "${name}" from the chart?`))return;
-  S.removedIds.add(id);delete S.managerOverrides[id];
-  closeReassignModal();buildViewData();renderChart();
-}
+function removeCurrentNode(){if(!S.reassignTarget)return;const{id,name}=S.reassignTarget;if(!confirm(`Remove "${name}" from the chart?`))return;S.removedIds.add(id);delete S.managerOverrides[id];closeReassignModal();buildViewData();renderChart();}
 
-// ════════════════════════════════════════════════
-// UTILITY
-// ════════════════════════════════════════════════
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 
-// ════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
-  const zone=document.getElementById('upload-dropzone');
-  const input=document.getElementById('file-input');
+  const zone=document.getElementById('upload-dropzone');const input=document.getElementById('file-input');
   zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
   zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
   zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
   input.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
-  const photoInput=document.getElementById('photo-folder-input');
-  photoInput.addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
+  document.getElementById('photo-folder-input').addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
 });
 </script>
 </body>
