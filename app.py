@@ -171,8 +171,7 @@ body{display:flex;flex-direction:column}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
 
 /* CHART SCREEN */
-.chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow-x:auto}
-.chart-toolbar::-webkit-scrollbar{height:0}
+.chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
 .stats-bar{flex-shrink:0;height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:18px;font-size:0.73rem}
 .stat-item{display:flex;align-items:center;gap:6px;color:var(--text3);font-weight:600}
 .stat-item strong{color:var(--text);font-weight:800}
@@ -193,6 +192,24 @@ body{display:flex;flex-direction:column}
 .depth-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .depth-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
 .depth-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
+
+/* Summarize wrap — new feature */
+.summarize-wrap{display:flex;align-items:center;gap:5px;background:#fef9c3;border:1.5px solid #fde68a;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
+.summarize-wrap.active{background:#fef3c7;border-color:var(--warning)}
+.summarize-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#92400e;white-space:nowrap}
+.summarize-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:#d97706;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d97706'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
+.groupby-select{background:var(--bg);border:1.5px solid #fde68a;border-radius:8px;padding:4px 24px 4px 9px;font-size:0.75rem;font-weight:700;color:#92400e;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23d97706'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;transition:border-color 0.15s;flex-shrink:0;max-width:130px;display:none}
+.groupby-select.visible{display:block}
+
+/* SUMMARY NODE CARD */
+.summary-node-card{cursor:default!important;background:var(--bg2)!important;min-width:180px;max-width:250px;width:auto!important}
+.summary-node-card:hover{transform:translateY(-2px)!important}
+.summary-grid{display:flex;flex-direction:column;gap:0;padding:10px 14px 8px}
+.summary-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)}
+.summary-row:last-child{border-bottom:none}
+.summary-count{font-weight:900;font-size:1.1rem;min-width:30px;text-align:right;flex-shrink:0;line-height:1}
+.summary-label{font-size:0.74rem;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;flex:1}
+.summary-more{font-size:0.68rem;color:var(--text3);padding:4px 0 2px;font-style:italic}
 
 /* CHART CANVAS */
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
@@ -231,13 +248,14 @@ body{display:flex;flex-direction:column}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 li.collapsed>ul{display:none}
 
-/* SEARCH */
+/* SEARCH — fixed position dropdown */
 .search-wrap{position:relative;flex:1;max-width:240px}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;pointer-events:none;opacity:0.45}
 #chart-search{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px 6px 29px;font-size:0.8rem;font-weight:500;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.15s}
 #chart-search:focus{border-color:var(--accent);background:var(--bg)}
 #chart-search::placeholder{color:var(--text3)}
-#chart-search-results{position:absolute;top:calc(100% + 5px);left:0;right:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:260px;overflow-y:auto;z-index:999;display:none}
+/* FIXED POSITIONING so toolbar overflow doesn't clip it */
+#chart-search-results{position:fixed;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:280px;overflow-y:auto;z-index:99999;display:none}
 #chart-search-results.visible{display:block}
 .sr-item{padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s}
 .sr-item:last-child{border-bottom:none}
@@ -252,7 +270,7 @@ li.collapsed>ul{display:none}
 .zoom-label{font-size:0.72rem;font-weight:800;color:var(--text);min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
 
 /* EXPORT OVERLAY */
-.export-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.export-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .export-spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
 .export-steps{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:6px}
 .export-step{font-size:0.76rem;color:var(--text3);font-weight:500;display:flex;align-items:center;gap:8px;min-width:260px}
@@ -268,10 +286,15 @@ li.collapsed>ul{display:none}
 .node-card.vacant .ncard-footer{background:#fee2e2!important}
 .vacant-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:999px;border:1px solid #fca5a5}
 
-/* EDIT BTN */
+/* ACTION BUTTONS ON CARD */
 .ncard-edit-btn{position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
 .node-card:hover .ncard-edit-btn{opacity:1}
 .ncard-edit-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Subtree export button */
+.ncard-export-btn{position:absolute;top:6px;right:32px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.62rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
+.node-card:hover .ncard-export-btn{opacity:1}
+.ncard-export-btn:hover{background:#059669;border-color:#059669;color:#fff}
 
 /* COLOR PALETTE */
 .color-palette{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
@@ -310,7 +333,6 @@ li.collapsed>ul{display:none}
 .modal-note{font-size:0.73rem;color:var(--text3);flex:1;display:flex;align-items:center}
 .tb-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
 
-/* Photo folder drop zone in chart toolbar */
 .photo-folder-input{display:none}
 </style>
 </head>
@@ -401,7 +423,7 @@ li.collapsed>ul{display:none}
   <div class="screen" id="screen-card">
     <div class="section-header" style="margin-bottom:18px">
       <div class="section-title">Design Your Card</div>
-      <div class="section-sub">Drag fields into card zones and pick an accent color. Load employee photos from the Chart toolbar (Step 5).</div>
+      <div class="section-sub">Drag fields into card zones and pick an accent color.</div>
     </div>
     <div class="card-design-layout">
       <div class="fields-panel">
@@ -436,7 +458,7 @@ li.collapsed>ul{display:none}
   <div class="screen" id="screen-filter">
     <div class="section-header">
       <div class="section-title">Set Up Filters</div>
-      <div class="section-sub">Choose up to 3 columns to use as filters. The last filter drives "Export All" — it will export one chart per value of that column.</div>
+      <div class="section-sub">Choose up to 3 columns to use as filters. The last filter drives "Export All".</div>
     </div>
     <div class="filter-setup">
       <div class="filter-counter" id="filter-counter">0 of 3 filters selected</div>
@@ -476,19 +498,28 @@ li.collapsed>ul{display:none}
         <span class="depth-label">Levels ↑</span>
         <select class="depth-select" id="depth-select" onchange="setMaxDepth(parseInt(this.value))">
           <option value="0">All</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
         </select>
       </div>
+
+      <!-- ★ NEW: Summarize from level (top-down aggregation) -->
+      <div class="summarize-wrap" id="summarize-wrap" title="Replace individual cards with count summaries after this level">
+        <span class="summarize-label">Summarize ↓</span>
+        <select class="summarize-select" id="summarize-level-select" onchange="setSummarizeLevel(parseInt(this.value))">
+          <option value="0">Off</option>
+          <option value="1">L1+</option><option value="2">L2+</option><option value="3">L3+</option>
+          <option value="4">L4+</option><option value="5">L5+</option>
+        </select>
+      </div>
+      <!-- Group-by field shown only when summarize is on -->
+      <select class="groupby-select" id="groupby-select" onchange="setGroupByField(this.value)" title="Group summary by this field"></select>
+
       <div class="tb-sep"></div>
 
       <!-- Photo folder picker -->
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple/>
-      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()" title="Select a folder of employee photos (named by Employee ID)">
+      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()" title="Select employee photos named by Employee ID">
         📸 <span id="photo-btn-label">Load Photos</span>
         <span class="photo-count" id="photo-count" style="display:none">0</span>
       </div>
@@ -504,9 +535,9 @@ li.collapsed>ul{display:none}
     <div class="stats-bar">
       <div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div>
       <div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;root nodes</div>
-      <div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible</div>
+      <div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible cards</div>
       <div class="stat-item" id="stat-photos" style="display:none;color:var(--success)">📸 <strong id="stat-photos-val">0</strong> photos</div>
-      <div class="stat-item" id="stat-depth-info" style="display:none;color:var(--accent)">↑ <strong id="stat-depth-val">—</strong> levels from bottom</div>
+      <div class="stat-item" id="stat-summarize-info" style="display:none;color:#d97706">⬛ <strong id="stat-summarize-val">—</strong></div>
       <div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">⚠️ Filtered</div>
     </div>
 
@@ -556,13 +587,15 @@ const S = {
   filterCols:[],activeFilters:{},
   managerOverrides:{},removedIds:new Set(),
   viewData:[],childMap:{},descCount:{},
-  nodeHeight:{},       // max height from node to deepest leaf (0 = leaf)
+  nodeHeight:{},
   zoom:1,highlighted:null,
   draggingField:null,
   reassignTarget:null,reassignPick:null,
-  maxDepth:0,          // 0=all; N = show N levels counting from the BOTTOM (leaves=1)
-  photoMap:{},         // empId (lowercase) → object URL
-  photoObjUrls:[],     // track for revocation
+  maxDepth:0,
+  summarizeAfterLevel:0,  // ★ NEW: 0=off; N=summarize children of nodes at depth N-1 (1-indexed)
+  summarizeField:'',      // ★ NEW: column to group summaries by
+  photoMap:{},
+  photoObjUrls:[],
 };
 
 // ════════════════════════════════════════════════
@@ -574,12 +607,16 @@ function goTo(step){
   const order=['upload','map','card','filter','chart'];
   const cur=order.indexOf(step);
   order.forEach((s,i)=>{
-    const el=document.getElementById('nav-step-'+s); if(!el) return;
+    const el=document.getElementById('nav-step-'+s);if(!el)return;
     el.className='step-item'+(i<cur?' done':i===cur?' active':'');
     const dot=el.querySelector('.step-dot');
-    if(dot) dot.textContent=i<cur?'✓':String(i+1);
+    if(dot)dot.textContent=i<cur?'✓':String(i+1);
   });
-  if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);}
+  if(step==='chart'){
+    setTimeout(()=>initPan(),80);
+    setTimeout(()=>initSearch(),80);
+    setTimeout(()=>populateSummarizeFields(),120);
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -624,17 +661,15 @@ function autoDetect(cols){
 }
 
 // ════════════════════════════════════════════════
-// PHOTO FOLDER LOADING
+// PHOTO LOADING
 // ════════════════════════════════════════════════
-// Primary: modern File System Access API (showDirectoryPicker)
-// Fallback: <input multiple accept="image/*"> (the user picks the folder contents)
 async function openPhotoFolder(){
   if('showDirectoryPicker' in window){
     try{
       const dirHandle=await window.showDirectoryPicker({mode:'read'});
       await loadFromDirectoryHandle(dirHandle);
     }catch(e){
-      if(e.name!=='AbortError') document.getElementById('photo-folder-input').click();
+      if(e.name!=='AbortError')document.getElementById('photo-folder-input').click();
     }
   } else {
     document.getElementById('photo-folder-input').click();
@@ -642,11 +677,8 @@ async function openPhotoFolder(){
 }
 
 async function loadFromDirectoryHandle(dirHandle){
-  // Revoke old URLs
-  S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));
-  S.photoObjUrls=[];
-  const newMap={};
-  const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
+  S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];
+  const newMap={};const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
   for await(const[name,handle] of dirHandle.entries()){
     if(handle.kind==='file'){
       const ext=name.split('.').pop().toLowerCase();
@@ -654,35 +686,25 @@ async function loadFromDirectoryHandle(dirHandle){
         const file=await handle.getFile();
         const key=name.replace(/\.[^.]+$/,'').toLowerCase().trim();
         const url=URL.createObjectURL(file);
-        newMap[key]=url;
-        S.photoObjUrls.push(url);
+        newMap[key]=url;S.photoObjUrls.push(url);
       }
     }
   }
-  S.photoMap=newMap;
-  updatePhotoUI();
-  if(S.viewData.length) renderChart();
+  S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();
 }
 
 function loadFromFileInput(files){
-  // Fallback: user picked files (may be from a folder via "Upload folder" dialog)
-  S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));
-  S.photoObjUrls=[];
-  const newMap={};
-  const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
+  S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];
+  const newMap={};const IMG_EXTS=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);
   Array.from(files).forEach(file=>{
-    const name=file.name;
-    const ext=name.split('.').pop().toLowerCase();
+    const name=file.name;const ext=name.split('.').pop().toLowerCase();
     if(IMG_EXTS.has(ext)){
       const key=name.replace(/\.[^.]+$/,'').toLowerCase().trim();
       const url=URL.createObjectURL(file);
-      newMap[key]=url;
-      S.photoObjUrls.push(url);
+      newMap[key]=url;S.photoObjUrls.push(url);
     }
   });
-  S.photoMap=newMap;
-  updatePhotoUI();
-  if(S.viewData.length) renderChart();
+  S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();
 }
 
 function updatePhotoUI(){
@@ -693,33 +715,28 @@ function updatePhotoUI(){
   const stat=document.getElementById('stat-photos');
   const statVal=document.getElementById('stat-photos-val');
   if(count>0){
-    btn.classList.add('loaded');
-    label.textContent='Photos';
-    badge.textContent=count;
-    badge.style.display='';
+    btn.classList.add('loaded');label.textContent='Photos';
+    badge.textContent=count;badge.style.display='';
     if(stat){stat.style.display='flex';statVal.textContent=count;}
   } else {
-    btn.classList.remove('loaded');
-    label.textContent='Load Photos';
-    badge.style.display='none';
-    if(stat) stat.style.display='none';
+    btn.classList.remove('loaded');label.textContent='Load Photos';
+    badge.style.display='none';if(stat)stat.style.display='none';
   }
 }
 
 function getPhotoUrl(node){
-  if(!Object.keys(S.photoMap).length) return '';
+  if(!Object.keys(S.photoMap).length)return '';
   const empId=node.id.toLowerCase().trim();
-  if(S.photoMap[empId]) return S.photoMap[empId];
-  // Fallback: name-based matching (spaces→underscore, lowercased)
+  if(S.photoMap[empId])return S.photoMap[empId];
   const nameKey=node.name.toLowerCase().trim().replace(/\s+/g,'_');
-  if(S.photoMap[nameKey]) return S.photoMap[nameKey];
+  if(S.photoMap[nameKey])return S.photoMap[nameKey];
   const nameKey2=node.name.toLowerCase().trim().replace(/\s+/g,'');
-  if(S.photoMap[nameKey2]) return S.photoMap[nameKey2];
+  if(S.photoMap[nameKey2])return S.photoMap[nameKey2];
   return '';
 }
 
 // ════════════════════════════════════════════════
-// SCREEN 2
+// SCREEN 2 — COLUMN MAP
 // ════════════════════════════════════════════════
 function buildMapScreen(){
   document.getElementById('col-count').textContent=S.columns.length;
@@ -731,8 +748,7 @@ function buildMapScreen(){
   const blank='<option value="">— select —</option>';
   const opts=blank+S.columns.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   ['empId','empName','managerId'].forEach(k=>{
-    const sel=document.getElementById('map-'+k);
-    if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';
+    const sel=document.getElementById('map-'+k);if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';
   });
   const wrap=document.getElementById('data-preview-wrap');
   const preview=S.rawRows.slice(0,3);
@@ -769,19 +785,16 @@ function buildCardScreen(){
     '</div><div class="fields-section"><div class="fields-section-label">Auto-Calculated</div>'+
     AUTO_FIELDS.map(f=>`<div class="field-chip" draggable="true" data-field="${f.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" title="${f.desc}"><span class="drag-icon">⠿</span><span>${f.icon}</span>${f.label}</div>`).join('')+
     '</div>';
-
-  if(!S.cardSlots.footer2) S.cardSlots.footer2='__auto_reports__';
-
+  if(!S.cardSlots.footer2)S.cardSlots.footer2='__auto_reports__';
   const COLORS=['#4f46e5','#7c3aed','#db2777','#dc2626','#d97706','#059669','#0891b2','#0284c7','#374151','#0f172a'];
   document.getElementById('color-palette').innerHTML=COLORS.map(c=>
     `<div class="color-swatch${S.cardAccent===c?' selected':''}" style="background:${c}" title="${c}" onclick="setCardAccent('${c}')"></div>`
   ).join('');
-
   const core2=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const colSel=document.getElementById('vacant-col');
   if(colSel){
     colSel.innerHTML='<option value="">Column…</option>'+S.columns.filter(c=>!core2.has(c)).map(c=>`<option value="${esc(c)}"${S.vacantCol===c?' selected':''}>${esc(c)}</option>`).join('');
-    if(S.vacantCol) populateVacantValues(S.vacantCol);
+    if(S.vacantCol)populateVacantValues(S.vacantCol);
   }
   renderCardPreview();syncChipStates();
 }
@@ -813,7 +826,6 @@ function zoneHtml(zoneId,placeholder,extraClass=''){
   if(v)return`<div class="card-zone filled ${extraClass}" ${dA}><span class="zone-field">${esc(fieldLabel(v))}</span><span class="zone-val">${esc(fieldSampleVal(v))}</span><span class="zone-remove" onclick="clearZone('${zoneId}')">✕</span></div>`;
   return`<div class="card-zone ${extraClass}" ${dA}><span class="zone-ph">${placeholder}</span></div>`;
 }
-
 function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
@@ -832,7 +844,6 @@ function renderCardPreview(){
     </div>
     <div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
 }
-
 function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();}
 function onVacantColChange(){
   const col=document.getElementById('vacant-col').value;S.vacantCol=col;S.vacantVal='';
@@ -869,20 +880,113 @@ function toggleFilterCol(col){
 function renderFilterPreview(){
   document.getElementById('filter-counter').textContent=`${S.filterCols.length} of 3 filters selected`;
   const area=document.getElementById('filter-preview-area');
-  if(!S.filterCols.length){area.innerHTML=`<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display. "Export All" will export one chart per value of the last filter you add.</div>`;return;}
-  const lastCol=S.filterCols[S.filterCols.length-1];
+  if(!S.filterCols.length){area.innerHTML=`<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>`;return;}
   area.innerHTML=`<div class="filter-preview-box">
     ${S.filterCols.map((col,i)=>{
       const isLast=i===S.filterCols.length-1;
       const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);
       return`<div class="fpr-row">
-        <span class="fpr-col">${esc(col)}${isLast?` <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All splits here</span>`:''}</span>
+        <span class="fpr-col">${esc(col)}${isLast?` <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>`:''}</span>
         <div class="fpr-vals">${vals.map(v=>`<span class="fv-pill">${esc(v)}</span>`).join('')}${vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':''}</div>
       </div>`;
     }).join('')}
   </div>`;
 }
-function launchChart(){S.activeFilters={};S.maxDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
+function launchChart(){S.activeFilters={};S.maxDepth=0;S.summarizeAfterLevel=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
+
+// ════════════════════════════════════════════════
+// ★ NEW: SUMMARIZE CONTROLS
+// ════════════════════════════════════════════════
+function populateSummarizeFields(){
+  const sel=document.getElementById('groupby-select');if(!sel)return;
+  const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
+  const fields=S.columns.filter(c=>!core.has(c));
+  sel.innerHTML='<option value="">— Group by field —</option>'+fields.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
+  if(S.summarizeField)sel.value=S.summarizeField;
+  // Sync UI
+  const lvlSel=document.getElementById('summarize-level-select');
+  if(lvlSel)lvlSel.value=S.summarizeAfterLevel;
+  updateSummarizeUI();
+}
+
+function setSummarizeLevel(n){
+  S.summarizeAfterLevel=n;
+  updateSummarizeUI();
+  renderChart();
+}
+
+function setGroupByField(f){
+  S.summarizeField=f;
+  if(S.summarizeAfterLevel>0)renderChart();
+}
+
+function updateSummarizeUI(){
+  const wrap=document.getElementById('summarize-wrap');
+  const gb=document.getElementById('groupby-select');
+  if(wrap)wrap.classList.toggle('active',S.summarizeAfterLevel>0);
+  if(gb)gb.classList.toggle('visible',S.summarizeAfterLevel>0);
+  const info=document.getElementById('stat-summarize-info');
+  const val=document.getElementById('stat-summarize-val');
+  if(info&&val){
+    info.style.display=S.summarizeAfterLevel>0?'flex':'none';
+    if(S.summarizeAfterLevel>0)val.textContent=`Summarized from L${S.summarizeAfterLevel}${S.summarizeField?' by '+S.summarizeField:''}`;
+  }
+}
+
+// Get all descendants of a node (recursively) grouped by field
+function getDescendantSummary(nodeId,field){
+  const allDesc=[];
+  function collect(id){
+    (S.childMap[id]||[]).forEach(k=>{allDesc.push(k);collect(k.id);});
+  }
+  collect(nodeId);
+  if(!allDesc.length)return[];
+  if(!field){return[{label:'Employees',count:allDesc.length}];}
+  const groups={};
+  allDesc.forEach(n=>{
+    const v=String(n[field]||'—').trim()||'—';
+    groups[v]=(groups[v]||0)+1;
+  });
+  return Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([label,count])=>({label,count}));
+}
+
+// Build a summary LI node (shows aggregated counts instead of individual cards)
+function mkSummaryNodeLI(parentNodeId){
+  const li=document.createElement('li');
+  const summary=getDescendantSummary(parentNodeId,S.summarizeField);
+  const total=summary.reduce((s,g)=>s+g.count,0);
+  const ac=S.cardAccent;
+  const acLight=ac+'18',acMid=ac+'44';
+
+  const card=document.createElement('div');
+  card.className='node-card summary-node-card';
+  card.style.borderTopColor=ac;
+  card.style.width='auto';
+  card.style.minWidth='160px';
+  card.style.maxWidth='220px';
+
+  let rowsHtml='';
+  const toShow=summary.slice(0,9);
+  const extra=summary.length-toShow.length;
+  toShow.forEach(g=>{
+    rowsHtml+=`<div class="summary-row"><span class="summary-count" style="color:${ac}">${g.count}</span><span class="summary-label">${esc(g.label)}</span></div>`;
+  });
+  if(extra>0)rowsHtml+=`<div class="summary-more">+${extra} more categories</div>`;
+
+  card.innerHTML=
+    `<div class="ncard-header" style="background:${acLight};border-bottom-color:${acMid}">
+      <span class="ncard-badge" style="background:${acLight};color:${ac};border-color:${acMid}">Summary</span>
+      <span class="ncard-badge2" style="color:${ac};font-weight:800">${total}</span>
+    </div>
+    <div class="summary-grid">${rowsHtml||'<div style="font-size:0.75rem;color:var(--text3);padding:4px 0">No data</div>'}</div>
+    <div class="ncard-footer" style="background:${acLight}">
+      <span class="ncard-fl">${total} total</span>
+      <span class="ncard-fr has-r" style="background:${acLight};color:${ac};border-color:${acMid}">${summary.length} ${summary.length===1?'group':'groups'}</span>
+    </div>`;
+
+  li.appendChild(card);
+  return li;
+}
 
 // ════════════════════════════════════════════════
 // DATA PREP
@@ -917,32 +1021,26 @@ function buildViewData(){
   S.childMap={};
   nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});
 
-  // Descendant count (for auto-fields)
   S.descCount={};
   function calcDesc(id){
     if(S.descCount[id]!==undefined)return S.descCount[id];
     const kids=S.childMap[id]||[];
-    S.descCount[id]=kids.reduce((s,k)=>s+1+calcDesc(k.id),0);
-    return S.descCount[id];
+    S.descCount[id]=kids.reduce((s,k)=>s+1+calcDesc(k.id),0);return S.descCount[id];
   }
   nodes.filter(n=>!n.manager).forEach(r=>calcDesc(r.id));
 
-  // Node height from bottom (0=leaf, 1=parent of leaf, etc.)
   S.nodeHeight={};
   function calcHeight(id){
     if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];
     const kids=S.childMap[id]||[];
-    S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcHeight(k.id))):0;
-    return S.nodeHeight[id];
+    S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcHeight(k.id))):0;return S.nodeHeight[id];
   }
   nodes.filter(n=>!n.manager).forEach(r=>calcHeight(r.id));
-  // Also compute for nodes that might be orphan-ish
   nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcHeight(n.id);});
 }
 
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
-function nodeHeight(id){return S.nodeHeight[id]||0;}
 
 // ════════════════════════════════════════════════
 // FILTER BAR
@@ -970,7 +1068,7 @@ function applyFilter(col,val){
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 
 // ════════════════════════════════════════════════
-// BOTTOM-UP LEVEL DEPTH FILTER
+// BOTTOM-UP DEPTH
 // ════════════════════════════════════════════════
 function setMaxDepth(n){
   S.maxDepth=n;
@@ -991,19 +1089,12 @@ function getSlotVal(node,slot){
 function renderChart(){
   const tree=document.getElementById('org-tree');
   tree.innerHTML='';
+  updateSummarizeUI();
 
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.maxDepth;
-  const depthInfo=document.getElementById('stat-depth-info');
-  const depthVal=document.getElementById('stat-depth-val');
-  if(depthInfo&&depthVal){
-    depthInfo.style.display=S.maxDepth>0?'flex':'none';
-    if(S.maxDepth>0)depthVal.textContent=S.maxDepth;
-  }
 
   let roots;
   if(S.maxDepth>0){
-    // Bottom-up: visible = nodes whose nodeHeight < maxDepth
-    // Virtual root = visible node whose manager is not visible (or has no manager)
     const visible=new Set(S.viewData.filter(n=>(S.nodeHeight[n.id]||0)<S.maxDepth).map(n=>n.id));
     roots=S.viewData.filter(n=>visible.has(n.id)&&(!n.manager||!visible.has(n.manager)));
   } else {
@@ -1011,19 +1102,21 @@ function renderChart(){
   }
 
   if(!roots.length){
-    tree.innerHTML=`<div class="no-data">No nodes found for this depth setting.<br>Try increasing the Levels ↑ selector or selecting "All".</div>`;
+    tree.innerHTML=`<div class="no-data">No nodes found for the current settings.</div>`;
     updateStats(roots);return;
   }
 
   const ul=document.createElement('ul');
-  roots.forEach(r=>ul.appendChild(mkNodeLI(r)));
+  roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
   tree.appendChild(ul);
   updateStats(roots);
   clearTimeout(window._fit);
   window._fit=setTimeout(()=>fitToScreen(true),180);
 }
 
-function mkNodeLI(node){
+// ★ mkNodeLI now accepts depth parameter for summarize feature
+function mkNodeLI(node,depth){
+  depth=depth||0;
   const li=document.createElement('li');
   li.dataset.id=node.id;
 
@@ -1033,7 +1126,7 @@ function mkNodeLI(node){
   card.className='node-card'+(node.id===S.highlighted?' highlighted':'')+(vacant?' vacant':'');
   if(!vacant)card.style.borderTopColor=ac;
 
-  const acLight=ac+'18', acMid=ac+'55';
+  const acLight=ac+'18',acMid=ac+'55';
   const reports=childrenOf(node.id).length;
   const badge1=getSlotVal(node,'badge1'),badge2=getSlotVal(node,'badge2');
   const subtitle=getSlotVal(node,'subtitle');
@@ -1042,17 +1135,14 @@ function mkNodeLI(node){
   const hasR=reports>0;
   const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
 
-  // Photo: look up in photoMap
   const photoUrl=getPhotoUrl(node);
   let photoHtml='';
   if(photoUrl){
     photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">` +
       `<div class="ncard-photo-fallback" style="display:none;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;
   } else if(Object.keys(S.photoMap).length>0){
-    // Photos are loaded but no match → show fallback avatar
     photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;
   }
-  // If no photos loaded at all, no photo area shown
 
   card.innerHTML=
     '<div class="ncard-header">'+
@@ -1073,8 +1163,11 @@ function mkNodeLI(node){
         `<span class="ncard-fr${hasR?' has-r':''}" ${hasR?`style="background:${acLight};color:${ac}"`:''}>` +
         `${reports} ${reports===1?'report':'reports'}</span>`)+
     '</div>'+
+    // ★ Subtree export button (📸) next to edit button (✎)
+    `<div class="ncard-export-btn" title="Export this team as PNG" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
+  // Collapse button
   if(hasR){
     const cb=document.createElement('div');
     cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';
@@ -1083,16 +1176,25 @@ function mkNodeLI(node){
   }
   li.appendChild(card);
 
-  // Children: respect bottom-up depth limit
-  // In bottom-up mode, only render children that are still within the visible set
+  // ★ Children: check if we should summarize (top-down depth check)
   let kids=childrenOf(node.id);
   if(S.maxDepth>0){
     kids=kids.filter(k=>(S.nodeHeight[k.id]||0)<S.maxDepth);
   }
+
   if(kids.length){
-    const ul=document.createElement('ul');
-    kids.forEach(k=>ul.appendChild(mkNodeLI(k)));
-    li.appendChild(ul);
+    // summarizeAfterLevel=N means nodes at depth >= N-1 show summary children
+    // depth is 0-indexed (root=0), summarizeAfterLevel is 1-indexed (L1=root, L2=root's children)
+    if(S.summarizeAfterLevel>0 && depth >= S.summarizeAfterLevel-1){
+      // Show summary card instead of individual children
+      const ul=document.createElement('ul');
+      ul.appendChild(mkSummaryNodeLI(node.id));
+      li.appendChild(ul);
+    } else {
+      const ul=document.createElement('ul');
+      kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
+      li.appendChild(ul);
+    }
   }
   return li;
 }
@@ -1101,10 +1203,10 @@ function toggleCollapse(li,btn){li.classList.toggle('collapsed');const c=li.clas
 function expandAll(){document.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');li.querySelector('.node-card')?.classList.remove('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}});setTimeout(()=>updateStats(),60);}
 function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.parentElement?.parentElement?.closest('li'))return;if(li.querySelector(':scope > ul')){li.classList.add('collapsed');li.querySelector('.node-card')?.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}}}); setTimeout(()=>updateStats(),60);}
 function updateStats(roots){
-  if(!roots)roots=S.maxDepth>0?S.viewData.filter(n=>(S.nodeHeight[n.id]||0)===S.maxDepth-1||(S.nodeHeight[n.id]||0)<S.maxDepth&&(!n.manager||!((S.nodeHeight[n.manager]||0)<S.maxDepth))):S.viewData.filter(n=>!n.manager);
+  if(!roots)roots=S.viewData.filter(n=>!n.manager);
   document.getElementById('stat-total').textContent=S.viewData.length;
   document.getElementById('stat-roots').textContent=roots.length;
-  document.getElementById('stat-vis').textContent=document.querySelectorAll('.node-card').length;
+  document.getElementById('stat-vis').textContent=document.querySelectorAll('.node-card:not(.summary-node-card)').length;
   document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';
 }
 
@@ -1134,18 +1236,36 @@ function initPan(){
 }
 
 // ════════════════════════════════════════════════
-// SEARCH
+// ★ SEARCH — fixed position dropdown (toolbar overflow fix)
 // ════════════════════════════════════════════════
 function initSearch(){
-  const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;
+  const input=document.getElementById('chart-search');
+  const box=document.getElementById('chart-search-results');
+  if(!input)return;
+
+  function positionBox(){
+    const rect=input.getBoundingClientRect();
+    box.style.top=(rect.bottom+5)+'px';
+    box.style.left=rect.left+'px';
+    box.style.width=Math.max(260,rect.width)+'px';
+  }
+
   input.addEventListener('input',function(){
-    const q=this.value.trim().toLowerCase();if(!q){box.classList.remove('visible');return;}
-    const hits=S.viewData.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)).slice(0,8);
-    box.innerHTML=hits.length?hits.map(n=>`<div class="sr-item" onclick="highlightNode('${esc(n.id)}')"><div class="sr-name">${esc(n.name)}</div><div class="sr-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div>`).join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem">No results</div>';
+    const q=this.value.trim().toLowerCase();
+    if(!q){box.classList.remove('visible');return;}
+    const hits=S.viewData.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)).slice(0,10);
+    box.innerHTML=hits.length
+      ?hits.map(n=>`<div class="sr-item" onclick="highlightNode('${esc(n.id)}')"><div class="sr-name">${esc(n.name)}</div><div class="sr-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div>`).join('')
+      :'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results found</div>';
+    positionBox();
     box.classList.add('visible');
   });
+  input.addEventListener('focus',function(){if(this.value.trim())positionBox();});
   document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});
+  window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});
+  window.addEventListener('scroll',()=>{if(box.classList.contains('visible'))positionBox();},true);
 }
+
 function highlightNode(id){
   document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));
   S.highlighted=id;expandAll();
@@ -1156,38 +1276,73 @@ function highlightNode(id){
       setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);
     }
   }
-  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
+  document.getElementById('chart-search').value='';
+  document.getElementById('chart-search-results').classList.remove('visible');
 }
 
 // ════════════════════════════════════════════════
 // SHARED EXPORT HELPERS
 // ════════════════════════════════════════════════
 function inlineStyles(root){
-  const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','backgroundImage'];
+  const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow'];
   root.querySelectorAll('*').forEach(el=>{
-    const cs=window.getComputedStyle(el);PROPS.forEach(p=>{el.style[p]=cs[p];});
-    el.style.webkitLineClamp='unset';el.style.overflow='visible';el.classList.remove('collapsed');
+    const cs=window.getComputedStyle(el);
+    PROPS.forEach(p=>{try{el.style[p]=cs[p];}catch(e){}});
+    el.style.webkitLineClamp='unset';el.style.overflow='visible';
+    el.classList.remove('collapsed');
   });
 }
 
-async function buildRenderStage(){
+async function buildRenderStage(rootNodeId){
   const stage=document.createElement('div');
-  stage.style.cssText='position:fixed;top:0;left:-99999px;background:#ffffff;padding:56px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none';
-  const cloned=document.getElementById('org-tree').cloneNode(true);
-  cloned.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
-  cloned.querySelectorAll('li').forEach(li=>{li.classList.remove('collapsed');});
-  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn').forEach(b=>b.remove());
-  stage.appendChild(cloned);document.body.appendChild(stage);
-  await new Promise(r=>setTimeout(r,220));
+  stage.style.cssText='position:fixed;top:0;left:-99999px;background:#ffffff;padding:64px 80px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none';
+
+  let sourceTree;
+  if(rootNodeId){
+    // Build a subtree element for just this node
+    sourceTree=document.createElement('div');
+    sourceTree.className='org-tree';
+    const ul=document.createElement('ul');
+    // Temporarily render the subtree
+    const node=S.viewData.find(n=>n.id===rootNodeId);
+    if(node)ul.appendChild(mkNodeLI(node,0));
+    sourceTree.appendChild(ul);
+  } else {
+    sourceTree=document.getElementById('org-tree').cloneNode(true);
+  }
+
+  sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
+  sourceTree.querySelectorAll('li').forEach(li=>{li.classList.remove('collapsed');});
+  sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
+
+  stage.appendChild(sourceTree);
+  document.body.appendChild(stage);
+  await new Promise(r=>setTimeout(r,250));
   if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,80));
+  await new Promise(r=>setTimeout(r,100));
   inlineStyles(stage);
-  await new Promise(r=>setTimeout(r,60));
+  await new Promise(r=>setTimeout(r,80));
   return stage;
 }
 
 async function renderToCanvas(stage){
-  return html2canvas(stage,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:stage.scrollWidth,height:stage.scrollHeight,scrollX:0,scrollY:0});
+  return html2canvas(stage,{
+    backgroundColor:'#ffffff',
+    scale:3,           // ★ Higher resolution (was 2)
+    useCORS:true,
+    logging:false,
+    allowTaint:true,
+    foreignObjectRendering:false,
+    width:stage.scrollWidth,
+    height:stage.scrollHeight,
+    scrollX:0,
+    scrollY:0,
+    onclone:(doc,el)=>{
+      // Make sure everything is visible in the clone
+      el.querySelectorAll('li').forEach(l=>l.classList.remove('collapsed'));
+      el.querySelectorAll('ul').forEach(u=>{u.style.display='';});
+    }
+  });
 }
 
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
@@ -1207,7 +1362,7 @@ function downloadCSV(){
 // PNG EXPORT
 // ════════════════════════════════════════════════
 async function exportPNG(){
-  const overlay=makeOverlay('Rendering org chart…','Large charts may take a moment');
+  const overlay=makeOverlay('Rendering org chart…','Building high-resolution image (scale 3×)');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
@@ -1216,7 +1371,7 @@ async function exportPNG(){
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
-    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${fp?fp+'_':''}${stamp}.png`);res();}, 'image/png'));
+    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${fp?fp+'_':''}${stamp}.png`);res();},'image/png'));
   }catch(e){alert('PNG export failed: '+e.message);}
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
@@ -1228,48 +1383,151 @@ function makeOverlay(title,sub){
 }
 
 // ════════════════════════════════════════════════
-// PPTX HELPERS
+// ★ NEW: SUBTREE EXPORT (per-card 📸 button)
+// ════════════════════════════════════════════════
+async function exportSubtree(e,nodeId){
+  e.stopPropagation();
+  const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
+
+  // Collect nodeId + all descendants
+  const includeIds=new Set([nodeId]);
+  function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}
+  collectDesc(nodeId);
+  const total=includeIds.size;
+
+  const overlay=makeOverlay(`Exporting ${node.name}'s team (${total} people)…`,'Building subtree image at 3× resolution');
+  document.body.appendChild(overlay);
+
+  // Save state
+  const savedViewData=S.viewData;
+  const savedChildMap=S.childMap;
+  const savedDescCount=S.descCount;
+  const savedNodeHeight=S.nodeHeight;
+  const savedSummarize=S.summarizeAfterLevel;
+  const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);
+  const prevOverride=S.managerOverrides[nodeId];
+
+  // Make this node a root temporarily
+  S.managerOverrides[nodeId]='';
+  S.viewData=savedViewData.filter(n=>includeIds.has(n.id));
+
+  // Rebuild childMap for subtree
+  S.childMap={};
+  S.viewData.forEach(n=>{
+    const mgr=(n.id===nodeId)?'':n.manager;
+    if(!S.childMap[mgr])S.childMap[mgr]=[];
+    S.childMap[mgr].push(n);
+  });
+
+  // Recalculate counts
+  S.descCount={};S.nodeHeight={};
+  function calcD(id){const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id),0);return S.descCount[id];}
+  function calcH(id){const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
+  calcD(nodeId);calcH(nodeId);
+  S.summarizeAfterLevel=0; // always show full subtree in export
+
+  const savedZoom=S.zoom;applyZoom(1);
+
+  let stage;
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');
+    await new Promise(res=>canvas.toBlob(blob=>{
+      if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();
+    },'image/png'));
+  }catch(ex){alert('Subtree export failed: '+ex.message);}
+  finally{
+    if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);
+    // Restore
+    if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];
+    S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;
+    S.summarizeAfterLevel=savedSummarize;
+    renderChart();
+  }
+}
+
+// ════════════════════════════════════════════════
+// PPTX HELPERS — improved layout & visibility
 // ════════════════════════════════════════════════
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
-function pptxRect(id,x,y,cx,cy,fill){return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
-function pptxTxt(id,x,y,cx,cy,text,sz,bold,color,algn='ctr'){return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/><a:p><a:pPr algn="${algn}"/><a:r><a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr><a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;}
+function pptxRect(id,x,y,cx,cy,fill,rad){rad=rad||0;return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val ${rad}"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
+function pptxTxt(id,x,y,cx,cy,text,sz,bold,color,algn){algn=algn||'ctr';return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/><a:p><a:pPr algn="${algn}"/><a:r><a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr><a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;}
+
+const SW=12192000,SH=6858000;
+
 function pptxSlideWrap(bg,content,rels){
-  const SW=12192000,SH=6858000;
   return[`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgPr><a:solidFill><a:srgbClr val="${bg}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${SW}" cy="${SH}"/><a:chOff x="0" y="0"/><a:chExt cx="${SW}" cy="${SH}"/></a:xfrm></p:grpSpPr>${content}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`,rels];
 }
 
-async function buildPPTXBlob(imgB64,cW,cH,titleSuffix=''){
+// ★ Improved PPTX: image uses nearly the full slide, only a slim header bar
+async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
+  titleSuffix=titleSuffix||'';
   const ac=S.cardAccent.replace('#','');
   const stamp=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   const activeF=Object.entries(S.activeFilters).filter(([,v])=>v);
   const filterLine=activeF.map(([k,v])=>`${k}: ${v}`).join('  |  ')||(titleSuffix||'All Employees');
   const roots=S.viewData.filter(n=>!n.manager).length;
   const vacants=S.vacantCol&&S.vacantVal?S.viewData.filter(n=>n[S.vacantCol]===S.vacantVal).length:0;
-  const SW=12192000,SH=6858000,HBAR=457200,PAD=457200;
-  const aspect=cW/cH;const avW=SW-PAD*2,avH=SH-HBAR-PAD*2;
-  let iW,iH;if(aspect>avW/avH){iW=avW;iH=Math.round(avW/aspect);}else{iH=avH;iW=Math.round(avH*aspect);}
-  const iX=Math.round((SW-iW)/2),iY=HBAR+Math.round((SH-HBAR-iH)/2);
 
-  const [s1xml,s1rels]=pptxSlideWrap('F8FAFC',
-    pptxRect(2,'0','0',SW,HBAR,ac)+
-    pptxTxt(3,PAD,Math.round(SH*0.28),SW-PAD*2,1200000,'Org Chart',5400,true,'0F172A')+
-    pptxTxt(4,PAD,Math.round(SH*0.28)+1300000,SW-PAD*2,500000,`Generated: ${stamp}`,1800,false,'64748B')+
-    pptxTxt(5,PAD,Math.round(SH*0.28)+1900000,SW-PAD*2,450000,filterLine,1600,true,ac),
+  // ★ Slim header 38px equivalent (457200 EMU), image takes rest
+  const HBAR=457200,PAD=152400; // slim top bar + tiny padding
+  const aspect=cW/cH;
+  const avW=SW-PAD*2,avH=SH-HBAR-PAD;
+  let iW,iH;
+  if(aspect>avW/avH){iW=avW;iH=Math.round(avW/aspect);}else{iH=avH;iW=Math.round(avH*aspect);}
+  const iX=Math.round((SW-iW)/2),iY=HBAR+Math.round((avH-iH)/2)+PAD;
+
+  // SLIDE 1: Title slide
+  const titleContent=
+    pptxRect(2,'0','0',SW,SH,'F1F5F9')+
+    pptxRect(3,'0','0',SW,Math.round(SH*0.55),ac)+
+    pptxRect(4,'0',Math.round(SH*0.55),SW,Math.round(SH*0.45),'FFFFFF')+
+    pptxTxt(5,Math.round(SW*0.08),Math.round(SH*0.18),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7200,true,'FFFFFF','l')+
+    pptxTxt(6,Math.round(SW*0.08),Math.round(SH*0.38),Math.round(SW*0.84),380000,filterLine,2000,true,'FFFFFF','l')+
+    pptxTxt(7,Math.round(SW*0.08),Math.round(SH*0.44),Math.round(SW*0.84),330000,'Generated: '+stamp,1400,false,'C7D2FE','l')+
+    pptxTxt(8,Math.round(SW*0.08),Math.round(SH*0.6),Math.round(SW*0.4),380000,`${S.viewData.length} Employees`,3600,true,ac,'l')+
+    pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.6),Math.round(SW*0.35),380000,`${roots} Root Nodes`,2600,true,'64748B','l');
+  const [s1xml,s1rels]=pptxSlideWrap('F1F5F9',titleContent,
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
 
-  const picXml=`<p:pic><p:nvPicPr><p:cNvPr id="10" name="OrgChart"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId2"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${iX}" y="${iY}"/><a:ext cx="${iW}" cy="${iH}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
-  const [s2xml,]=pptxSlideWrap('F1F5F9',
+  // SLIDE 2: Chart image — full slide with slim header
+  const picXml=`<p:pic><p:nvPicPr><p:cNvPr id="20" name="OrgChart"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId2"><a:extLst><a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}"><a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/></a:ext></a:extLst></a:blip><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${iX}" y="${iY}"/><a:ext cx="${iW}" cy="${iH}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+  // Slim colored header bar at top with title
+  const chartSlideContent=
     pptxRect(2,'0','0',SW,HBAR,ac)+
-    pptxTxt(3,PAD,0,SW*0.4,HBAR,'Org Chart',1600,true,'FFFFFF','l')+
-    pptxTxt(4,SW-2400000,0,2200000,HBAR,`${S.viewData.length} employees`,1400,false,'FFFFFF','r')+picXml,
+    pptxTxt(3,PAD,0,Math.round(SW*0.5),HBAR,'Org Chart — '+filterLine,1400,true,'FFFFFF','l')+
+    pptxTxt(4,Math.round(SW*0.75),0,Math.round(SW*0.22),HBAR,`${S.viewData.length} employees  |  ${stamp}`,1100,false,'C7D2FE','r')+
+    picXml;
+  const [s2xml,]=pptxSlideWrap('FFFFFF',chartSlideContent,
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`);
 
-  const statItems=[{label:'Total Employees',val:S.viewData.length},{label:'Root Nodes',val:roots},{label:'Vacant',val:vacants},{label:'Depth',val:S.maxDepth>0?`${S.maxDepth} lvls`:'All'}];
-  const boxW=Math.round(SW*0.18),boxH=Math.round(SH*0.22),totalBW=boxW*4+Math.round(SW*0.025)*3,bStartX=Math.round((SW-totalBW)/2),bY=Math.round(SH*0.32);
-  let sc=pptxRect(2,'0','0',SW,HBAR,ac)+pptxTxt(3,PAD,0,SW*0.5,HBAR,'Summary',1600,true,'FFFFFF','l');
-  statItems.forEach((st,i)=>{const bx=bStartX+i*(boxW+Math.round(SW*0.025));sc+=pptxRect(10+i*2,bx,bY,boxW,boxH,'F8FAFC');sc+=pptxTxt(11+i*2,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.55),String(st.val),3600,true,ac);sc+=pptxTxt(20+i,bx,bY+Math.round(boxH*0.65),boxW,Math.round(boxH*0.3),st.label,1200,false,'64748B');});
-  if(filterLine!=='All Employees')sc+=pptxTxt(30,PAD,Math.round(SH*0.72),SW-PAD*2,380000,'Filters: '+filterLine,1200,false,'94A3B8');
-  const [s3xml,]=pptxSlideWrap('FFFFFF',sc,`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
+  // SLIDE 3: Stats
+  const statItems=[
+    {label:'Total Employees',val:S.viewData.length,color:ac},
+    {label:'Root Nodes',val:roots,color:'0891b2'},
+    {label:'Vacant Roles',val:vacants,color:'dc2626'},
+    {label:'Org Levels',val:S.maxDepth>0?`${S.maxDepth} shown`:'All',color:'059669'},
+  ];
+  const boxW=Math.round(SW*0.19),boxH=Math.round(SH*0.28);
+  const gap=Math.round((SW-boxW*4)*0.2);
+  const totalW=boxW*4+gap*3,bStartX=Math.round((SW-totalW)/2),bY=Math.round(SH*0.28);
+  let sc=pptxRect(2,'0','0',SW,HBAR,ac)+
+    pptxTxt(3,Math.round(SW*0.04),0,Math.round(SW*0.6),HBAR,'Summary Dashboard',1500,true,'FFFFFF','l')+
+    pptxTxt(4,Math.round(SW*0.75),0,Math.round(SW*0.22),HBAR,stamp,1100,false,'C7D2FE','r')+
+    pptxTxt(5,Math.round(SW*0.04),Math.round(SH*0.1),Math.round(SW*0.92),Math.round(SH*0.1),'Org Chart',4400,true,'0F172A','l');
+  if(filterLine!=='All Employees')
+    sc+=pptxTxt(6,Math.round(SW*0.04),Math.round(SH*0.2),Math.round(SW*0.92),280000,filterLine,1600,false,'64748B','l');
+  statItems.forEach((st,i)=>{
+    const bx=bStartX+i*(boxW+gap);
+    sc+=pptxRect(10+i*3,bx,bY,boxW,boxH,'F8FAFC',50000)+
+      pptxRect(11+i*3,bx,bY,boxW,Math.round(boxH*0.06),st.color)+
+      pptxTxt(12+i*3,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.5),String(st.val),4400,true,st.color)+
+      pptxTxt(20+i,bx,bY+Math.round(boxH*0.65),boxW,Math.round(boxH*0.28),st.label,1400,false,'64748B');
+  });
+  const [s3xml,]=pptxSlideWrap('FFFFFF',sc,
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
 
   const BOILERPLATE={
     '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide2.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide3.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>`,
@@ -1298,7 +1556,7 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix=''){
 
 async function exportPPTX(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
-  const overlay=makeOverlay('Building PowerPoint…','Rendering then packaging slides');
+  const overlay=makeOverlay('Building PowerPoint…','Rendering 3× then packaging slides');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
@@ -1314,28 +1572,19 @@ async function exportPPTX(){
 }
 
 // ════════════════════════════════════════════════
-// EXPORT ALL — iterates last filter column values
+// EXPORT ALL
 // ════════════════════════════════════════════════
 async function exportAll(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
-
   const lastFilterCol=S.filterCols[S.filterCols.length-1]||null;
+  if(!lastFilterCol){await _exportAllSingleView();return;}
 
-  // ── No last filter: export current view as CSV+PNG+PPTX ──
-  if(!lastFilterCol){
-    await _exportAllSingleView();
-    return;
-  }
-
-  // ── Collect values for last filter, respecting any already-active parent filters ──
   const parentFilters=Object.entries(S.activeFilters).filter(([k])=>k!==lastFilterCol);
   const relevantRows=S.rawRows.filter(row=>parentFilters.every(([col,val])=>!val||String(row[col]||'').trim()===val));
   const lastVals=[...new Set(relevantRows.map(r=>String(r[lastFilterCol]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();
-
   if(!lastVals.length){await _exportAllSingleView();return;}
 
-  const overlay=document.createElement('div');
-  overlay.className='export-overlay';
+  const overlay=document.createElement('div');overlay.className='export-overlay';
   overlay.innerHTML=`<div class="export-spinner"></div>
     <div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ea_title">Exporting ${lastVals.length} charts…</div>
     <div class="export-steps">
@@ -1344,93 +1593,55 @@ async function exportAll(){
     </div>`;
   document.body.appendChild(overlay);
 
-  const savedZoom=S.zoom; applyZoom(1); await new Promise(r=>setTimeout(r,120));
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   const savedFilters={...S.activeFilters};
-
-  const outerZip=new JSZip();
-  let successCount=0;
+  const outerZip=new JSZip();let successCount=0;
 
   try{
     for(let i=0;i<lastVals.length;i++){
-      const val=lastVals[i];
-      const safeName=val.replace(/[^a-zA-Z0-9]/g,'_');
-
-      // Update overlay
-      const stepEl=document.getElementById('_ea_step');
-      const progEl=document.getElementById('_ea_prog');
-      if(stepEl) stepEl.textContent=`📊 ${val}`;
-      if(progEl) progEl.textContent=`${i+1} / ${lastVals.length}`;
-
-      // Apply filter
-      S.activeFilters[lastFilterCol]=val;
-      buildViewData();
-      renderChart();
-      await new Promise(r=>setTimeout(r,300));
-
-      // CSV
-      const csvContent=buildCSVContent();
-      outerZip.file(`${safeName}/${safeName}.csv`,csvContent);
-
-      // Render chart to canvas
+      const val=lastVals[i];const safeName=val.replace(/[^a-zA-Z0-9]/g,'_');
+      const stepEl=document.getElementById('_ea_step');const progEl=document.getElementById('_ea_prog');
+      if(stepEl)stepEl.textContent=`📊 ${val}`;
+      if(progEl)progEl.textContent=`${i+1} / ${lastVals.length}`;
+      S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();
+      await new Promise(r=>setTimeout(r,320));
+      outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
       const stage=await buildRenderStage();
-      let canvas;
-      try{canvas=await renderToCanvas(stage);}finally{stage.remove();}
-
-      // PNG
+      let canvas;try{canvas=await renderToCanvas(stage);}finally{stage.remove();}
       const pngBlob=await new Promise(res=>canvas.toBlob(res,'image/png'));
-      if(pngBlob) outerZip.file(`${safeName}/${safeName}.png`,pngBlob);
-
-      // PPTX
+      if(pngBlob)outerZip.file(`${safeName}/${safeName}.png`,pngBlob);
       try{
         const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height,val);
         outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);
-      }catch(pe){console.warn('PPTX failed for '+val,pe);}
-
+      }catch(pe){console.warn('PPTX skip: '+val,pe);}
       successCount++;
     }
-
-    // Done — generate the outer ZIP
     const titleEl=document.getElementById('_ea_title');
-    if(titleEl) titleEl.textContent=`Packaging ${successCount} exports…`;
+    if(titleEl)titleEl.textContent=`Packaging ${successCount} exports…`;
     const masterBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});
     const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     const colSafe=lastFilterCol.replace(/[^a-zA-Z0-9]/g,'_');
     triggerDownload(masterBlob,`orgchart_all_${colSafe}_${dp}.zip`);
-
-    if(titleEl) titleEl.textContent=`✅ ${successCount} charts exported!`;
+    if(titleEl)titleEl.textContent=`✅ ${successCount} charts exported!`;
     await new Promise(r=>setTimeout(r,1200));
-
-  }catch(e){
-    alert('Export All failed: '+e.message);console.error(e);
-  }finally{
-    // Restore previous state
-    S.activeFilters=savedFilters;
-    buildViewData();
-    buildFilterBar();
-    renderChart();
-    overlay.remove();
-    applyZoom(savedZoom);
+  }catch(e){alert('Export All failed: '+e.message);console.error(e);}
+  finally{
+    S.activeFilters=savedFilters;buildViewData();buildFilterBar();renderChart();
+    overlay.remove();applyZoom(savedZoom);
   }
 }
 
-// Fallback: no last filter — export current view
 async function _exportAllSingleView(){
-  const overlay=document.createElement('div');
-  overlay.className='export-overlay';
+  const overlay=document.createElement('div');overlay.className='export-overlay';
   overlay.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Exporting current view…</div>
-    <div class="export-steps">
-      <div class="export-step active" id="_sv_s1">💾 CSV</div>
-      <div class="export-step" id="_sv_s2">🖼️ PNG</div>
-      <div class="export-step" id="_sv_s3">📊 PPTX</div>
-    </div>`;
+    <div class="export-steps"><div class="export-step active" id="_sv_s1">💾 CSV</div><div class="export-step" id="_sv_s2">🖼️ PNG (3×)</div><div class="export-step" id="_sv_s3">📊 PPTX</div></div>`;
   document.body.appendChild(overlay);
   const setStep=n=>[1,2,3].forEach(i=>{const el=document.getElementById(`_sv_s${i}`);if(el)el.className='export-step'+(i<n?' done':i===n?' active':'');});
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
   try{
     setStep(1);downloadCSV();await new Promise(r=>setTimeout(r,400));
-    setStep(2);
-    stage=await buildRenderStage();
+    setStep(2);stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${stamp}.png`);res();},'image/png'));
@@ -1516,8 +1727,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
   zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
   input.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
-
-  // Photo folder fallback input (multiple image files)
   const photoInput=document.getElementById('photo-folder-input');
   photoInput.addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
 });
