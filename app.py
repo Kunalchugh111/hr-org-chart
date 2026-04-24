@@ -128,8 +128,9 @@ body{display:flex;flex-direction:column}
 .preview-name-fixed{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:6px 10px}
 .preview-name-fixed span{font-size:0.8rem;color:var(--text2);font-weight:600}
 .preview-name-fixed .lock{font-size:0.75rem;opacity:0.5}
-.ncard-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.8);display:block;flex-shrink:0}
-.ncard-photo-fallback{width:38px;height:38px;border-radius:50%;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* PHOTO: large stylish portrait rectangle */
+.ncard-photo{width:60px;height:74px;border-radius:12px;object-fit:cover;display:block;flex-shrink:0}
+.ncard-photo-fallback{width:60px;height:74px;border-radius:12px;font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.02em}
 .filter-setup{max-width:640px}
 .filter-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .filter-chip{padding:7px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
@@ -196,16 +197,17 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
-.node-card{display:inline-block;width:220px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
+.node-card{display:inline-block;width:236px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);border-color:var(--accent);z-index:10}
 .node-card.highlighted{border-color:var(--warning)!important;border-top-color:var(--warning)!important;box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
 .node-card.collapsed-node{opacity:0.65}
 .ncard-header{padding:7px 11px 6px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .ncard-badge{font-size:0.59rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:999px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--accent-mid)}
 .ncard-badge2{font-size:0.65rem;font-weight:700;color:var(--text3);white-space:nowrap}
-.ncard-body{padding:10px 12px 8px}
-.ncard-body-inner{display:flex;align-items:center;gap:9px}
-.ncard-text-wrap{flex:1;min-width:0}
+.ncard-body{padding:10px 12px 10px}
+/* PHOTO: flex-start so tall portrait photo aligns text to top */
+.ncard-body-inner{display:flex;align-items:flex-start;gap:10px}
+.ncard-text-wrap{flex:1;min-width:0;padding-top:2px}
 .ncard-name{font-size:0.86rem;font-weight:800;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em}
 .ncard-sub{font-size:0.73rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ncard-footer{padding:6px 12px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center;font-size:0.67rem;font-weight:600}
@@ -420,7 +422,6 @@ body{display:flex;flex-direction:column}
       <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
       <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
       <div class="tb-sep"></div>
-      <!-- FIX 1: "Skip Top N" — hides top N levels, renders from that depth downward as new roots -->
       <div class="depth-wrap" title="Skip the top N levels — the chart starts from that depth downward">
         <span class="depth-label">Skip Top</span>
         <select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))">
@@ -500,7 +501,7 @@ const S={
   nodeDepth:{},
   zoom:1,highlighted:null,draggingField:null,
   reassignTarget:null,reassignPick:null,
-  skipDepth:0,        // FIX 1: how many top levels to skip (0=show all)
+  skipDepth:0,
   summarizeAfterLevel:0,
   summarizeField:'',
   photoMap:{},photoObjUrls:[],
@@ -644,7 +645,9 @@ function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
   const ac=S.cardAccent;
-  document.getElementById('card-preview').innerHTML=`<div class="preview-card" style="border-top-color:${ac}"><div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div><div class="preview-card-body"><div style="display:flex;align-items:center;gap:9px;margin-bottom:7px"><div style="width:38px;height:38px;border-radius:50%;background:${ac}18;color:${ac};font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid ${ac}44;flex-shrink:0">AB</div><div class="preview-name-fixed" style="flex:1;margin:0"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div></div>${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div><div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div></div><div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
+  // PHOTO: large stylish portrait rectangle in preview
+  const photoPreviewHtml=`<div style="width:60px;height:74px;border-radius:12px;background:linear-gradient(150deg,${ac}18,${ac}30);color:${ac};font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2.5px solid ${ac}55;flex-shrink:0;box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">AB</div>`;
+  document.getElementById('card-preview').innerHTML=`<div class="preview-card" style="border-top-color:${ac}"><div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div><div class="preview-card-body"><div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:7px">${photoPreviewHtml}<div style="flex:1;min-width:0;padding-top:2px"><div class="preview-name-fixed" style="margin:0 0 5px"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div>${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div></div></div><div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div></div><div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
 }
 function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();}
 function onVacantColChange(){const col=document.getElementById('vacant-col').value;S.vacantCol=col;S.vacantVal='';const v=document.getElementById('vacant-val');if(col){v.style.display='';populateVacantValues(col);}else{v.style.display='none';}}
@@ -742,7 +745,6 @@ function buildViewData(){
   function calcH(id){if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id));
   nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id);});
-  // Depth from root: root=0, direct reports=1, etc.
   S.nodeDepth={};
   function calcDepth(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1));}
   nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0));
@@ -764,7 +766,6 @@ function buildFilterBar(){
 function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 
-// FIX 1: setSkipDepth — skip top N levels, render from depth N downward as new roots
 function setSkipDepth(n){
   S.skipDepth=n;
   const ds=document.getElementById('depth-select');if(ds)ds.value=n;
@@ -783,8 +784,6 @@ function renderChart(){
   updateSummarizeUI();
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;
 
-  // FIX 1: When skipDepth>0, nodes at exactly that depth become the new roots.
-  // This removes the top N levels from view and renders from that depth downward.
   let roots;
   if(S.skipDepth>0){
     roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);
@@ -815,9 +814,15 @@ function mkNodeLI(node,depth){
   const hasR=reports>0;
   const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
   const photoUrl=getPhotoUrl(node);
+
+  // PHOTO: large stylish portrait rectangle with accent glow
   let photoHtml='';
-  if(photoUrl){photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ncard-photo-fallback" style="display:none;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;}
-  else if(Object.keys(S.photoMap).length>0){photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:${acLight};color:${ac};border:2px solid ${acMid}">${esc(initials)}</div>`;}
+  if(photoUrl){
+    photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" style="border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}55" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ncard-photo-fallback" style="display:none;background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">${esc(initials)}</div>`;
+  } else if(Object.keys(S.photoMap).length>0){
+    photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">${esc(initials)}</div>`;
+  }
+
   card.innerHTML=
     '<div class="ncard-header">'+
       (vacant?'<span class="vacant-badge">🔴 Vacant</span>':(badge1?`<span class="ncard-badge" title="${esc(badge1)}" style="background:${acLight};color:${ac};border-color:${acMid}">${esc(badge1)}</span>`:'<span></span>'))+
@@ -837,7 +842,6 @@ function mkNodeLI(node,depth){
     `<div class="ncard-export-btn" title="Export this person's team only" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
-  // No child filtering by depth here — depth control works by choosing roots in renderChart()
   const kids=childrenOf(node.id);
 
   if(kids.length){
@@ -963,9 +967,6 @@ async function buildRenderStage(rootNodeId){
   stage.style.cssText=`position:fixed;top:0;left:-99999px;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
   let sourceTree;
   if(rootNodeId){
-    // Subtree export: rooted at this node only.
-    // FIX 2: S.summarizeAfterLevel is intentionally NOT reset — the per-person
-    // export faithfully reflects whatever summarize mode is currently active.
     sourceTree=document.createElement('div');
     sourceTree.className='org-tree';
     const ul=document.createElement('ul');
@@ -1029,7 +1030,6 @@ function makeOverlay(title,sub){
   return o;
 }
 
-// FIX 2: exportSubtree — summarize mode is preserved (S.summarizeAfterLevel NOT reset)
 async function exportSubtree(e,nodeId){
   e.stopPropagation();
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
@@ -1055,7 +1055,6 @@ async function exportSubtree(e,nodeId){
   function calcH(id){const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   function calcDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDep(k.id,d+1));}
   calcD(nodeId);calcH(nodeId);calcDep(nodeId,0);
-  // S.summarizeAfterLevel is intentionally NOT touched here (FIX 2)
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
   try{
@@ -1163,83 +1162,3 @@ async function exportAll(){
       S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();
       await new Promise(r=>setTimeout(r,320));
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
-      const stage=await buildRenderStage();let canvas;
-      try{canvas=await renderToCanvas(stage);}finally{stage.remove();}
-      const pngBlob=await new Promise(res=>canvas.toBlob(res,'image/png'));
-      if(pngBlob)outerZip.file(`${safeName}/${safeName}.png`,pngBlob);
-      try{const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height,val);outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);}catch(pe){console.warn('PPTX skip:',pe);}
-      successCount++;
-    }
-    document.getElementById('_ea_title').textContent=`Packaging ${successCount} exports…`;
-    const masterBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});
-    const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
-    triggerDownload(masterBlob,`orgchart_all_${lastFilterCol.replace(/[^a-zA-Z0-9]/g,'_')}_${dp}.zip`);
-    document.getElementById('_ea_title').textContent=`✅ ${successCount} charts exported!`;
-    await new Promise(r=>setTimeout(r,1200));
-  }catch(e){alert('Export All failed: '+e.message);}
-  finally{S.activeFilters=savedFilters;buildViewData();buildFilterBar();renderChart();overlay.remove();applyZoom(savedZoom);}
-}
-
-async function _exportAllSingleView(){
-  const overlay=document.createElement('div');overlay.className='export-overlay';
-  overlay.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">Exporting current view…</div><div class="export-steps"><div class="export-step active" id="_sv_s1">💾 CSV</div><div class="export-step" id="_sv_s2">🖼️ PNG</div><div class="export-step" id="_sv_s3">📊 PPTX</div></div>`;
-  document.body.appendChild(overlay);
-  const setStep=n=>[1,2,3].forEach(i=>{const el=document.getElementById(`_sv_s${i}`);if(el)el.className='export-step'+(i<n?' done':i===n?' active':'');});
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
-  let stage;
-  try{
-    setStep(1);downloadCSV();await new Promise(r=>setTimeout(r,400));
-    setStep(2);stage=await buildRenderStage();
-    const canvas=await renderToCanvas(stage);
-    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
-    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${stamp}.png`);res();},'image/png'));
-    await new Promise(r=>setTimeout(r,300));
-    setStep(3);const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
-    triggerDownload(blob,`orgchart_${stamp}.pptx`);
-    [1,2,3].forEach(i=>{const el=document.getElementById(`_sv_s${i}`);if(el)el.className='export-step done';});
-    await new Promise(r=>setTimeout(r,900));
-  }catch(e){alert('Export failed: '+e.message);}
-  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
-}
-
-function openReassignModal(e,nodeId){
-  e.stopPropagation();
-  const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
-  S.reassignTarget=node;S.reassignPick=null;
-  document.getElementById('reassign-subject').innerHTML=`Moving <strong>${esc(node.name)}</strong>`;
-  document.getElementById('reassign-note').textContent='Select a new manager above';
-  document.getElementById('reassign-confirm-btn').disabled=true;
-  const desc=getAllDescendants(nodeId);desc.add(nodeId);
-  renderReassignList(S.viewData.filter(n=>!desc.has(n.id)),node.manager);
-  document.getElementById('reassign-search').value='';
-  document.getElementById('reassign-modal').classList.remove('hidden');
-  document.getElementById('reassign-search').focus();
-}
-function getAllDescendants(id){const r=new Set();const q=[...(S.childMap[id]||[])];while(q.length){const n=q.shift();r.add(n.id);(S.childMap[n.id]||[]).forEach(k=>q.push(k));}return r;}
-function renderReassignList(candidates,curMgrId){
-  const list=document.getElementById('reassign-list');
-  let html=`<div class="modal-emp-row make-root${S.reassignPick==='__ROOT__'?' selected':''}" onclick="pickReassignTarget('__ROOT__',this)"><div class="modal-emp-avatar" style="background:#fef9c3;color:#d97706;font-size:0.9rem">🏠</div><div><div class="modal-emp-name">Make Root (no manager)</div><div class="modal-emp-sub">Move to top level</div></div></div>`;
-  html+=candidates.map(n=>{const isCur=n.id===curMgrId;const isSel=S.reassignPick&&S.reassignPick.id===n.id;const init=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();return`<div class="modal-emp-row${isSel?' selected':''}" onclick="pickReassignTarget('${esc(n.id)}',this)"><div class="modal-emp-avatar${isVacant(n)?' vacant-av':''}">${init}</div><div style="flex:1;min-width:0"><div class="modal-emp-name">${esc(n.name)}${isCur?' <span style="color:var(--text3);font-weight:500;font-size:0.68rem">(current)</span>':''}</div><div class="modal-emp-sub">${esc(getSlotVal(n,'subtitle')||n.id)}</div></div></div>`;}).join('');
-  list.innerHTML=html;
-}
-function filterReassignList(){const q=document.getElementById('reassign-search').value.trim().toLowerCase();const node=S.reassignTarget;if(!node)return;const desc=getAllDescendants(node.id);desc.add(node.id);const all=S.viewData.filter(n=>!desc.has(n.id));renderReassignList(q?all.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):all,node.manager);}
-function pickReassignTarget(id,rowEl){document.querySelectorAll('#reassign-list .modal-emp-row').forEach(r=>r.classList.remove('selected'));rowEl.classList.add('selected');if(id==='__ROOT__'){S.reassignPick='__ROOT__';document.getElementById('reassign-note').textContent='→ Will become a root node';}else{S.reassignPick=S.viewData.find(n=>n.id===id)||null;document.getElementById('reassign-note').textContent=S.reassignPick?`→ New manager: ${S.reassignPick.name}`:'';}document.getElementById('reassign-confirm-btn').disabled=false;}
-function confirmReassign(){if(!S.reassignTarget)return;const newMgr=S.reassignPick==='__ROOT__'?'':(S.reassignPick?S.reassignPick.id:null);if(newMgr===null)return;S.managerOverrides[S.reassignTarget.id]=newMgr;closeReassignModal();buildViewData();renderChart();}
-function closeReassignModal(){document.getElementById('reassign-modal').classList.add('hidden');S.reassignTarget=null;S.reassignPick=null;}
-function removeCurrentNode(){if(!S.reassignTarget)return;const{id,name}=S.reassignTarget;if(!confirm(`Remove "${name}" from the chart?`))return;S.removedIds.add(id);delete S.managerOverrides[id];closeReassignModal();buildViewData();renderChart();}
-
-function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const zone=document.getElementById('upload-dropzone');const input=document.getElementById('file-input');
-  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
-  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
-  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
-  input.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
-  document.getElementById('photo-folder-input').addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
-});
-</script>
-</body>
-</html>"""
-
-components.html(APP_HTML, height=870, scrolling=False)
