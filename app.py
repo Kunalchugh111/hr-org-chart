@@ -48,7 +48,6 @@ APP_HTML = r"""<!DOCTYPE html>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);overflow:hidden;font-size:14px}
 body{display:flex;flex-direction:column}
-
 .topnav{flex-shrink:0;height:54px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;z-index:100;box-shadow:var(--shadow-xs)}
 .brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--text);display:flex;align-items:center;gap:9px;letter-spacing:-0.02em;flex-shrink:0}
 .brand-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;box-shadow:0 3px 10px rgba(79,70,229,0.3)}
@@ -61,12 +60,10 @@ body{display:flex;flex-direction:column}
 .step-item.active .step-dot{background:var(--accent);border-color:var(--accent);color:#fff}
 .step-item.done .step-dot{background:var(--success);border-color:var(--success);color:#fff;font-size:0.7rem}
 .step-arrow{color:var(--border2);font-size:0.8rem;margin:0 1px}
-
 .main{flex:1;overflow:hidden;position:relative}
 .screen{position:absolute;inset:0;overflow-y:auto;display:flex;flex-direction:column;padding:32px 36px;background:var(--bg);opacity:0;pointer-events:none;transform:translateX(18px);transition:opacity 0.22s ease,transform 0.22s ease}
 .screen.active{opacity:1;pointer-events:auto;transform:translateX(0)}
 #screen-chart{padding:0;overflow:hidden}
-
 .upload-center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:24px;padding:24px}
 .upload-hero{text-align:center}
 .upload-hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--text);letter-spacing:-0.03em;margin-bottom:8px}
@@ -83,11 +80,9 @@ body{display:flex;flex-direction:column}
 .info-card-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:10px}
 .info-card-row{font-size:0.8rem;color:var(--text2);font-weight:500;padding:3px 0;display:flex;align-items:center;gap:6px}
 .info-card-row::before{content:'';width:5px;height:5px;background:var(--border2);border-radius:50%;flex-shrink:0}
-
 .section-header{margin-bottom:24px}
 .section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.45rem;color:var(--text);letter-spacing:-0.02em;margin-bottom:4px}
 .section-sub{font-size:0.84rem;color:var(--text2)}
-
 .detected-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px}
 .col-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:999px;font-size:0.76rem;font-weight:600;color:var(--text2)}
 .col-chip .chip-sample{color:var(--text3);font-size:0.7rem;font-style:italic}
@@ -104,7 +99,6 @@ body{display:flex;flex-direction:column}
 .data-preview-table th{background:var(--bg3);padding:7px 12px;text-align:left;font-weight:700;color:var(--text2);border:1px solid var(--border);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em}
 .data-preview-table td{padding:6px 12px;border:1px solid var(--border);color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .data-preview-table tr:nth-child(even) td{background:var(--bg2)}
-
 .card-design-layout{display:grid;grid-template-columns:260px 1fr;gap:24px;flex:1;min-height:0}
 .fields-panel{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px;overflow-y:auto}
 .fields-panel-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:12px}
@@ -136,7 +130,6 @@ body{display:flex;flex-direction:column}
 .preview-name-fixed .lock{font-size:0.75rem;opacity:0.5}
 .ncard-photo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.8);display:block;flex-shrink:0}
 .ncard-photo-fallback{width:38px;height:38px;border-radius:50%;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
 .filter-setup{max-width:640px}
 .filter-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .filter-chip{padding:7px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
@@ -149,7 +142,6 @@ body{display:flex;flex-direction:column}
 .fpr-col{font-weight:700;color:var(--text);min-width:130px}
 .fpr-vals{display:flex;flex-wrap:wrap;gap:5px;flex:1}
 .fv-pill{padding:2px 9px;background:var(--bg);border:1px solid var(--border);border-radius:999px;font-size:0.72rem;font-weight:500;color:var(--text2)}
-
 .btn{padding:9px 20px;border-radius:var(--r);font-size:0.84rem;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;display:inline-flex;align-items:center;gap:7px;font-family:'Plus Jakarta Sans',sans-serif;line-height:1;white-space:nowrap}
 .btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,0.3)}
 .btn-primary:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.4)}
@@ -159,7 +151,6 @@ body{display:flex;flex-direction:column}
 .btn-row{display:flex;gap:10px;margin-top:28px}
 .btn-export-all{background:linear-gradient(135deg,#7c3aed,#0284c7)!important;color:#fff!important;border:none!important;box-shadow:0 4px 14px rgba(124,58,237,0.35)!important}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
-
 .chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
 .stats-bar{flex-shrink:0;height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:18px;font-size:0.73rem}
 .stat-item{display:flex;align-items:center;gap:6px;color:var(--text3);font-weight:600}
@@ -190,7 +181,6 @@ body{display:flex;flex-direction:column}
 .summary-count{font-weight:900;font-size:1.1rem;min-width:30px;text-align:right;flex-shrink:0;line-height:1}
 .summary-label{font-size:0.74rem;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;flex:1}
 .summary-more{font-size:0.68rem;color:var(--text3);padding:4px 0 2px;font-style:italic}
-
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-wrap::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(148,163,184,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.12) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
@@ -206,7 +196,6 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
-
 .node-card{display:inline-block;width:220px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);border-color:var(--accent);z-index:10}
 .node-card.highlighted{border-color:var(--warning)!important;border-top-color:var(--warning)!important;box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
@@ -225,7 +214,6 @@ body{display:flex;flex-direction:column}
 .ncard-fr.has-r{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-
 .search-wrap{position:relative;flex:1;max-width:240px}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;pointer-events:none;opacity:0.45}
 #chart-search{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px 6px 29px;font-size:0.8rem;font-weight:500;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.15s}
@@ -238,12 +226,10 @@ body{display:flex;flex-direction:column}
 .sr-item:hover{background:var(--bg3)}
 .sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
-
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
 .zoom-label{font-size:0.72rem;font-weight:800;color:var(--text);min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
-
 .export-overlay{position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,0.94);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
 .export-spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
 .export-steps{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:6px}
@@ -252,20 +238,17 @@ body{display:flex;flex-direction:column}
 .export-step.done{color:var(--success)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .no-data{padding:40px;color:var(--text3);font-size:0.9rem;font-weight:600;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-lg);max-width:440px}
-
 .node-card.vacant{border-top-color:#dc2626!important;background:#fff5f5!important}
 .node-card.vacant .ncard-header{background:#fee2e2!important}
 .node-card.vacant .ncard-name{color:#dc2626!important}
 .node-card.vacant .ncard-footer{background:#fee2e2!important}
 .vacant-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.59rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:999px;border:1px solid #fca5a5}
-
 .ncard-edit-btn,.ncard-export-btn{position:absolute;top:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s,background 0.15s,border-color 0.15s;z-index:8}
 .ncard-edit-btn{right:6px}
 .ncard-export-btn{right:32px;font-size:0.62rem}
 .node-card:hover .ncard-edit-btn,.node-card:hover .ncard-export-btn{opacity:1}
 .ncard-edit-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .ncard-export-btn:hover{background:#059669;border-color:#059669;color:#fff}
-
 .color-palette{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
 .color-swatch{width:24px;height:24px;border-radius:6px;cursor:pointer;border:2.5px solid transparent;transition:transform 0.1s,border-color 0.1s;flex-shrink:0}
 .color-swatch:hover{transform:scale(1.15)}
@@ -273,7 +256,6 @@ body{display:flex;flex-direction:column}
 .vacant-setup{margin-top:14px}
 .vacant-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .vacant-select{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:0.78rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
-
 .modal-overlay{position:fixed;inset:0;z-index:8000;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.hidden{display:none}
 .modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:440px;max-width:100%;display:flex;flex-direction:column;max-height:80vh;overflow:hidden}
@@ -438,11 +420,11 @@ body{display:flex;flex-direction:column}
       <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
       <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
       <div class="tb-sep"></div>
-      <!-- FIX 2: Label changed from "Levels ↑" to "Levels ↓" and tooltip updated -->
-      <div class="depth-wrap" title="Show N levels from the top (root = L1, direct reports = L2, …)">
-        <span class="depth-label">Levels ↓</span>
-        <select class="depth-select" id="depth-select" onchange="setMaxDepth(parseInt(this.value))">
-          <option value="0">All</option>
+      <!-- FIX 1: "Skip Top N" — hides top N levels, renders from that depth downward as new roots -->
+      <div class="depth-wrap" title="Skip the top N levels — the chart starts from that depth downward">
+        <span class="depth-label">Skip Top</span>
+        <select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))">
+          <option value="0">None</option>
           <option value="1">L1</option><option value="2">L2</option><option value="3">L3</option>
           <option value="4">L4</option><option value="5">L5</option><option value="6">L6</option>
         </select>
@@ -471,7 +453,7 @@ body{display:flex;flex-direction:column}
     </div>
     <div class="stats-bar">
       <div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div>
-      <div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;root nodes</div>
+      <div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;shown roots</div>
       <div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible cards</div>
       <div class="stat-item" id="stat-photos" style="display:none;color:var(--success)">📸 <strong id="stat-photos-val">0</strong> photos</div>
       <div class="stat-item" id="stat-summarize-info" style="display:none;color:#d97706">⬛ <strong id="stat-summarize-val">—</strong></div>
@@ -506,9 +488,6 @@ body{display:flex;flex-direction:column}
 </div>
 
 <script>
-// ════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════
 const S={
   rawRows:[],columns:[],colSamples:{},
   colMap:{empId:'',empName:'',managerId:''},
@@ -518,19 +497,15 @@ const S={
   filterCols:[],activeFilters:{},
   managerOverrides:{},removedIds:new Set(),
   viewData:[],childMap:{},descCount:{},nodeHeight:{},
-  // FIX 2: nodeDepth tracks distance from root (root=0, direct reports=1, …)
   nodeDepth:{},
   zoom:1,highlighted:null,draggingField:null,
   reassignTarget:null,reassignPick:null,
-  maxDepth:0,
+  skipDepth:0,        // FIX 1: how many top levels to skip (0=show all)
   summarizeAfterLevel:0,
   summarizeField:'',
   photoMap:{},photoObjUrls:[],
 };
 
-// ════════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════════
 function goTo(step){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+step)?.classList.add('active');
@@ -549,9 +524,6 @@ function goTo(step){
   }
 }
 
-// ════════════════════════════════════════════════
-// FILE HANDLING
-// ════════════════════════════════════════════════
 function handleFile(file){
   const ext=file.name.split('.').pop().toLowerCase();
   if(ext==='csv'){
@@ -581,9 +553,6 @@ function autoDetect(cols){
   };
 }
 
-// ════════════════════════════════════════════════
-// PHOTOS
-// ════════════════════════════════════════════════
 async function openPhotoFolder(){
   if('showDirectoryPicker' in window){
     try{const d=await window.showDirectoryPicker({mode:'read'});await loadFromDirectoryHandle(d);}
@@ -620,9 +589,6 @@ function getPhotoUrl(node){
   return '';
 }
 
-// ════════════════════════════════════════════════
-// SCREEN 2
-// ════════════════════════════════════════════════
 function buildMapScreen(){
   document.getElementById('col-count').textContent=S.columns.length;
   document.getElementById('detected-columns').innerHTML=S.columns.map(c=>`<div class="col-chip">📋 ${esc(c)}${S.colSamples[c].length?`<span class="chip-sample">${esc(S.colSamples[c].join(', '))}</span>`:''}</div>`).join('');
@@ -643,9 +609,6 @@ function confirmColumnMap(){
   buildCardScreen();goTo('card');
 }
 
-// ════════════════════════════════════════════════
-// SCREEN 3 — CARD DESIGNER
-// ════════════════════════════════════════════════
 const AUTO_FIELDS=[
   {id:'__auto_reports__',icon:'📊',label:'Direct Reports',desc:'Count of direct reports'},
   {id:'__auto_teamsize__',icon:'👥',label:'Total Team Size',desc:'All descendants count'},
@@ -689,9 +652,6 @@ function populateVacantValues(col){const vals=[...new Set(S.rawRows.map(r=>Strin
 function isVacant(node){return S.vacantCol&&S.vacantVal&&node[S.vacantCol]===S.vacantVal;}
 function confirmCardDesign(){const v=document.getElementById('vacant-val');if(v)S.vacantVal=v.value;buildFilterScreen();goTo('filter');}
 
-// ════════════════════════════════════════════════
-// SCREEN 4 — FILTER SETUP
-// ════════════════════════════════════════════════
 function buildFilterScreen(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const filterable=S.columns.filter(c=>!core.has(c));
@@ -711,17 +671,15 @@ function renderFilterPreview(){
   if(!S.filterCols.length){area.innerHTML=`<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>`;return;}
   area.innerHTML=`<div class="filter-preview-box">${S.filterCols.map((col,i)=>{const isLast=i===S.filterCols.length-1;const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);return`<div class="fpr-row"><span class="fpr-col">${esc(col)}${isLast?` <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>`:''}</span><div class="fpr-vals">${vals.map(v=>`<span class="fv-pill">${esc(v)}</span>`).join('')}${vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':''}</div></div>`;}).join('')}</div>`;
 }
-function launchChart(){S.activeFilters={};S.maxDepth=0;S.summarizeAfterLevel=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
+function launchChart(){S.activeFilters={};S.skipDepth=0;S.summarizeAfterLevel=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
-// ════════════════════════════════════════════════
-// SUMMARIZE CONTROLS
-// ════════════════════════════════════════════════
 function populateSummarizeFields(){
   const sel=document.getElementById('groupby-select');if(!sel)return;
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   sel.innerHTML='<option value="">— Group by field —</option>'+S.columns.filter(c=>!core.has(c)).map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
   if(S.summarizeField)sel.value=S.summarizeField;
   document.getElementById('summarize-level-select').value=S.summarizeAfterLevel;
+  document.getElementById('depth-select').value=S.skipDepth;
   updateSummarizeUI();
 }
 function setSummarizeLevel(n){S.summarizeAfterLevel=n;updateSummarizeUI();renderChart();}
@@ -755,9 +713,6 @@ function mkSummaryNodeLI(parentNodeId){
   li.appendChild(card);return li;
 }
 
-// ════════════════════════════════════════════════
-// DATA PREP
-// ════════════════════════════════════════════════
 function buildViewData(){
   const {empId,empName,managerId}=S.colMap;
   let nodes=S.rawRows.map(row=>{
@@ -787,24 +742,15 @@ function buildViewData(){
   function calcH(id){if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id));
   nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id);});
-
-  // ── FIX 2: Depth from root (root = 0, direct reports = 1, grandchildren = 2, …) ──
-  // This is used by the "Levels ↓" filter to show only the first N tiers from the top.
+  // Depth from root: root=0, direct reports=1, etc.
   S.nodeDepth={};
-  function calcDepthFromRoot(id,d){
-    S.nodeDepth[id]=d;
-    (S.childMap[id]||[]).forEach(k=>calcDepthFromRoot(k.id,d+1));
-  }
-  nodes.filter(n=>!n.manager).forEach(r=>calcDepthFromRoot(r.id,0));
-  // Guard: any node not reached via a root (orphan) gets depth 0
+  function calcDepth(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1));}
+  nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0));
   nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});
 }
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
-// ════════════════════════════════════════════════
-// FILTER BAR
-// ════════════════════════════════════════════════
 function buildFilterBar(){
   const bar=document.getElementById('filter-bar');
   if(!S.filterCols.length){bar.style.display='none';return;}
@@ -818,16 +764,13 @@ function buildFilterBar(){
 function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 
-// ── FIX 2: setMaxDepth — uses depth from root (top-down) ──
-function setMaxDepth(n){
-  S.maxDepth=n;
+// FIX 1: setSkipDepth — skip top N levels, render from depth N downward as new roots
+function setSkipDepth(n){
+  S.skipDepth=n;
   const ds=document.getElementById('depth-select');if(ds)ds.value=n;
   renderChart();
 }
 
-// ════════════════════════════════════════════════
-// ORG CHART RENDER
-// ════════════════════════════════════════════════
 function getSlotVal(node,slot){
   const f=S.cardSlots[slot];if(!f)return '';
   if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';
@@ -838,12 +781,18 @@ function getSlotVal(node,slot){
 function renderChart(){
   const tree=document.getElementById('org-tree');tree.innerHTML='';
   updateSummarizeUI();
-  const ds=document.getElementById('depth-select');if(ds)ds.value=S.maxDepth;
+  const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;
 
-  // FIX 2: Always start from true root nodes; mkNodeLI cuts depth via S.nodeDepth
-  const roots=S.viewData.filter(n=>!n.manager);
+  // FIX 1: When skipDepth>0, nodes at exactly that depth become the new roots.
+  // This removes the top N levels from view and renders from that depth downward.
+  let roots;
+  if(S.skipDepth>0){
+    roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);
+  } else {
+    roots=S.viewData.filter(n=>!n.manager);
+  }
 
-  if(!roots.length){tree.innerHTML=`<div class="no-data">No nodes found for the current settings.</div>`;updateStats(roots);return;}
+  if(!roots.length){tree.innerHTML=`<div class="no-data">No nodes found. Try a lower Skip Top value.</div>`;updateStats(roots);return;}
   const ul=document.createElement('ul');
   roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
   tree.appendChild(ul);updateStats(roots);
@@ -888,11 +837,8 @@ function mkNodeLI(node,depth){
     `<div class="ncard-export-btn" title="Export this person's team only" onclick="exportSubtree(event,'${esc(node.id)}')">📸</div>`+
     `<div class="ncard-edit-btn" title="Reassign manager" onclick="openReassignModal(event,'${esc(node.id)}')">✎</div>`;
 
-  // FIX 2: Filter children by depth from root (top-down).
-  // S.maxDepth = N means show only nodes where nodeDepth < N.
-  // e.g. maxDepth=2 → show root (depth 0) + direct reports (depth 1) only.
-  let kids=childrenOf(node.id);
-  if(S.maxDepth>0)kids=kids.filter(k=>(S.nodeDepth[k.id]||0)<S.maxDepth);
+  // No child filtering by depth here — depth control works by choosing roots in renderChart()
+  const kids=childrenOf(node.id);
 
   if(kids.length){
     const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';
@@ -940,16 +886,15 @@ function collapseAll(){
   });setTimeout(()=>updateStats(),60);
 }
 function updateStats(roots){
-  if(!roots)roots=S.viewData.filter(n=>!n.manager);
+  if(!roots)roots=S.skipDepth>0
+    ?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth)
+    :S.viewData.filter(n=>!n.manager);
   document.getElementById('stat-total').textContent=S.viewData.length;
   document.getElementById('stat-roots').textContent=roots.length;
   document.getElementById('stat-vis').textContent=document.querySelectorAll('.node-card:not(.summary-node-card)').length;
   document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';
 }
 
-// ════════════════════════════════════════════════
-// ZOOM & PAN
-// ════════════════════════════════════════════════
 function cwrap(){return document.getElementById('chart-canvas-wrap');}
 function ccontent(){return document.getElementById('chart-canvas-content');}
 function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';}
@@ -972,16 +917,11 @@ function initPan(){
   wrap.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();zoomBy(e.deltaY<0?0.08:-0.08);}},{passive:false});
 }
 
-// ════════════════════════════════════════════════
-// SEARCH
-// ════════════════════════════════════════════════
 function initSearch(){
   const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;
   function positionBox(){
     const r=input.getBoundingClientRect();
-    box.style.top=(r.bottom+4)+'px';
-    box.style.left=r.left+'px';
-    box.style.width=Math.max(270,r.width)+'px';
+    box.style.top=(r.bottom+4)+'px';box.style.left=r.left+'px';box.style.width=Math.max(270,r.width)+'px';
   }
   input.addEventListener('input',function(){
     const q=this.value.trim().toLowerCase();if(!q){box.classList.remove('visible');return;}
@@ -1003,9 +943,6 @@ function highlightNode(id){
   document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
 }
 
-// ════════════════════════════════════════════════
-// SHARED RENDER HELPERS
-// ════════════════════════════════════════════════
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor',
     'borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle',
@@ -1020,23 +957,15 @@ function inlineStyles(root){
   });
 }
 
-// ════════════════════════════════════════════════
-// FIX 1: buildRenderStage — rebuild fresh tree for exports so that
-//   S.summarizeAfterLevel, S.maxDepth, and card design are faithfully
-//   captured. DOM clones can miss dynamically-applied CSS variables and
-//   computed colours, causing summary cards to look wrong in exports.
-//
-// rootNodeId: if set → subtree-only export (downward only, no ancestors)
-// no rootNodeId → full export respecting current summarize/depth settings
-// ════════════════════════════════════════════════
 async function buildRenderStage(rootNodeId){
   const PAD=20;
   const stage=document.createElement('div');
   stage.style.cssText=`position:fixed;top:0;left:-99999px;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
-
   let sourceTree;
   if(rootNodeId){
-    // Subtree export: build fresh tree rooted at this node only
+    // Subtree export: rooted at this node only.
+    // FIX 2: S.summarizeAfterLevel is intentionally NOT reset — the per-person
+    // export faithfully reflects whatever summarize mode is currently active.
     sourceTree=document.createElement('div');
     sourceTree.className='org-tree';
     const ul=document.createElement('ul');
@@ -1046,27 +975,20 @@ async function buildRenderStage(rootNodeId){
     sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
     sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   } else {
-    // FIX 1: Full export — rebuild fresh so S.summarizeAfterLevel is respected.
-    // Building fresh from S state guarantees summary cards, depth cuts, and
-    // card colours are all current regardless of CSS cascade issues in clones.
     sourceTree=document.createElement('div');
     sourceTree.className='org-tree';
-    const exportRoots=S.viewData.filter(n=>!n.manager);
+    const exportRoots=S.skipDepth>0
+      ?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth)
+      :S.viewData.filter(n=>!n.manager);
     const exportUl=document.createElement('ul');
     exportRoots.forEach(r=>exportUl.appendChild(mkNodeLI(r,0)));
     sourceTree.appendChild(exportUl);
-    // Uncollapse everything in the export — the full summarized tree is shown
     sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
     sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   }
-
-  // Strip interactive chrome (buttons not needed in export)
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
-
   stage.appendChild(sourceTree);
   document.body.appendChild(stage);
-
-  // Let layout settle then inline computed styles for html2canvas
   await new Promise(r=>setTimeout(r,300));
   if(document.fonts?.ready)await document.fonts.ready;
   await new Promise(r=>setTimeout(r,120));
@@ -1076,24 +998,9 @@ async function buildRenderStage(rootNodeId){
 }
 
 async function renderToCanvas(stage){
-  const W=Math.ceil(stage.scrollWidth);
-  const H=Math.ceil(stage.scrollHeight);
-  return html2canvas(stage,{
-    backgroundColor:'#f8fafc',
-    scale:3,
-    useCORS:true,
-    logging:false,
-    allowTaint:true,
-    foreignObjectRendering:false,
-    width:W,
-    height:H,
-    scrollX:0,
-    scrollY:0,
-    windowWidth:W+200,
-    windowHeight:H+200,
-  });
+  const W=Math.ceil(stage.scrollWidth),H=Math.ceil(stage.scrollHeight);
+  return html2canvas(stage,{backgroundColor:'#f8fafc',scale:3,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:W,height:H,scrollX:0,scrollY:0,windowWidth:W+200,windowHeight:H+200});
 }
-
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
 function csvEsc(v){return '"'+String(v??'').replace(/"/g,'""')+'"';}
 function buildCSVContent(){
@@ -1102,11 +1009,8 @@ function buildCSVContent(){
 }
 function downloadCSV(){triggerDownload(new Blob([buildCSVContent()],{type:'text/csv;charset=utf-8;'}),'orgchart_export.csv');}
 
-// ════════════════════════════════════════════════
-// PNG EXPORT
-// ════════════════════════════════════════════════
 async function exportPNG(){
-  const overlay=makeOverlay('Rendering org chart…','Capturing summarized/filtered state at 3× resolution');
+  const overlay=makeOverlay('Rendering org chart…','Capturing state at 3× resolution');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
@@ -1119,36 +1023,25 @@ async function exportPNG(){
   }catch(e){alert('PNG export failed: '+e.message);}
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
-
 function makeOverlay(title,sub){
   const o=document.createElement('div');o.className='export-overlay';
   o.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px" id="_ov_title">${title}</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">${sub}</div>`;
   return o;
 }
 
-// ════════════════════════════════════════════════
-// SUBTREE EXPORT (📸 per-card button)
-// ════════════════════════════════════════════════
+// FIX 2: exportSubtree — summarize mode is preserved (S.summarizeAfterLevel NOT reset)
 async function exportSubtree(e,nodeId){
   e.stopPropagation();
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
-
   const includeIds=new Set([nodeId]);
   function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}
   collectDesc(nodeId);
-
-  const overlay=makeOverlay(`Exporting ${node.name}'s team (${includeIds.size} people)…`,'Building downward subtree only at 3× resolution');
+  const overlay=makeOverlay(`Exporting ${node.name}'s team (${includeIds.size} people)…`,'Summarize mode preserved in export');
   document.body.appendChild(overlay);
-
-  const savedViewData=S.viewData;
-  const savedChildMap=S.childMap;
-  const savedDescCount=S.descCount;
-  const savedNodeHeight=S.nodeHeight;
-  const savedNodeDepth=S.nodeDepth;
-  const savedSummarize=S.summarizeAfterLevel;
+  const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount;
+  const savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;
   const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);
   const prevOverride=S.managerOverrides[nodeId];
-
   S.viewData=savedViewData.filter(n=>includeIds.has(n.id));
   S.managerOverrides[nodeId]='';
   S.childMap={};
@@ -1162,8 +1055,7 @@ async function exportSubtree(e,nodeId){
   function calcH(id){const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id))):0;return S.nodeHeight[id];}
   function calcDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDep(k.id,d+1));}
   calcD(nodeId);calcH(nodeId);calcDep(nodeId,0);
-  S.summarizeAfterLevel=0;
-
+  // S.summarizeAfterLevel is intentionally NOT touched here (FIX 2)
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));
   let stage;
   try{
@@ -1178,23 +1070,16 @@ async function exportSubtree(e,nodeId){
     if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];
     S.viewData=savedViewData;S.childMap=savedChildMap;
     S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
-    S.summarizeAfterLevel=savedSummarize;
     renderChart();
   }
 }
 
-// ════════════════════════════════════════════════
-// PPTX
-// ════════════════════════════════════════════════
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 const SW=12192000,SH=6858000;
-
 function pptxRect(id,x,y,cx,cy,fill){return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
 function pptxTxt(id,x,y,cx,cy,text,sz,bold,color,algn){algn=algn||'ctr';return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="t${id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr><p:txBody><a:bodyPr anchor="ctr" wrap="square"/><a:lstStyle/><a:p><a:pPr algn="${algn}"/><a:r><a:rPr lang="en-US" sz="${sz}" b="${bold?1:0}" dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill></a:rPr><a:t>${xe(text)}</a:t></a:r></a:p></p:txBody></p:sp>`;}
 function pptxImg(id,x,y,cx,cy,rId){return`<p:pic><p:nvPicPr><p:cNvPr id="${id}" name="img${id}"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;}
-function pptxSlide(bg,content,rels){
-  return[`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgPr><a:solidFill><a:srgbClr val="${bg}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${SW}" cy="${SH}"/><a:chOff x="0" y="0"/><a:chExt cx="${SW}" cy="${SH}"/></a:xfrm></p:grpSpPr>${content}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`,rels];
-}
+function pptxSlide(bg,content,rels){return[`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgPr><a:solidFill><a:srgbClr val="${bg}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${SW}" cy="${SH}"/><a:chOff x="0" y="0"/><a:chExt cx="${SW}" cy="${SH}"/></a:xfrm></p:grpSpPr>${content}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`,rels];}
 
 async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   titleSuffix=titleSuffix||'';
@@ -1204,10 +1089,8 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   const filterLine=activeF.map(([k,v])=>`${k}: ${v}`).join('  |  ')||(titleSuffix||'All Employees');
   const roots=S.viewData.filter(n=>!n.manager).length;
   const vacants=S.vacantCol&&S.vacantVal?S.viewData.filter(n=>n[S.vacantCol]===S.vacantVal).length:0;
-
   const [s1xml,s1rels]=pptxSlide('F1F5F9',
-    pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+
-    pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
+    pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
     pptxTxt(4,Math.round(SW*0.08),Math.round(SH*0.12),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7600,true,'FFFFFF','l')+
     pptxTxt(5,Math.round(SW*0.08),Math.round(SH*0.35),Math.round(SW*0.84),420000,filterLine,2200,true,'FFFFFF','l')+
     pptxTxt(6,Math.round(SW*0.08),Math.round(SH*0.44),Math.round(SW*0.84),340000,'Generated: '+stamp,1500,false,'C7D2FE','l')+
@@ -1216,52 +1099,21 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
     pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.59),Math.round(SW*0.35),400000,String(roots),4000,true,'64748B','l')+
     pptxTxt(10,Math.round(SW*0.55),Math.round(SH*0.74),Math.round(SW*0.35),310000,'Root Nodes',1600,false,'64748B','l'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
-
-  const imgAspect=cW/cH;
-  const slideAspect=SW/SH;
+  const imgAspect=cW/cH,slideAspect=SW/SH;
   let iW,iH,iX,iY;
   if(imgAspect>=slideAspect){iW=SW;iH=Math.round(SW/imgAspect);iX=0;iY=Math.round((SH-iH)/2);}
   else{iH=SH;iW=Math.round(SH*imgAspect);iX=Math.round((SW-iW)/2);iY=0;}
   const capY=SH-Math.round(SH*0.065);
   const [s2xml,]=pptxSlide('FFFFFF',
-    pptxImg(20,iX,iY,iW,iH,'rId2')+
-    pptxTxt(21,Math.round(SW*0.04),capY,Math.round(SW*0.92),Math.round(SH*0.055),filterLine+' · '+stamp+' · '+S.viewData.length+' employees',1000,false,'64748B','r'),
+    pptxImg(20,iX,iY,iW,iH,'rId2')+pptxTxt(21,Math.round(SW*0.04),capY,Math.round(SW*0.92),Math.round(SH*0.055),filterLine+' · '+stamp+' · '+S.viewData.length+' employees',1000,false,'64748B','r'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>`);
-
-  const statItems=[
-    {label:'Total Employees',val:S.viewData.length,color:ac},
-    {label:'Root Nodes',val:roots,color:'0891b2'},
-    {label:'Vacant Roles',val:vacants,color:'dc2626'},
-    {label:'Org Depth',val:S.maxDepth>0?`L${S.maxDepth}`:'Full',color:'059669'},
-  ];
-  const boxW=Math.round(SW*0.19),boxH=Math.round(SH*0.3);
-  const gap=Math.round((SW-boxW*4)*0.2);
+  const statItems=[{label:'Total Employees',val:S.viewData.length,color:ac},{label:'Root Nodes',val:roots,color:'0891b2'},{label:'Vacant Roles',val:vacants,color:'dc2626'},{label:'Skipped Levels',val:S.skipDepth>0?S.skipDepth:'None',color:'059669'}];
+  const boxW=Math.round(SW*0.19),boxH=Math.round(SH*0.3),gap=Math.round((SW-boxW*4)*0.2);
   const totalBW=boxW*4+gap*3,bStartX=Math.round((SW-totalBW)/2),bY=Math.round(SH*0.3);
-  let sc=pptxRect(2,0,0,SW,Math.round(SH*0.2),ac)+
-    pptxTxt(3,Math.round(SW*0.04),0,Math.round(SW*0.6),Math.round(SH*0.2),'Summary Dashboard',1800,true,'FFFFFF','l')+
-    pptxTxt(4,Math.round(SW*0.65),0,Math.round(SW*0.3),Math.round(SH*0.2),stamp,1200,false,'C7D2FE','r')+
-    pptxTxt(5,Math.round(SW*0.04),Math.round(SH*0.22),Math.round(SW*0.92),Math.round(SH*0.06),filterLine,1600,false,'64748B','l');
-  statItems.forEach((st,i)=>{
-    const bx=bStartX+i*(boxW+gap);
-    sc+=pptxRect(10+i*2,bx,bY,boxW,boxH,'F8FAFC')+
-      pptxRect(11+i*2,bx,bY,boxW,Math.round(boxH*0.05),st.color)+
-      pptxTxt(20+i*2,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.52),String(st.val),5200,true,st.color)+
-      pptxTxt(21+i*2,bx,bY+Math.round(boxH*0.7),boxW,Math.round(boxH*0.28),st.label,1300,false,'64748B');
-  });
-  const [s3xml,]=pptxSlide('FFFFFF',sc,
-    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
-
-  const BP={
-    '[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide2.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide3.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>`,
-    '_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/></Relationships>`,
-    'ppt/presentation.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst><p:sldId id="256" r:id="rId2"/><p:sldId id="257" r:id="rId3"/><p:sldId id="258" r:id="rId4"/></p:sldIdLst><p:sldSz cx="${SW}" cy="${SH}" type="screen16x9"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>`,
-    'ppt/_rels/presentation.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide2.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide3.xml"/></Relationships>`,
-    'ppt/theme/theme1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="OrgTheme"><a:themeElements><a:clrScheme name="OrgScheme"><a:dk1><a:sysClr lastClr="000000" val="windowText"/></a:dk1><a:lt1><a:sysClr lastClr="FFFFFF" val="window"/></a:lt1><a:dk2><a:srgbClr val="0F172A"/></a:dk2><a:lt2><a:srgbClr val="F1F5F9"/></a:lt2><a:accent1><a:srgbClr val="${ac}"/></a:accent1><a:accent2><a:srgbClr val="10B981"/></a:accent2><a:accent3><a:srgbClr val="F59E0B"/></a:accent3><a:accent4><a:srgbClr val="EF4444"/></a:accent4><a:accent5><a:srgbClr val="8B5CF6"/></a:accent5><a:accent6><a:srgbClr val="06B6D4"/></a:accent6><a:hlink><a:srgbClr val="${ac}"/></a:hlink><a:folHlink><a:srgbClr val="64748B"/></a:folHlink></a:clrScheme><a:fontScheme name="Office"><a:majorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="Office"><a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst><a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="12700"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="19050"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst></a:fmtScheme></a:themeElements></a:theme>`,
-    'ppt/slideMasters/slideMaster1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sldMaster xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld><p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/><p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst><p:txStyles><p:titleStyle><a:lstStyle><a:defPPr><a:defRPr lang="en-US"/></a:defPPr></a:lstStyle></p:titleStyle><p:bodyStyle><a:lstStyle/></p:bodyStyle><p:otherStyle><a:lstStyle/></p:otherStyle></p:txStyles></p:sldMaster>`,
-    'ppt/slideMasters/_rels/slideMaster1.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/></Relationships>`,
-    'ppt/slideLayouts/slideLayout1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sldLayout xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" type="blank"><p:cSld name="Blank"><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`,
-    'ppt/slideLayouts/_rels/slideLayout1.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>`
-  };
+  let sc=pptxRect(2,0,0,SW,Math.round(SH*0.2),ac)+pptxTxt(3,Math.round(SW*0.04),0,Math.round(SW*0.6),Math.round(SH*0.2),'Summary Dashboard',1800,true,'FFFFFF','l')+pptxTxt(4,Math.round(SW*0.65),0,Math.round(SW*0.3),Math.round(SH*0.2),stamp,1200,false,'C7D2FE','r')+pptxTxt(5,Math.round(SW*0.04),Math.round(SH*0.22),Math.round(SW*0.92),Math.round(SH*0.06),filterLine,1600,false,'64748B','l');
+  statItems.forEach((st,i)=>{const bx=bStartX+i*(boxW+gap);sc+=pptxRect(10+i*2,bx,bY,boxW,boxH,'F8FAFC')+pptxRect(11+i*2,bx,bY,boxW,Math.round(boxH*0.05),st.color)+pptxTxt(20+i*2,bx,bY+Math.round(boxH*0.1),boxW,Math.round(boxH*0.52),String(st.val),5200,true,st.color)+pptxTxt(21+i*2,bx,bY+Math.round(boxH*0.7),boxW,Math.round(boxH*0.28),st.label,1300,false,'64748B');});
+  const [s3xml,]=pptxSlide('FFFFFF',sc,`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
+  const BP={'[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/><Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide2.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/slides/slide3.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/><Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/></Types>`,'_rels/.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/></Relationships>`,'ppt/presentation.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst><p:sldIdLst><p:sldId id="256" r:id="rId2"/><p:sldId id="257" r:id="rId3"/><p:sldId id="258" r:id="rId4"/></p:sldIdLst><p:sldSz cx="${SW}" cy="${SH}" type="screen16x9"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>`,'ppt/_rels/presentation.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide2.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide3.xml"/></Relationships>`,'ppt/theme/theme1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="OrgTheme"><a:themeElements><a:clrScheme name="OrgScheme"><a:dk1><a:sysClr lastClr="000000" val="windowText"/></a:dk1><a:lt1><a:sysClr lastClr="FFFFFF" val="window"/></a:lt1><a:dk2><a:srgbClr val="0F172A"/></a:dk2><a:lt2><a:srgbClr val="F1F5F9"/></a:lt2><a:accent1><a:srgbClr val="${ac}"/></a:accent1><a:accent2><a:srgbClr val="10B981"/></a:accent2><a:accent3><a:srgbClr val="F59E0B"/></a:accent3><a:accent4><a:srgbClr val="EF4444"/></a:accent4><a:accent5><a:srgbClr val="8B5CF6"/></a:accent5><a:accent6><a:srgbClr val="06B6D4"/></a:accent6><a:hlink><a:srgbClr val="${ac}"/></a:hlink><a:folHlink><a:srgbClr val="64748B"/></a:folHlink></a:clrScheme><a:fontScheme name="Office"><a:majorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme><a:fmtScheme name="Office"><a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst><a:lnStyleLst><a:ln w="6350"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="12700"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln><a:ln w="19050"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:ln></a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst><a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst></a:fmtScheme></a:themeElements></a:theme>`,'ppt/slideMasters/slideMaster1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sldMaster xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><p:cSld><p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld><p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/><p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst><p:txStyles><p:titleStyle><a:lstStyle><a:defPPr><a:defRPr lang="en-US"/></a:defPPr></a:lstStyle></p:titleStyle><p:bodyStyle><a:lstStyle/></p:bodyStyle><p:otherStyle><a:lstStyle/></p:otherStyle></p:txStyles></p:sldMaster>`,'ppt/slideMasters/_rels/slideMaster1.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/></Relationships>`,'ppt/slideLayouts/slideLayout1.xml':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sldLayout xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" type="blank"><p:cSld name="Blank"><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>`,'ppt/slideLayouts/_rels/slideLayout1.xml.rels':`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/></Relationships>`};
   const mkRels=r=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${r}</Relationships>`;
   const zip=new JSZip();
   Object.entries(BP).forEach(([k,v])=>zip.file(k,v));
@@ -1274,7 +1126,7 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
 
 async function exportPPTX(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
-  const overlay=makeOverlay('Building PowerPoint…','Rendering summarized/filtered state then packaging');
+  const overlay=makeOverlay('Building PowerPoint…','Rendering then packaging');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
   let stage;
@@ -1289,9 +1141,6 @@ async function exportPPTX(){
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
-// ════════════════════════════════════════════════
-// EXPORT ALL
-// ════════════════════════════════════════════════
 async function exportAll(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
   const lastFilterCol=S.filterCols[S.filterCols.length-1]||null;
@@ -1353,9 +1202,6 @@ async function _exportAllSingleView(){
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
-// ════════════════════════════════════════════════
-// REASSIGN
-// ════════════════════════════════════════════════
 function openReassignModal(e,nodeId){
   e.stopPropagation();
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
