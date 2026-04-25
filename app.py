@@ -111,7 +111,7 @@ body{display:flex;flex-direction:column}
 .drag-icon{color:var(--text3);font-size:0.7rem;cursor:grab}
 .card-preview-area{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .preview-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3)}
-.preview-card{width:300px;background:var(--bg);border:2px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--r-lg);box-shadow:var(--shadow-md)}
+.preview-card{width:320px;background:var(--bg);border:2px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--r-lg);box-shadow:var(--shadow-md)}
 .preview-card-header{padding:9px 12px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .preview-card-body{padding:12px 14px}
 .preview-card-footer{padding:8px 12px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -124,13 +124,13 @@ body{display:flex;flex-direction:column}
 .zone-remove{position:absolute;top:3px;right:4px;font-size:0.6rem;cursor:pointer;opacity:0.5;line-height:1}
 .zone-remove:hover{opacity:1}
 .card-zone-subtitle{width:100%}
-.preview-hint{font-size:0.76rem;color:var(--text3);max-width:300px;line-height:1.5}
+.preview-hint{font-size:0.76rem;color:var(--text3);max-width:320px;line-height:1.5}
 .preview-name-fixed{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px dashed var(--border2);border-radius:6px;padding:6px 10px}
 .preview-name-fixed span{font-size:0.8rem;color:var(--text2);font-weight:600}
 .preview-name-fixed .lock{font-size:0.75rem;opacity:0.5}
-/* PHOTO: large stylish portrait rectangle */
-.ncard-photo{width:60px;height:74px;border-radius:12px;object-fit:cover;display:block;flex-shrink:0}
-.ncard-photo-fallback{width:60px;height:74px;border-radius:12px;font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.02em}
+/* PHOTO: size/shape set dynamically via JS inline styles */
+.ncard-photo{object-fit:cover;object-position:center top;display:block;flex-shrink:0}
+.ncard-photo-fallback{font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.02em}
 .filter-setup{max-width:640px}
 .filter-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .filter-chip{padding:7px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
@@ -197,19 +197,20 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
-.node-card{display:inline-block;width:236px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
+/* Node card — wider to accommodate large circle photo */
+.node-card{display:inline-block;width:260px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);border-color:var(--accent);z-index:10}
 .node-card.highlighted{border-color:var(--warning)!important;border-top-color:var(--warning)!important;box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
 .node-card.collapsed-node{opacity:0.65}
 .ncard-header{padding:7px 11px 6px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .ncard-badge{font-size:0.59rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:999px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--accent-mid)}
 .ncard-badge2{font-size:0.65rem;font-weight:700;color:var(--text3);white-space:nowrap}
-.ncard-body{padding:10px 12px 10px}
-/* PHOTO: flex-start so tall portrait photo aligns text to top */
-.ncard-body-inner{display:flex;align-items:flex-start;gap:10px}
-.ncard-text-wrap{flex:1;min-width:0;padding-top:2px}
-.ncard-name{font-size:0.86rem;font-weight:800;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em}
-.ncard-sub{font-size:0.73rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* Photo body: centre photo above text, full-width layout */
+.ncard-body{padding:16px 14px 12px}
+.ncard-body-inner{display:flex;flex-direction:column;align-items:center;gap:10px}
+.ncard-text-wrap{width:100%;text-align:center}
+.ncard-name{font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em}
+.ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ncard-footer{padding:6px 12px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center;font-size:0.67rem;font-weight:600}
 .ncard-fl{color:var(--text3)}
 .ncard-fr{background:var(--bg3);padding:2px 8px;border-radius:999px;color:var(--text3);font-size:0.64rem}
@@ -256,6 +257,9 @@ body{display:flex;flex-direction:column}
 .color-swatch:hover{transform:scale(1.15)}
 .color-swatch.selected{border-color:var(--text);box-shadow:0 0 0 2px #fff inset}
 .vacant-setup{margin-top:14px}
+.shape-btn{padding:5px 11px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
+.shape-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.shape-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff}
 .vacant-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .vacant-select{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:0.78rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
 .modal-overlay{position:fixed;inset:0;z-index:8000;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
@@ -364,6 +368,22 @@ body{display:flex;flex-direction:column}
         <div class="fields-section" style="margin-top:18px">
           <div class="fields-section-label" style="margin-bottom:8px">🎨 Card Accent Color</div>
           <div class="color-palette" id="color-palette"></div>
+        </div>
+        <div class="fields-section" style="margin-top:14px">
+          <div class="fields-section-label" style="margin-bottom:8px">🖼️ Photo Size &amp; Shape</div>
+          <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Size (px)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <input type="range" id="photo-size-slider" min="40" max="160" step="10" value="80"
+              style="flex:1;accent-color:var(--accent);cursor:pointer"
+              oninput="S.photoSize=parseInt(this.value);document.getElementById('photo-size-val').textContent=this.value+'px';renderCardPreview();renderChart()"/>
+            <span id="photo-size-val" style="font-size:0.78rem;font-weight:700;color:var(--accent);min-width:36px">80px</span>
+          </div>
+          <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Shape</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <div class="shape-btn selected" data-shape="circle" onclick="setPhotoShape('circle')" title="Circle">⬤ Circle</div>
+            <div class="shape-btn" data-shape="rounded" onclick="setPhotoShape('rounded')" title="Rounded Rect">▪ Rounded</div>
+            <div class="shape-btn" data-shape="square" onclick="setPhotoShape('square')" title="Square">■ Square</div>
+          </div>
         </div>
         <div class="fields-section vacant-setup">
           <div class="fields-section-label" style="margin-bottom:8px">🔴 Mark Vacant Positions</div>
@@ -505,6 +525,8 @@ const S={
   summarizeAfterLevel:0,
   summarizeField:'',
   photoMap:{},photoObjUrls:[],
+  photoSize:80,
+  photoShape:'circle',
 };
 
 function goTo(step){
@@ -645,11 +667,23 @@ function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
   const ac=S.cardAccent;
-  // PHOTO: large stylish portrait rectangle in preview
-  const photoPreviewHtml=`<div style="width:60px;height:74px;border-radius:12px;background:linear-gradient(150deg,${ac}18,${ac}30);color:${ac};font-size:1.1rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2.5px solid ${ac}55;flex-shrink:0;box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">AB</div>`;
-  document.getElementById('card-preview').innerHTML=`<div class="preview-card" style="border-top-color:${ac}"><div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div><div class="preview-card-body"><div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:7px">${photoPreviewHtml}<div style="flex:1;min-width:0;padding-top:2px"><div class="preview-name-fixed" style="margin:0 0 5px"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div>${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div></div></div><div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div></div><div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
+  // PHOTO: dynamic size and shape from user settings
+  const ps=S.photoSize,pr=getPhotoRadius();
+  const photoPreviewHtml=`<div style="width:${ps}px;height:${ps}px;border-radius:${pr};background:linear-gradient(150deg,${ac}18,${ac}30);color:${ac};font-size:${Math.round(ps*0.28)}px;font-weight:800;display:flex;align-items:center;justify-content:center;border:3px solid ${ac}55;flex-shrink:0;box-shadow:0 6px 20px ${ac}44;letter-spacing:-0.02em;margin:0 auto">AB</div>`;
+  document.getElementById('card-preview').innerHTML=`<div class="preview-card" style="border-top-color:${ac}"><div class="preview-card-header">${zoneHtml('badge1','+ Badge Left')}${zoneHtml('badge2','+ Badge Right')}</div><div class="preview-card-body"><div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:7px">${photoPreviewHtml}<div style="width:100%;text-align:center"><div class="preview-name-fixed" style="margin:0 0 5px;justify-content:center"><span class="lock">🔒</span><span>${esc(sampleName)}</span></div>${zoneHtml('subtitle','+ Subtitle / Designation','card-zone-subtitle')}</div></div></div><div class="preview-card-footer">${zoneHtml('footer1','+ Footer Left')}${zoneHtml('footer2','+ Footer Right')}</div></div><div style="margin-top:10px;font-size:0.72rem;color:var(--text3)">Accent: <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${ac};vertical-align:middle;margin-left:4px"></span> <strong style="color:${ac}">${ac}</strong></div>`;
 }
 function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();}
+function setPhotoShape(shape){
+  S.photoShape=shape;
+  document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('selected',b.dataset.shape===shape));
+  renderCardPreview();
+  if(S.viewData.length)renderChart();
+}
+function getPhotoRadius(){
+  if(S.photoShape==='circle')return'50%';
+  if(S.photoShape==='rounded')return'12px';
+  return'4px';
+}
 function onVacantColChange(){const col=document.getElementById('vacant-col').value;S.vacantCol=col;S.vacantVal='';const v=document.getElementById('vacant-val');if(col){v.style.display='';populateVacantValues(col);}else{v.style.display='none';}}
 function populateVacantValues(col){const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();const v=document.getElementById('vacant-val');if(!v)return;v.innerHTML='<option value="">Value…</option>'+vals.map(x=>`<option value="${esc(x)}"${S.vacantVal===x?' selected':''}>${esc(x)}</option>`).join('');v.style.display='';v.onchange=()=>{S.vacantVal=v.value;};}
 function isVacant(node){return S.vacantCol&&S.vacantVal&&node[S.vacantCol]===S.vacantVal;}
@@ -815,12 +849,14 @@ function mkNodeLI(node,depth){
   const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
   const photoUrl=getPhotoUrl(node);
 
-  // PHOTO: large stylish portrait rectangle with accent glow
+  // PHOTO: dynamic size and shape from user settings
+  const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';
+  const photoInlineSize=`width:${ps}px;height:${ps}px;border-radius:${pr};`;
   let photoHtml='';
   if(photoUrl){
-    photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" style="border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}55" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ncard-photo-fallback" style="display:none;background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">${esc(initials)}</div>`;
+    photoHtml=`<img class="ncard-photo" src="${esc(photoUrl)}" crossorigin="anonymous" style="${photoInlineSize}border:3px solid ${acMid};box-shadow:0 8px 24px ${ac}66" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ncard-photo-fallback" style="display:none;${photoInlineSize}font-size:${pfs};background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:3px solid ${acMid};box-shadow:0 8px 24px ${ac}33">${esc(initials)}</div>`;
   } else if(Object.keys(S.photoMap).length>0){
-    photoHtml=`<div class="ncard-photo-fallback" style="display:flex;background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:2.5px solid ${acMid};box-shadow:0 6px 18px ${ac}33;letter-spacing:-0.02em">${esc(initials)}</div>`;
+    photoHtml=`<div class="ncard-photo-fallback" style="display:flex;${photoInlineSize}font-size:${pfs};background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:3px solid ${acMid};box-shadow:0 8px 24px ${ac}33">${esc(initials)}</div>`;
   }
 
   card.innerHTML=
@@ -1162,3 +1198,101 @@ async function exportAll(){
       S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();
       await new Promise(r=>setTimeout(r,320));
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
+      let stage2;
+      try{
+        stage2=await buildRenderStage();
+        const canvas2=await renderToCanvas(stage2);
+        outerZip.file(`${safeName}/${safeName}.png`,canvas2.toDataURL('image/png').split(',')[1],{base64:true});
+        const pptxBlob=await buildPPTXBlob(canvas2.toDataURL('image/png').split(',')[1],canvas2.width,canvas2.height,val);
+        outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);
+        successCount++;
+      }finally{if(stage2)stage2.remove();}
+    }
+  }finally{
+    S.activeFilters=savedFilters;buildViewData();renderChart();buildFilterBar();
+    overlay.remove();applyZoom(savedZoom);
+  }
+  if(successCount>0){
+    const zipBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});
+    const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    triggerDownload(zipBlob,`orgcharts_all_${dp}.zip`);
+  }
+}
+
+async function _exportAllSingleView(){
+  const overlay=makeOverlay('Exporting current view…','PNG + PPTX + CSV');
+  document.body.appendChild(overlay);
+  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));
+  let stage;
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const zip=new JSZip();
+    zip.file('orgchart.csv',buildCSVContent());
+    zip.file('orgchart.png',canvas.toDataURL('image/png').split(',')[1],{base64:true});
+    const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
+    zip.file('orgchart.pptx',pptxBlob);
+    const zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+    triggerDownload(zipBlob,`orgchart_${dp}.zip`);
+  }catch(e){alert('Export failed: '+e.message);}
+  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+}
+
+// Reassign modal
+let _reassignAllNodes=[];
+function openReassignModal(e,nodeId){
+  e.stopPropagation();
+  S.reassignTarget=nodeId;S.reassignPick=null;
+  const node=S.viewData.find(n=>n.id===nodeId);
+  document.getElementById('reassign-subject').innerHTML=`Moving <strong>${esc(node?.name||nodeId)}</strong>`;
+  document.getElementById('reassign-search').value='';
+  document.getElementById('reassign-confirm-btn').disabled=true;
+  document.getElementById('reassign-note').textContent='Select a new manager above';
+  _reassignAllNodes=[{id:'__root__',name:'Make Root (no manager)',manager:''},...S.viewData.filter(n=>n.id!==nodeId)];
+  renderReassignList(_reassignAllNodes);
+  document.getElementById('reassign-modal').classList.remove('hidden');
+}
+function closeReassignModal(){document.getElementById('reassign-modal').classList.add('hidden');S.reassignTarget=null;S.reassignPick=null;}
+function filterReassignList(){const q=document.getElementById('reassign-search').value.trim().toLowerCase();renderReassignList(q?_reassignAllNodes.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):_reassignAllNodes);}
+function renderReassignList(nodes){
+  document.getElementById('reassign-list').innerHTML=nodes.slice(0,60).map(n=>{
+    const isRoot=n.id==='__root__';
+    const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    return`<div class="modal-emp-row${S.reassignPick===n.id?' selected':''}${isRoot?' make-root':''}" onclick="pickReassign('${esc(n.id)}','${esc(n.name)}')">
+      <div class="modal-emp-avatar${isRoot?' vacant-av':''}">${isRoot?'🔼':esc(initials)}</div>
+      <div><div class="modal-emp-name">${esc(n.name)}</div><div class="modal-emp-sub">${isRoot?'Will appear as root node':esc(getSlotVal(n,'subtitle')||n.id)}</div></div>
+    </div>`;
+  }).join('');
+}
+function pickReassign(id,name){
+  S.reassignPick=id;
+  document.getElementById('reassign-confirm-btn').disabled=false;
+  document.getElementById('reassign-note').textContent=`→ ${name}`;
+  renderReassignList(_reassignAllNodes.filter(n=>document.getElementById('reassign-search').value.trim().toLowerCase()?n.name.toLowerCase().includes(document.getElementById('reassign-search').value.trim().toLowerCase())||n.id.toLowerCase().includes(document.getElementById('reassign-search').value.trim().toLowerCase()):true));
+}
+function confirmReassign(){
+  if(!S.reassignTarget||!S.reassignPick)return;
+  S.managerOverrides[S.reassignTarget]=S.reassignPick==='__root__'?'':S.reassignPick;
+  closeReassignModal();buildViewData();renderChart();
+}
+function removeCurrentNode(){
+  if(!S.reassignTarget)return;
+  S.removedIds.add(S.reassignTarget);
+  closeReassignModal();buildViewData();renderChart();
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// File input events
+document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+document.getElementById('photo-folder-input').addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
+const dz=document.getElementById('upload-dropzone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+</script>
+</body>
+</html>"""
+
+components.html(APP_HTML, height=900, scrolling=False)
