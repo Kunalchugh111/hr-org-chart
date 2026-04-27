@@ -1206,10 +1206,10 @@ function inlineStyles(root){
 async function buildRenderStage(rootNodeId){
   const PAD=20;
   const stage=document.createElement('div');
-  // CRITICAL: must be on-screen (not off at -99999px) so the browser lays out and paints
-  // all elements including flex children. We hide it visually with opacity:0 and pointer-events:none
-  // while keeping it in the layout flow. z-index:9998 sits behind the export overlay (z:9999).
-  stage.style.cssText=`position:fixed;top:0;left:0;opacity:0;z-index:9998;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
+  // Must be on-screen (so browser paints it) but behind the export overlay (z:9999).
+  // No opacity/visibility hiding — those prevent html2canvas from capturing content.
+  // The overlay is always appended BEFORE this is called, so it covers the stage visually.
+  stage.style.cssText=`position:fixed;top:0;left:0;z-index:9998;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
   let sourceTree;
   if(rootNodeId){
     sourceTree=document.createElement('div');sourceTree.className='org-tree';
@@ -1224,13 +1224,12 @@ async function buildRenderStage(rootNodeId){
   sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
   sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
-
   stage.appendChild(sourceTree);
   document.body.appendChild(stage);
-  // Wait for full browser layout + font load
+  // Give browser time to fully lay out and paint
   await new Promise(r=>setTimeout(r,400));
   if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,200));
+  await new Promise(r=>setTimeout(r,150));
   inlineStyles(stage);
   await new Promise(r=>setTimeout(r,100));
   return stage;
