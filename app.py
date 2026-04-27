@@ -995,32 +995,37 @@ function mkNodeLI(node,depth){
  * Renders a compact static card listing leaf employees (no direct reports) under a parent.
  * Used only in Manager View. No click / no drill-down — purely display.
  *
- * Each row shows: avatar (photo or initials), name, and optional summary fields.
- *
- * EXPORT FIX:
- *   overflow-y:auto + max-height causes html2canvas to only capture the visible scroll
- *   portion, making off-screen rows blank in PNG/PPTX exports.
- *   Solution: we keep overflow visible at all times (no max-height cap).
- *   The card naturally expands to show all rows — this is fine since these are leaf
- *   employees and the list is typically short.
+ * EXPORT FIX — all styles are 100% inline (no CSS class dependencies).
+ * CSS classes rely on :root variables (var(--bg), var(--text) etc.) which do NOT resolve
+ * in the off-screen export stage, causing blank content. By writing every style attribute
+ * inline with resolved hex/rgb values, html2canvas captures them correctly.
  */
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
-  const card=document.createElement('div');card.className='summary-list-card';
   const count=leafNodes.length;
+
+  // Resolved colour constants (no CSS variables)
+  const C={
+    bg:'#ffffff',bg2:'#f8fafc',bg3:'#f5f3ff',
+    border:'#e2e8f0',border2:'#e9d5ff',
+    text:'#0f172a',text2:'#475569',text3:'#94a3b8',
+    accent:'#7c3aed',accentLight:'#f5f3ff',
+    font:"'Plus Jakarta Sans',sans-serif",
+  };
 
   const rowsHtml=leafNodes.map(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
 
-    // Avatar: photo if available, else initials fallback
+    // Avatar — fully inline styles
     let avatarHtml;
+    const avatarStyle=`display:flex;align-items:center;justify-content:center;width:26px;height:26px;min-width:26px;border-radius:8px;font-size:0.6rem;font-weight:800;font-family:${C.font};background:${borderC}18;color:${borderC};border:2px solid ${borderC}44;flex-shrink:0;`;
     if(photoUrl){
-      avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid ${borderC}55;flex-shrink:0" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="summary-person-avatar" style="display:none;background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
+      avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;min-width:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid ${borderC}55;flex-shrink:0;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="${avatarStyle}display:none">${esc(initials)}</div>`;
     } else {
-      avatarHtml=`<div class="summary-person-avatar" style="background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
+      avatarHtml=`<div style="${avatarStyle}">${esc(initials)}</div>`;
     }
 
     // Primary display: f1 field or name
@@ -1029,33 +1034,31 @@ function mkLeafSummaryLI(leafNodes,ac){
     const primaryVal=f1
       ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24))
       : nameVal;
-
-    // Show actual name as subtitle when f1 is a non-name field
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
+    const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
-    // Secondary field
-    const val2=f2
-      ? (f2==='__name__' ? n.name.substring(0,22) : String(n[f2]||'').substring(0,22))
-      : '';
+    const nameLineHtml=`<div style="font-size:0.75rem;font-weight:700;color:${C.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${C.font};max-width:210px">${esc(primaryVal)}</div>`;
+    const subNameHtml=showNameSub?`<div style="font-size:0.65rem;color:${C.text2};font-weight:600;font-family:${C.font};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px">${esc(nameVal)}</div>`:'';
+    const val2Html=val2?`<div style="font-size:0.68rem;color:${C.text3};font-family:${C.font};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px">${esc(val2)}</div>`:'';
 
-    // Static row — no onclick, no cursor pointer
-    return`<div class="summary-person-row" style="cursor:default" title="${esc(n.name)}">
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid ${C.border};font-family:${C.font}" title="${esc(n.name)}">
       ${avatarHtml}
-      <div class="summary-person-info">
-        <div class="summary-person-name">${esc(primaryVal)}</div>
-        ${showNameSub?`<div class="summary-person-field2" style="font-size:0.65rem;color:var(--text2);font-weight:600">${esc(nameVal)}</div>`:''}
-        ${val2?`<div class="summary-person-field2">${esc(val2)}</div>`:''}
-      </div>
+      <div style="flex:1;min-width:0;overflow:hidden">${nameLineHtml}${subNameHtml}${val2Html}</div>
     </div>`;
   }).join('');
 
-  // NO max-height / overflow:auto — keeps all rows visible for export capture
-  card.innerHTML=
-    `<div class="summary-list-header">
-      <span class="summary-list-title">ICs (${count})</span>
-      <span class="summary-list-count">${count}</span>
-    </div>
-    <div class="summary-list-body">${rowsHtml}</div>`;
+  // Card — fully inline styles, no CSS class dependencies
+  const card=document.createElement('div');
+  card.style.cssText=`display:inline-block;min-width:200px;max-width:280px;background:${C.bg};border:1.5px solid ${C.border};border-top:3px solid ${C.accent};border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:${C.font};overflow:visible`;
+
+  const headerHtml=`<div style="padding:7px 12px;background:${C.accentLight};border-bottom:1px solid ${C.border2};border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;font-family:${C.font}"><span style="font-size:0.68rem;font-weight:800;color:${C.accent};text-transform:uppercase;letter-spacing:0.05em;font-family:${C.font}">ICs (${count})</span><span style="font-size:0.68rem;font-weight:800;background:${C.accent};color:#ffffff;border-radius:999px;padding:1px 8px;font-family:${C.font}">${count}</span></div>`;
+  const bodyHtml=`<div style="padding:4px 0;overflow:visible;font-family:${C.font}">${rowsHtml}</div>`;
+
+  // Last row: remove bottom border
+  card.innerHTML=headerHtml+bodyHtml;
+  // Fix last row border
+  const rows=card.querySelectorAll('div[style*="border-bottom"]');
+  if(rows.length>0)rows[rows.length-1].style.borderBottom='none';
 
   li.appendChild(card);
   return li;
@@ -1133,9 +1136,13 @@ function highlightNode(id){
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
+    // Skip summary list elements — they are 100% inline-styled already.
+    // Overwriting their computed styles would destroy the resolved colours/layout.
+    if(el.closest('.summary-list-card')){return;}
+
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
-    // Fix overflow: open up hidden/auto overflow so html2canvas captures everything.
+    // Open up hidden/auto overflow so html2canvas captures everything.
     // Exceptions: node-card, ncard-name, ncard-sub need overflow:hidden for text clipping.
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
