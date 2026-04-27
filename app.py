@@ -288,8 +288,6 @@ body{display:flex;flex-direction:column}
 .modal-note{font-size:0.73rem;color:var(--text3);flex:1;display:flex;align-items:center}
 .tb-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
 .photo-folder-input{display:none}
-/* Drill-down modal for summary list */
-.drill-modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:680px;max-width:100%;display:flex;flex-direction:column;max-height:85vh;overflow:hidden}
 /* Body slot b1 zone in card design preview */
 .preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
 </style>
@@ -491,7 +489,7 @@ body{display:flex;flex-direction:column}
       </div>
       <div class="tb-sep"></div>
       <!-- Manager-Only Mode Toggle -->
-      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: sub-managers shown as compact list; leaf employees always shown as full cards">
+      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: managers shown as full cards; leaf employees (no reports) shown as compact list">
         <div class="mgr-mode-dot"></div>
         👔 Manager View
       </div>
@@ -556,20 +554,7 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 
-<!-- Drill-down modal for summary list person -->
-<div class="modal-overlay hidden" id="drill-modal">
-  <div class="drill-modal-box">
-    <div class="modal-header">
-      <div><div class="modal-title" id="drill-modal-title">Sub-tree</div><div class="modal-sub" id="drill-modal-sub"></div></div>
-      <button class="modal-close" onclick="closeDrillModal()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:0;overflow:hidden">
-      <div style="overflow:auto;background:var(--bg3);padding:24px;min-height:200px">
-        <div class="org-tree" id="drill-tree"></div>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <script>
 const S={
@@ -968,33 +953,31 @@ function mkNodeLI(node,depth){
      *
      * The node card itself is ALWAYS a full card — never summarised.
      * Among a node's children:
-     *   - Leaf children (0 direct reports) → ALWAYS rendered as full cards
-     *   - Manager children (≥1 direct report) → shown as a compact summary list
-     *     (their reportees are summarised under them, but their own card row is visible in the list)
+     *   - Manager children (≥1 direct report) → ALWAYS rendered as full cards in the tree
+     *   - Leaf children (0 direct reports)     → shown in a compact static summary list
      *
      * Example A → B(mgr), C(mgr), D(mgr), E(leaf):
-     *   E → full card  ✓
-     *   B, C, D → appear as rows in summary list under A  ✓
-     *   B/C/D's own cards are shown when user clicks their row to drill down  ✓
+     *   B, C, D → full cards in tree  ✓
+     *   E       → appears in compact list attached below A  ✓
      *
      * Example B → X(mgr), Y(leaf), Z(leaf):
-     *   Y, Z → full cards  ✓
-     *   X → appears as row in summary list under B  ✓
-     *   X's reportees (P,Q,R) shown when user drills into X  ✓
+     *   X       → full card in tree  ✓
+     *   Y, Z    → appear in compact list attached below B  ✓
+     *
+     * The compact list is static — no click / no drill-down.
      */
     if(S.managerMode){
-      const managerKids=kids.filter(k=>isManager(k.id));   // children who themselves have reports
-      const leafKids=kids.filter(k=>!isManager(k.id));     // children with no reports
+      const managerKids=kids.filter(k=>isManager(k.id));  // have reportees → full cards
+      const leafKids=kids.filter(k=>!isManager(k.id));    // no reportees  → compact list
 
       const ul=document.createElement('ul');
 
-      // Leaf children always get full cards — never summarised
-      leafKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
+      // Manager children always get full tree cards
+      managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
 
-      // Manager children are shown as a compact summary list
-      // Their own subtrees are accessible via drill-down click
-      if(managerKids.length>0){
-        ul.appendChild(mkSummaryListLI(node,managerKids,ac));
+      // Leaf children are shown in a compact static list (no click)
+      if(leafKids.length>0){
+        ul.appendChild(mkLeafSummaryLI(leafKids,ac));
       }
 
       li.appendChild(ul);
@@ -1007,25 +990,27 @@ function mkNodeLI(node,depth){
   return li;
 }
 
-/* ── COMPACT SUMMARY LIST NODE ──
+/* ── LEAF SUMMARY LIST NODE ──
  *
- * Renders a compact card listing sub-managers under a parent.
- * Each row shows: avatar, primary field (f1 / name), secondary field (f2).
- * Clicking a row opens the drill-down modal showing that sub-manager's full subtree.
+ * Renders a compact static card listing leaf employees (no direct reports) under a parent.
+ * Used only in Manager View. No click / no drill-down — purely display.
  *
- * FIX — Blank export issue:
- *   The summary-list-body div uses max-height + overflow:auto for interactive scroll,
- *   but html2canvas only captures the visible portion of scrollable containers.
- *   We set max-height:none; overflow:visible inline so ALL rows are rendered in exports.
- *   The interactive scroll is restored via CSS class on the live chart (not in export stage).
+ * Each row shows: avatar (photo or initials), name, and optional summary fields.
+ *
+ * EXPORT FIX:
+ *   overflow-y:auto + max-height causes html2canvas to only capture the visible scroll
+ *   portion, making off-screen rows blank in PNG/PPTX exports.
+ *   Solution: we keep overflow visible at all times (no max-height cap).
+ *   The card naturally expands to show all rows — this is fine since these are leaf
+ *   employees and the list is typically short.
  */
-function mkSummaryListLI(parentNode,subManagerNodes,ac){
+function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const card=document.createElement('div');card.className='summary-list-card';
-  const count=subManagerNodes.length;
+  const count=leafNodes.length;
 
-  const rowsHtml=subManagerNodes.map(n=>{
+  const rowsHtml=leafNodes.map(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
@@ -1033,19 +1018,19 @@ function mkSummaryListLI(parentNode,subManagerNodes,ac){
     // Avatar: photo if available, else initials fallback
     let avatarHtml;
     if(photoUrl){
-      avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;border-radius:8px;object-fit:cover;border:2px solid ${borderC}55;flex-shrink:0" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="summary-person-avatar" style="display:none;background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
+      avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid ${borderC}55;flex-shrink:0" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="summary-person-avatar" style="display:none;background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     } else {
       avatarHtml=`<div class="summary-person-avatar" style="background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     }
 
-    // Primary display value: f1 field, or name as fallback
+    // Primary display: f1 field or name
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
     const primaryVal=f1
       ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24))
       : nameVal;
 
-    // Show actual name as subtitle when f1 is a non-name field and differs from name
+    // Show actual name as subtitle when f1 is a non-name field
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
 
     // Secondary field
@@ -1053,7 +1038,8 @@ function mkSummaryListLI(parentNode,subManagerNodes,ac){
       ? (f2==='__name__' ? n.name.substring(0,22) : String(n[f2]||'').substring(0,22))
       : '';
 
-    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to expand ${esc(n.name)}'s team">
+    // Static row — no onclick, no cursor pointer
+    return`<div class="summary-person-row" style="cursor:default" title="${esc(n.name)}">
       ${avatarHtml}
       <div class="summary-person-info">
         <div class="summary-person-name">${esc(primaryVal)}</div>
@@ -1063,66 +1049,19 @@ function mkSummaryListLI(parentNode,subManagerNodes,ac){
     </div>`;
   }).join('');
 
-  /*
-   * CRITICAL FIX for blank export:
-   * We set max-height and overflow directly as inline styles so they can be
-   * overridden during export (buildRenderStage sets these to none/visible).
-   * The CSS class .summary-list-body only sets padding now; scroll is inline.
-   */
+  // NO max-height / overflow:auto — keeps all rows visible for export capture
   card.innerHTML=
     `<div class="summary-list-header">
-      <span class="summary-list-title">Sub-Managers (${count})</span>
+      <span class="summary-list-title">ICs (${count})</span>
       <span class="summary-list-count">${count}</span>
     </div>
-    <div class="summary-list-body" style="max-height:240px;overflow-y:auto">${rowsHtml}</div>`;
+    <div class="summary-list-body">${rowsHtml}</div>`;
 
   li.appendChild(card);
   return li;
 }
 
-/* ── DRILL-DOWN MODAL ──
- * Opens when a row in the summary list is clicked.
- * Shows the sub-manager's full subtree as a mini org chart.
- * S.managerMode is preserved so the mini-tree respects manager view rules.
- */
-function openDrillModal(nodeId,name){
-  const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
-  document.getElementById('drill-modal-title').textContent=name;
-  document.getElementById('drill-modal-sub').textContent='Sub-team reporting structure';
-  const treeEl=document.getElementById('drill-tree');treeEl.innerHTML='';
 
-  // Collect this node + all descendants
-  const allDescIds=new Set([nodeId]);
-  function collectAll(id){(S.childMap[id]||[]).forEach(k=>{allDescIds.add(k.id);collectAll(k.id);});}
-  collectAll(nodeId);
-
-  // Snapshot live state
-  const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;
-
-  // Build a mini dataset for just this subtree
-  S.viewData=savedViewData.filter(n=>allDescIds.has(n.id));
-  S.childMap={};
-  S.viewData.forEach(n=>{
-    // Make the clicked node a root (no parent)
-    const mgr=(n.id===nodeId)?'':n.manager;
-    if(!S.childMap[mgr])S.childMap[mgr]=[];
-    S.childMap[mgr].push(n);
-  });
-  S.descCount={};S.nodeHeight={};S.nodeDepth={};
-  function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}
-  function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
-  function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
-  cD(nodeId);cH(nodeId);cDep(nodeId,0);
-
-  // Render mini tree (respects current S.managerMode)
-  const ul=document.createElement('ul');ul.appendChild(mkNodeLI(node,0));treeEl.appendChild(ul);
-
-  // Restore live state
-  S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
-
-  document.getElementById('drill-modal').classList.remove('hidden');
-}
-function closeDrillModal(){document.getElementById('drill-modal').classList.add('hidden');}
 
 /* ── COLLAPSE / EXPAND ── */
 function toggleCollapse(li,btn){
@@ -1142,7 +1081,7 @@ function updateStats(roots){
   document.getElementById('stat-vis').textContent=document.querySelectorAll('.node-card:not(.summary-list-card)').length;
   document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';
   const mgrStat=document.getElementById('stat-mgr-mode');const mgrVal=document.getElementById('stat-mgr-val');
-  if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){const mgrCount=S.viewData.filter(n=>isManager(n.id)).length;mgrVal.textContent=mgrCount+' managers shown';}}
+  if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){const leafCount=S.viewData.filter(n=>!isManager(n.id)).length;mgrVal.textContent=leafCount+' ICs in lists';}}
 }
 
 /* ── ZOOM / PAN ── */
@@ -1326,8 +1265,8 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   const filterLine=activeF.map(([k,v])=>`${k}: ${v}`).join('  |  ')||(titleSuffix||'All Employees');
   const roots=S.viewData.filter(n=>!n.manager).length;
   const mgrCount=S.viewData.filter(n=>isManager(n.id)).length;
-  const modeNote=S.managerMode?` | Manager View (${mgrCount} managers)`:'';
-  const summaryNote=S.managerMode&&(S.summaryField1||S.summaryField2)?` | Summary: ${[S.summaryField1,S.summaryField2].filter(Boolean).map(f=>f==='__name__'?'Name':f).join(' + ')}`:'';
+  const modeNote=S.managerMode?` | Manager View (ICs in lists)`:'';
+  const summaryNote=S.managerMode&&(S.summaryField1||S.summaryField2)?` | IC fields: ${[S.summaryField1,S.summaryField2].filter(Boolean).map(f=>f==='__name__'?'Name':f).join(' + ')}`:'';
   const [s1xml,s1rels]=pptxSlide('F1F5F9',
     pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
     pptxTxt(4,Math.round(SW*0.08),Math.round(SH*0.12),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7600,true,'FFFFFF','l')+
@@ -1335,7 +1274,7 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
     pptxTxt(6,Math.round(SW*0.08),Math.round(SH*0.44),Math.round(SW*0.84),340000,'Generated: '+stamp+summaryNote,1500,false,'C7D2FE','l')+
     pptxTxt(7,Math.round(SW*0.08),Math.round(SH*0.59),Math.round(SW*0.38),400000,String(S.viewData.length),5200,true,ac,'l')+
     pptxTxt(8,Math.round(SW*0.08),Math.round(SH*0.74),Math.round(SW*0.38),310000,'Total Employees',1600,false,'64748B','l')+
-    pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.59),Math.round(SW*0.35),400000,String(mgrCount),4000,true,'64748B','l')+
+    pptxTxt(9,Math.round(SW*0.55),Math.round(SH*0.59),Math.round(SW*0.35),400000,String(S.viewData.filter(n=>isManager(n.id)).length),4000,true,'64748B','l')+
     pptxTxt(10,Math.round(SW*0.55),Math.round(SH*0.74),Math.round(SW*0.35),310000,'Managers',1600,false,'64748B','l'),
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`);
   const imgAspect=cW/cH,slideAspect=SW/SH;
@@ -1458,7 +1397,6 @@ const dz=document.getElementById('upload-dropzone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
-document.getElementById('drill-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDrillModal();});
 document.getElementById('reassign-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeReassignModal();});
 </script>
 </body>
