@@ -200,7 +200,6 @@ body{display:flex;flex-direction:column}
 .summary-person-info{flex:1;min-width:0}
 .summary-person-name{font-size:0.75rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .summary-person-field2{font-size:0.68rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.summary-list-footer{padding:5px 12px;background:#f5f3ff;border-top:1px solid #e9d5ff;border-radius:0 0 12px 12px;font-size:0.66rem;color:#7c3aed;font-weight:700;text-align:center}
 /* Node card */
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
@@ -228,6 +227,7 @@ body{display:flex;flex-direction:column}
 .ncard-slot.has-val{color:var(--accent)}
 .ncard-body{padding:14px 14px 12px}
 .ncard-body-inner{display:flex;gap:10px}
+.ncard-body-b1{border-top:1px dashed var(--border2);margin-top:6px;padding-top:5px;text-align:center;font-size:0.72rem;color:var(--accent);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ncard-text-wrap{width:100%;text-align:center}
 .ncard-name{font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em}
 .ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -289,6 +289,8 @@ body{display:flex;flex-direction:column}
 .photo-folder-input{display:none}
 /* Drill-down modal for summary list */
 .drill-modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:680px;max-width:100%;display:flex;flex-direction:column;max-height:85vh;overflow:hidden}
+/* Body slot b1 zone in card design preview */
+.preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
 </style>
 </head>
 <body>
@@ -365,7 +367,7 @@ body{display:flex;flex-direction:column}
   <div class="screen" id="screen-card">
     <div class="section-header" style="margin-bottom:18px">
       <div class="section-title">Design Your Card</div>
-      <div class="section-sub">Drag fields into 3 header and 3 footer slots. Configure employment type colors.</div>
+      <div class="section-sub">Drag fields into 3 header, 1 body, and 3 footer slots. Configure employment type colors.</div>
     </div>
     <div class="card-design-layout">
       <div class="fields-panel">
@@ -429,9 +431,9 @@ body{display:flex;flex-direction:column}
       </div>
 
       <div class="card-preview-area">
-        <div class="preview-label">Live Card Preview — 3 Header + 3 Footer Slots</div>
+        <div class="preview-label">Live Card Preview — 3 Header + 1 Body + 3 Footer Slots</div>
         <div id="card-preview"></div>
-        <div class="preview-hint">Drag field chips onto the 3 header or footer zones. All 3 slots are equal width. Name is always fixed in the card body.</div>
+        <div class="preview-hint">Drag field chips onto header, body, or footer zones. Name is always fixed in the card body. Body slot appears beneath the name.</div>
       </div>
     </div>
     <div class="btn-row">
@@ -488,7 +490,7 @@ body{display:flex;flex-direction:column}
       </div>
       <div class="tb-sep"></div>
       <!-- Manager-Only Mode Toggle -->
-      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Show managers only; leaf reports appear as compact summary lists">
+      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: leaf reports shown as full cards; sub-managers shown as compact list">
         <div class="mgr-mode-dot"></div>
         👔 Manager View
       </div>
@@ -572,8 +574,9 @@ body{display:flex;flex-direction:column}
 const S={
   rawRows:[],columns:[],colSamples:{},
   colMap:{empId:'',empName:'',managerId:''},
-  // 3 header slots + 3 footer slots
-  cardSlots:{h1:'',h2:'',h3:'',f1:'',f2:'',f3:''},
+  // 3 header + 1 body + 3 footer slots
+  // CHANGE 1: added b1 body slot
+  cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},
   cardAccent:'#4f46e5',
   // Employment type color mapping
   empTypeCol:'',
@@ -757,14 +760,16 @@ function zoneHtml(zoneId,placeholder){
   return`<div class="card-zone" ${dA}><span class="zone-ph">${placeholder}</span></div>`;
 }
 
+/* CHANGE 1: renderCardPreview includes b1 body slot */
 function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
   const ac=S.cardAccent;
   const ps=S.photoSize,pr=getPhotoRadius();
   const photoDiv=`<div style="width:${ps}px;height:${ps}px;border-radius:${pr};background:linear-gradient(150deg,${ac}18,${ac}30);color:${ac};font-size:${Math.round(ps*0.28)}px;font-weight:800;display:flex;align-items:center;justify-content:center;border:3px solid ${ac}55;flex-shrink:0;box-shadow:0 6px 20px ${ac}44">AB</div>`;
-  const subtitleField=S.cardSlots.h2; // We'll use h2 as subtitle hint in body for preview
-  const nameBlock=`<div style="width:100%;text-align:center"><div style="font-size:0.88rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">🔒 ${esc(sampleName)}</div></div>`;
+  // b1 zone below name
+  const b1ZoneHtml=`<div class="preview-b1-zone">${zoneHtml('b1','Body slot')}</div>`;
+  const nameBlock=`<div style="width:100%;text-align:center"><div style="font-size:0.88rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">🔒 ${esc(sampleName)}</div>${b1ZoneHtml}</div>`;
   let bodyHtml;
   const pl=S.photoPlacement;
   if(pl==='none'){bodyHtml=`<div style="display:flex;flex-direction:column;gap:6px">${nameBlock}</div>`;}
@@ -809,9 +814,10 @@ function renderFilterPreview(){
 function launchChart(){S.activeFilters={};S.skipDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
 /* ── SUMMARY FIELDS ── */
+/* CHANGE 5: Added "👤 Name" as __name__ option */
 function populateSummaryFields(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
-  const opts='<option value="">—</option>'+S.columns.filter(c=>!core.has(c)).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const opts='<option value="">—</option>'+'<option value="__name__">👤 Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
   const s1=document.getElementById('summary-field1');const s2=document.getElementById('summary-field2');
   if(s1){s1.innerHTML=opts;if(S.summaryField1)s1.value=S.summaryField1;}
   if(s2){s2.innerHTML=opts;if(S.summaryField2)s2.value=S.summaryField2;}
@@ -920,6 +926,8 @@ function mkNodeLI(node,depth){
 
   const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');
   const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);
+  // CHANGE 1: b1 body slot
+  const b1=getSlotVal(node,'b1');
   const subtitle=h2; // h2 doubles as subtitle if set; body always shows name
   const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';
   const photoInlineSize=`width:${ps}px;height:${ps}px;border-radius:${pr};`;
@@ -932,13 +940,15 @@ function mkNodeLI(node,depth){
     photoHtml=`<div class="ncard-photo-fallback" style="display:flex;${photoInlineSize}font-size:${pfs};background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:3px solid ${acMid};">${esc(initials)}</div>`;
   }
 
-  const textBlock=`<div class="ncard-text-wrap"><div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>${subtitle?`<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>`:''}</div>`;
+  // b1 row renders below name in body
+  const b1row=b1?`<div class="ncard-body-b1" title="${esc(b1)}">${esc(b1)}</div>`:'';
+  const textBlock=`<div class="ncard-text-wrap"><div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>${subtitle?`<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>`:''}${b1row}</div>`;
   let bodyHtml;
   const pl=S.photoPlacement;
   if(!photoHtml||pl==='none'){bodyHtml=`<div class="ncard-body-inner" style="flex-direction:column">${textBlock}</div>`;}
   else if(pl==='top'){bodyHtml=`<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">${photoHtml}</div>${textBlock}</div>`;}
-  else if(pl==='left'){bodyHtml=`<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">${photoHtml}</div>${textBlock}</div>`;}
-  else{bodyHtml=`<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">${photoHtml}</div>${textBlock}</div>`;}
+  else if(pl==='left'){bodyHtml=`<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">${photoHtml}</div><div style="flex:1;min-width:0">${textBlock}</div></div>`;}
+  else{bodyHtml=`<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">${photoHtml}</div><div style="flex:1;min-width:0">${textBlock}</div></div>`;}
 
   card.innerHTML=
     `<div class="ncard-header" style="background:${acLight};border-bottom-color:${ac}33">
@@ -964,16 +974,21 @@ function mkNodeLI(node,depth){
   li.appendChild(card);
 
   if(kids.length){
-    // Manager-only mode logic
+    /* CHANGE 4: Flipped manager mode summarization logic.
+       - Leaf children (no reportees) → always shown as full cards (maintain sanctity)
+       - Manager children (have reportees) → compact summary list
+       This ensures: if E has no reportees under A(CHRO), E shows as a full card, not summarized.
+       And if B has reportees X,Y,Z where X also has reportees, Y and Z show as full cards
+       while X appears in B's summary list. */
     if(S.managerMode){
       const managerKids=kids.filter(k=>isManager(k.id));
       const leafKids=kids.filter(k=>!isManager(k.id));
       const ul=document.createElement('ul');
-      // Show manager children as full cards (recursive)
-      managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-      // Leaf children → compact summary list
-      if(leafKids.length>0){
-        ul.appendChild(mkSummaryListLI(node,leafKids,ac));
+      // Leaf children → full cards (never summarize leaf employees)
+      leafKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
+      // Manager children → compact summary list
+      if(managerKids.length>0){
+        ul.appendChild(mkSummaryListLI(node,managerKids,ac));
       }
       li.appendChild(ul);
     } else {
@@ -986,6 +1001,7 @@ function mkNodeLI(node,depth){
 }
 
 /* ── COMPACT SUMMARY LIST NODE ── */
+/* CHANGE 3b + 5: Fixed blank content; supports __name__ field; no expand footer text */
 function mkSummaryListLI(parentNode,leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
@@ -994,7 +1010,8 @@ function mkSummaryListLI(parentNode,leafNodes,ac){
   let rowsHtml=leafNodes.map(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
-    const val2=f2?String(n[f2]||'—').substring(0,22):'';
+    // CHANGE 3b: resolve val2 with __name__ support
+    const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
     const photoUrl=getPhotoUrl(n);
     let avatarHtml;
     if(photoUrl){
@@ -1002,34 +1019,39 @@ function mkSummaryListLI(parentNode,leafNodes,ac){
     } else {
       avatarHtml=`<div class="summary-person-avatar" style="background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     }
-    const nameDisplay=f1&&f1!==S.colMap.empName?String(n[f1]||n.name).substring(0,24):n.name.substring(0,24);
-    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to view ${esc(n.name)}'s full profile">
+    // CHANGE 3b + 5: resolve primary display with __name__ support; always show actual name
+    const nameVal=n.name.substring(0,24);
+    const f1IsName=f1==='__name__';
+    const primaryVal=f1?(f1IsName?nameVal:String(n[f1]||nameVal).substring(0,24)):nameVal;
+    const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
+    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to expand ${esc(n.name)}'s sub-team">
       ${avatarHtml}
       <div class="summary-person-info">
-        <div class="summary-person-name">${esc(nameDisplay)}</div>
+        <div class="summary-person-name">${esc(primaryVal)}</div>
+        ${showNameSub?`<div class="summary-person-field2" style="font-size:0.65rem;color:var(--text2);font-weight:600">${esc(nameVal)}</div>`:''}
         ${val2?`<div class="summary-person-field2">${esc(val2)}</div>`:''}
       </div>
     </div>`;
   }).join('');
-  card.innerHTML=`<div class="summary-list-header"><span class="summary-list-title">Team (${count})</span><span class="summary-list-count">${count}</span></div><div class="summary-list-body">${rowsHtml}</div><div class="summary-list-footer">Click any row to expand ↗</div>`;
+  /* CHANGE 2: Removed "Click any row to expand ↗" footer */
+  card.innerHTML=`<div class="summary-list-header"><span class="summary-list-title">Managers (${count})</span><span class="summary-list-count">${count}</span></div><div class="summary-list-body">${rowsHtml}</div>`;
   li.appendChild(card);
   return li;
 }
 
 /* ── DRILL-DOWN MODAL ── */
+/* CHANGE 3a: No longer disables S.managerMode — summaries render correctly */
 function openDrillModal(nodeId,name){
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
   document.getElementById('drill-modal-title').textContent=name;
-  document.getElementById('drill-modal-sub').textContent='Full profile & reporting structure';
+  document.getElementById('drill-modal-sub').textContent='Sub-team & reporting structure';
   const treeEl=document.getElementById('drill-tree');treeEl.innerHTML='';
   // Build a mini tree just for this node + all their descendants
   const allDescIds=new Set([nodeId]);
   function collectAll(id){(S.childMap[id]||[]).forEach(k=>{allDescIds.add(k.id);collectAll(k.id);});}collectAll(nodeId);
-  // Temporarily override manager so this node is root
+  // Temporarily make this node a root (no manager) for the mini tree
   const savedOverride=S.managerOverrides.hasOwnProperty(nodeId)?S.managerOverrides[nodeId]:undefined;
-  const savedMgrMode=S.managerMode;
-  S.managerMode=false; // show full tree in drill modal
-  S.managerOverrides[nodeId]='';
+  // CHANGE 3a: Keep S.managerMode intact so summary content renders correctly
   const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;
   S.viewData=savedViewData.filter(n=>allDescIds.has(n.id));
   S.childMap={};
@@ -1042,7 +1064,6 @@ function openDrillModal(nodeId,name){
   const ul=document.createElement('ul');ul.appendChild(mkNodeLI(node,0));treeEl.appendChild(ul);
   // Restore
   S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
-  S.managerMode=savedMgrMode;
   if(savedOverride===undefined)delete S.managerOverrides[nodeId];else S.managerOverrides[nodeId]=savedOverride;
   document.getElementById('drill-modal').classList.remove('hidden');
 }
@@ -1203,7 +1224,7 @@ async function buildPPTXBlob(imgB64,cW,cH,titleSuffix){
   const roots=S.viewData.filter(n=>!n.manager).length;
   const mgrCount=S.viewData.filter(n=>isManager(n.id)).length;
   const modeNote=S.managerMode?` | Manager View (${mgrCount} managers)`:'';
-  const summaryNote=S.managerMode&&(S.summaryField1||S.summaryField2)?` | Summary: ${[S.summaryField1,S.summaryField2].filter(Boolean).join(' + ')}`:'';
+  const summaryNote=S.managerMode&&(S.summaryField1||S.summaryField2)?` | Summary: ${[S.summaryField1,S.summaryField2].filter(Boolean).map(f=>f==='__name__'?'Name':f).join(' + ')}`:'';
   const [s1xml,s1rels]=pptxSlide('F1F5F9',
     pptxRect(2,0,0,SW,Math.round(SH*0.52),ac)+pptxRect(3,0,Math.round(SH*0.52),SW,Math.round(SH*0.48),'FFFFFF')+
     pptxTxt(4,Math.round(SW*0.08),Math.round(SH*0.12),Math.round(SW*0.84),Math.round(SH*0.22),'Org Chart',7600,true,'FFFFFF','l')+
