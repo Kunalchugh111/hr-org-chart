@@ -192,7 +192,8 @@ body{display:flex;flex-direction:column}
 .summary-list-header{padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
 .summary-list-title{font-size:0.68rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em}
 .summary-list-count{font-size:0.68rem;font-weight:800;background:#7c3aed;color:#fff;border-radius:999px;padding:1px 8px}
-.summary-list-body{padding:4px 0;max-height:240px;overflow-y:auto}
+/* NOTE: max-height/overflow-y set inline per instance so export captures all rows */
+.summary-list-body{padding:4px 0}
 .summary-person-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s}
 .summary-person-row:last-child{border-bottom:none}
 .summary-person-row:hover{background:var(--bg2)}
@@ -490,7 +491,7 @@ body{display:flex;flex-direction:column}
       </div>
       <div class="tb-sep"></div>
       <!-- Manager-Only Mode Toggle -->
-      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: leaf reports shown as full cards; sub-managers shown as compact list">
+      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: sub-managers shown as compact list; leaf employees always shown as full cards">
         <div class="mgr-mode-dot"></div>
         👔 Manager View
       </div>
@@ -574,13 +575,10 @@ body{display:flex;flex-direction:column}
 const S={
   rawRows:[],columns:[],colSamples:{},
   colMap:{empId:'',empName:'',managerId:''},
-  // 3 header + 1 body + 3 footer slots
-  // CHANGE 1: added b1 body slot
   cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},
   cardAccent:'#4f46e5',
-  // Employment type color mapping
   empTypeCol:'',
-  empTypeMap:{}, // {value: color}
+  empTypeMap:{},
   empTypeLabels:{active:'',vacant:'',resigned:''},
   empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},
   filterCols:[],activeFilters:{},
@@ -591,7 +589,6 @@ const S={
   skipDepth:0,
   photoMap:{},photoObjUrls:[],
   photoSize:80,photoShape:'circle',photoPlacement:'top',
-  // Manager-only mode
   managerMode:false,
   summaryField1:'',summaryField2:'',
 };
@@ -700,7 +697,6 @@ function buildCardScreen(){
   const COLORS=['#4f46e5','#7c3aed','#db2777','#dc2626','#d97706','#059669','#0891b2','#0284c7','#374151','#0f172a'];
   document.getElementById('color-palette').innerHTML=COLORS.map(c=>`<div class="color-swatch${S.cardAccent===c?' selected':''}" style="background:${c}" onclick="setCardAccent('${c}')"></div>`).join('');
 
-  // Employment type col dropdown
   const empColSel=document.getElementById('emp-type-col');
   if(empColSel){
     empColSel.innerHTML='<option value="">Select column…</option>'+S.columns.filter(c=>!core.has(c)).map(c=>`<option value="${esc(c)}"${S.empTypeCol===c?' selected':''}>${esc(c)}</option>`).join('');
@@ -709,7 +705,6 @@ function buildCardScreen(){
   renderCardPreview();syncChipStates();
 }
 
-/* Employment type helpers */
 function onEmpTypeColChange(){
   S.empTypeCol=document.getElementById('emp-type-col').value;
   if(S.empTypeCol){populateEmpTypeValues(S.empTypeCol);}
@@ -743,7 +738,6 @@ function getNodeBorderColor(node){
   return S.cardAccent;
 }
 
-/* Drag/drop for card zones */
 function onDragStart(e){S.draggingField=e.currentTarget.dataset.field;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
 function onDragEnd(e){e.currentTarget.classList.remove('dragging');}
 function onZoneDragOver(e){e.preventDefault();e.currentTarget.classList.add('drop-target');}
@@ -760,14 +754,12 @@ function zoneHtml(zoneId,placeholder){
   return`<div class="card-zone" ${dA}><span class="zone-ph">${placeholder}</span></div>`;
 }
 
-/* CHANGE 1: renderCardPreview includes b1 body slot */
 function renderCardPreview(){
   const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};
   const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);
   const ac=S.cardAccent;
   const ps=S.photoSize,pr=getPhotoRadius();
   const photoDiv=`<div style="width:${ps}px;height:${ps}px;border-radius:${pr};background:linear-gradient(150deg,${ac}18,${ac}30);color:${ac};font-size:${Math.round(ps*0.28)}px;font-weight:800;display:flex;align-items:center;justify-content:center;border:3px solid ${ac}55;flex-shrink:0;box-shadow:0 6px 20px ${ac}44">AB</div>`;
-  // b1 zone below name
   const b1ZoneHtml=`<div class="preview-b1-zone">${zoneHtml('b1','Body slot')}</div>`;
   const nameBlock=`<div style="width:100%;text-align:center"><div style="font-size:0.88rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">🔒 ${esc(sampleName)}</div>${b1ZoneHtml}</div>`;
   let bodyHtml;
@@ -814,7 +806,6 @@ function renderFilterPreview(){
 function launchChart(){S.activeFilters={};S.skipDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
 /* ── SUMMARY FIELDS ── */
-/* CHANGE 5: Added "👤 Name" as __name__ option */
 function populateSummaryFields(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const opts='<option value="">—</option>'+'<option value="__name__">👤 Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
@@ -834,7 +825,7 @@ function toggleManagerMode(){
   renderChart();
 }
 
-/* Is a node a manager (has ≥1 direct report)? */
+/* Is a node a manager (has ≥1 direct report in current viewData)? */
 function isManager(nodeId){return (S.childMap[nodeId]||[]).length>0;}
 
 /* ── VIEW DATA ── */
@@ -926,9 +917,8 @@ function mkNodeLI(node,depth){
 
   const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');
   const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);
-  // CHANGE 1: b1 body slot
   const b1=getSlotVal(node,'b1');
-  const subtitle=h2; // h2 doubles as subtitle if set; body always shows name
+  const subtitle=h2;
   const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';
   const photoInlineSize=`width:${ps}px;height:${ps}px;border-radius:${pr};`;
   const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
@@ -940,7 +930,6 @@ function mkNodeLI(node,depth){
     photoHtml=`<div class="ncard-photo-fallback" style="display:flex;${photoInlineSize}font-size:${pfs};background:linear-gradient(150deg,${acLight},${ac}28);color:${ac};border:3px solid ${acMid};">${esc(initials)}</div>`;
   }
 
-  // b1 row renders below name in body
   const b1row=b1?`<div class="ncard-body-b1" title="${esc(b1)}">${esc(b1)}</div>`:'';
   const textBlock=`<div class="ncard-text-wrap"><div class="ncard-name" title="${esc(node.name)}">${esc(node.name)}</div>${subtitle?`<div class="ncard-sub" title="${esc(subtitle)}">${esc(subtitle)}</div>`:''}${b1row}</div>`;
   let bodyHtml;
@@ -974,22 +963,40 @@ function mkNodeLI(node,depth){
   li.appendChild(card);
 
   if(kids.length){
-    /* CHANGE 4: Flipped manager mode summarization logic.
-       - Leaf children (no reportees) → always shown as full cards (maintain sanctity)
-       - Manager children (have reportees) → compact summary list
-       This ensures: if E has no reportees under A(CHRO), E shows as a full card, not summarized.
-       And if B has reportees X,Y,Z where X also has reportees, Y and Z show as full cards
-       while X appears in B's summary list. */
+    /*
+     * MANAGER VIEW SUMMARISATION RULES:
+     *
+     * The node card itself is ALWAYS a full card — never summarised.
+     * Among a node's children:
+     *   - Leaf children (0 direct reports) → ALWAYS rendered as full cards
+     *   - Manager children (≥1 direct report) → shown as a compact summary list
+     *     (their reportees are summarised under them, but their own card row is visible in the list)
+     *
+     * Example A → B(mgr), C(mgr), D(mgr), E(leaf):
+     *   E → full card  ✓
+     *   B, C, D → appear as rows in summary list under A  ✓
+     *   B/C/D's own cards are shown when user clicks their row to drill down  ✓
+     *
+     * Example B → X(mgr), Y(leaf), Z(leaf):
+     *   Y, Z → full cards  ✓
+     *   X → appears as row in summary list under B  ✓
+     *   X's reportees (P,Q,R) shown when user drills into X  ✓
+     */
     if(S.managerMode){
-      const managerKids=kids.filter(k=>isManager(k.id));
-      const leafKids=kids.filter(k=>!isManager(k.id));
+      const managerKids=kids.filter(k=>isManager(k.id));   // children who themselves have reports
+      const leafKids=kids.filter(k=>!isManager(k.id));     // children with no reports
+
       const ul=document.createElement('ul');
-      // Leaf children → full cards (never summarize leaf employees)
+
+      // Leaf children always get full cards — never summarised
       leafKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-      // Manager children → compact summary list
+
+      // Manager children are shown as a compact summary list
+      // Their own subtrees are accessible via drill-down click
       if(managerKids.length>0){
         ul.appendChild(mkSummaryListLI(node,managerKids,ac));
       }
+
       li.appendChild(ul);
     } else {
       const ul=document.createElement('ul');
@@ -1000,31 +1007,53 @@ function mkNodeLI(node,depth){
   return li;
 }
 
-/* ── COMPACT SUMMARY LIST NODE ── */
-/* CHANGE 3b + 5: Fixed blank content; supports __name__ field; no expand footer text */
-function mkSummaryListLI(parentNode,leafNodes,ac){
+/* ── COMPACT SUMMARY LIST NODE ──
+ *
+ * Renders a compact card listing sub-managers under a parent.
+ * Each row shows: avatar, primary field (f1 / name), secondary field (f2).
+ * Clicking a row opens the drill-down modal showing that sub-manager's full subtree.
+ *
+ * FIX — Blank export issue:
+ *   The summary-list-body div uses max-height + overflow:auto for interactive scroll,
+ *   but html2canvas only captures the visible portion of scrollable containers.
+ *   We set max-height:none; overflow:visible inline so ALL rows are rendered in exports.
+ *   The interactive scroll is restored via CSS class on the live chart (not in export stage).
+ */
+function mkSummaryListLI(parentNode,subManagerNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const card=document.createElement('div');card.className='summary-list-card';
-  const count=leafNodes.length;
-  let rowsHtml=leafNodes.map(n=>{
+  const count=subManagerNodes.length;
+
+  const rowsHtml=subManagerNodes.map(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
-    // CHANGE 3b: resolve val2 with __name__ support
-    const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
     const photoUrl=getPhotoUrl(n);
+
+    // Avatar: photo if available, else initials fallback
     let avatarHtml;
     if(photoUrl){
       avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;border-radius:8px;object-fit:cover;border:2px solid ${borderC}55;flex-shrink:0" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="summary-person-avatar" style="display:none;background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     } else {
       avatarHtml=`<div class="summary-person-avatar" style="background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     }
-    // CHANGE 3b + 5: resolve primary display with __name__ support; always show actual name
+
+    // Primary display value: f1 field, or name as fallback
     const nameVal=n.name.substring(0,24);
-    const f1IsName=f1==='__name__';
-    const primaryVal=f1?(f1IsName?nameVal:String(n[f1]||nameVal).substring(0,24)):nameVal;
+    const f1IsName=(f1==='__name__');
+    const primaryVal=f1
+      ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24))
+      : nameVal;
+
+    // Show actual name as subtitle when f1 is a non-name field and differs from name
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
-    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to expand ${esc(n.name)}'s sub-team">
+
+    // Secondary field
+    const val2=f2
+      ? (f2==='__name__' ? n.name.substring(0,22) : String(n[f2]||'').substring(0,22))
+      : '';
+
+    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to expand ${esc(n.name)}'s team">
       ${avatarHtml}
       <div class="summary-person-info">
         <div class="summary-person-name">${esc(primaryVal)}</div>
@@ -1033,38 +1062,64 @@ function mkSummaryListLI(parentNode,leafNodes,ac){
       </div>
     </div>`;
   }).join('');
-  /* CHANGE 2: Removed "Click any row to expand ↗" footer */
-  card.innerHTML=`<div class="summary-list-header"><span class="summary-list-title">Managers (${count})</span><span class="summary-list-count">${count}</span></div><div class="summary-list-body">${rowsHtml}</div>`;
+
+  /*
+   * CRITICAL FIX for blank export:
+   * We set max-height and overflow directly as inline styles so they can be
+   * overridden during export (buildRenderStage sets these to none/visible).
+   * The CSS class .summary-list-body only sets padding now; scroll is inline.
+   */
+  card.innerHTML=
+    `<div class="summary-list-header">
+      <span class="summary-list-title">Sub-Managers (${count})</span>
+      <span class="summary-list-count">${count}</span>
+    </div>
+    <div class="summary-list-body" style="max-height:240px;overflow-y:auto">${rowsHtml}</div>`;
+
   li.appendChild(card);
   return li;
 }
 
-/* ── DRILL-DOWN MODAL ── */
-/* CHANGE 3a: No longer disables S.managerMode — summaries render correctly */
+/* ── DRILL-DOWN MODAL ──
+ * Opens when a row in the summary list is clicked.
+ * Shows the sub-manager's full subtree as a mini org chart.
+ * S.managerMode is preserved so the mini-tree respects manager view rules.
+ */
 function openDrillModal(nodeId,name){
   const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
   document.getElementById('drill-modal-title').textContent=name;
-  document.getElementById('drill-modal-sub').textContent='Sub-team & reporting structure';
+  document.getElementById('drill-modal-sub').textContent='Sub-team reporting structure';
   const treeEl=document.getElementById('drill-tree');treeEl.innerHTML='';
-  // Build a mini tree just for this node + all their descendants
+
+  // Collect this node + all descendants
   const allDescIds=new Set([nodeId]);
-  function collectAll(id){(S.childMap[id]||[]).forEach(k=>{allDescIds.add(k.id);collectAll(k.id);});}collectAll(nodeId);
-  // Temporarily make this node a root (no manager) for the mini tree
-  const savedOverride=S.managerOverrides.hasOwnProperty(nodeId)?S.managerOverrides[nodeId]:undefined;
-  // CHANGE 3a: Keep S.managerMode intact so summary content renders correctly
+  function collectAll(id){(S.childMap[id]||[]).forEach(k=>{allDescIds.add(k.id);collectAll(k.id);});}
+  collectAll(nodeId);
+
+  // Snapshot live state
   const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;
+
+  // Build a mini dataset for just this subtree
   S.viewData=savedViewData.filter(n=>allDescIds.has(n.id));
   S.childMap={};
-  S.viewData.forEach(n=>{const mgr=n.id===nodeId?'':n.manager;if(!S.childMap[mgr])S.childMap[mgr]=[];S.childMap[mgr].push(n);});
+  S.viewData.forEach(n=>{
+    // Make the clicked node a root (no parent)
+    const mgr=(n.id===nodeId)?'':n.manager;
+    if(!S.childMap[mgr])S.childMap[mgr]=[];
+    S.childMap[mgr].push(n);
+  });
   S.descCount={};S.nodeHeight={};S.nodeDepth={};
   function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}
   function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
   function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
   cD(nodeId);cH(nodeId);cDep(nodeId,0);
+
+  // Render mini tree (respects current S.managerMode)
   const ul=document.createElement('ul');ul.appendChild(mkNodeLI(node,0));treeEl.appendChild(ul);
-  // Restore
+
+  // Restore live state
   S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
-  if(savedOverride===undefined)delete S.managerOverrides[nodeId];else S.managerOverrides[nodeId]=savedOverride;
+
   document.getElementById('drill-modal').classList.remove('hidden');
 }
 function closeDrillModal(){document.getElementById('drill-modal').classList.add('hidden');}
@@ -1138,7 +1193,21 @@ function highlightNode(id){
 /* ── EXPORT HELPERS ── */
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
-  root.querySelectorAll('*').forEach(el=>{const cs=window.getComputedStyle(el);PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});if(el.style.overflow==='hidden'&&!el.classList.contains('node-card')&&!el.classList.contains('ncard-name')&&!el.classList.contains('ncard-sub'))el.style.overflow='visible';el.classList.remove('collapsed');});
+  root.querySelectorAll('*').forEach(el=>{
+    const cs=window.getComputedStyle(el);
+    PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
+    // Fix overflow: open up hidden/auto overflow so html2canvas captures everything.
+    // Exceptions: node-card, ncard-name, ncard-sub need overflow:hidden for text clipping.
+    const ov=el.style.overflow;
+    const ovY=cs.overflowY;
+    const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
+    if(!isTextClipper&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
+      el.style.overflow='visible';
+      el.style.overflowY='visible';
+      el.style.overflowX='visible';
+    }
+    el.classList.remove('collapsed');
+  });
 }
 
 async function buildRenderStage(rootNodeId){
@@ -1159,9 +1228,43 @@ async function buildRenderStage(rootNodeId){
   sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
   sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
+
+  /*
+   * CRITICAL FIX — Blank export for summary list rows:
+   *
+   * The .summary-list-body has max-height + overflow-y:auto set inline (for interactive scroll).
+   * html2canvas only captures the visible (non-scrolled) portion of overflow:auto containers,
+   * causing all rows beyond the first viewport to appear blank in exports.
+   *
+   * Fix: Before attaching to DOM and capturing, explicitly remove height constraints
+   * and set overflow to visible on ALL summary list bodies so every row is rendered.
+   */
+  sourceTree.querySelectorAll('.summary-list-body').forEach(el=>{
+    el.style.maxHeight='none';
+    el.style.height='auto';
+    el.style.overflow='visible';
+    el.style.overflowY='visible';
+  });
+  sourceTree.querySelectorAll('.summary-list-card').forEach(el=>{
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
+  });
+
   stage.appendChild(sourceTree);document.body.appendChild(stage);
   await new Promise(r=>setTimeout(r,300));if(document.fonts?.ready)await document.fonts.ready;await new Promise(r=>setTimeout(r,120));
-  inlineStyles(stage);await new Promise(r=>setTimeout(r,80));
+  inlineStyles(stage);
+  // Re-apply after inlineStyles (which may re-set overflow from computed styles)
+  stage.querySelectorAll('.summary-list-body').forEach(el=>{
+    el.style.maxHeight='none';
+    el.style.height='auto';
+    el.style.overflow='visible';
+    el.style.overflowY='visible';
+  });
+  stage.querySelectorAll('.summary-list-card').forEach(el=>{
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
+  });
+  await new Promise(r=>setTimeout(r,80));
   return stage;
 }
 async function renderToCanvas(stage){
