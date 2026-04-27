@@ -1206,7 +1206,10 @@ function inlineStyles(root){
 async function buildRenderStage(rootNodeId){
   const PAD=20;
   const stage=document.createElement('div');
-  stage.style.cssText=`position:fixed;top:0;left:-99999px;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;z-index:-999;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
+  // CRITICAL: must be on-screen (not off at -99999px) so the browser lays out and paints
+  // all elements including flex children. We hide it visually with opacity:0 and pointer-events:none
+  // while keeping it in the layout flow. z-index:9998 sits behind the export overlay (z:9999).
+  stage.style.cssText=`position:fixed;top:0;left:0;opacity:0;z-index:9998;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
   let sourceTree;
   if(rootNodeId){
     sourceTree=document.createElement('div');sourceTree.className='org-tree';
@@ -1222,47 +1225,26 @@ async function buildRenderStage(rootNodeId){
   sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
 
-  /*
-   * CRITICAL FIX — Blank export for summary list rows:
-   *
-   * The .summary-list-body has max-height + overflow-y:auto set inline (for interactive scroll).
-   * html2canvas only captures the visible (non-scrolled) portion of overflow:auto containers,
-   * causing all rows beyond the first viewport to appear blank in exports.
-   *
-   * Fix: Before attaching to DOM and capturing, explicitly remove height constraints
-   * and set overflow to visible on ALL summary list bodies so every row is rendered.
-   */
-  sourceTree.querySelectorAll('.summary-list-body').forEach(el=>{
-    el.style.maxHeight='none';
-    el.style.height='auto';
-    el.style.overflow='visible';
-    el.style.overflowY='visible';
-  });
-  sourceTree.querySelectorAll('.summary-list-card').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
-  });
-
-  stage.appendChild(sourceTree);document.body.appendChild(stage);
-  await new Promise(r=>setTimeout(r,300));if(document.fonts?.ready)await document.fonts.ready;await new Promise(r=>setTimeout(r,120));
+  stage.appendChild(sourceTree);
+  document.body.appendChild(stage);
+  // Wait for full browser layout + font load
+  await new Promise(r=>setTimeout(r,400));
+  if(document.fonts?.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,200));
   inlineStyles(stage);
-  // Re-apply after inlineStyles (which may re-set overflow from computed styles)
-  stage.querySelectorAll('.summary-list-body').forEach(el=>{
-    el.style.maxHeight='none';
-    el.style.height='auto';
-    el.style.overflow='visible';
-    el.style.overflowY='visible';
-  });
-  stage.querySelectorAll('.summary-list-card').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
-  });
-  await new Promise(r=>setTimeout(r,80));
+  await new Promise(r=>setTimeout(r,100));
   return stage;
 }
 async function renderToCanvas(stage){
   const W=Math.ceil(stage.scrollWidth),H=Math.ceil(stage.scrollHeight);
-  return html2canvas(stage,{backgroundColor:'#f8fafc',scale:3,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:W,height:H,scrollX:0,scrollY:0,windowWidth:W+200,windowHeight:H+200});
+  return html2canvas(stage,{
+    backgroundColor:'#f8fafc',scale:3,useCORS:true,logging:false,
+    allowTaint:true,foreignObjectRendering:false,
+    width:W,height:H,scrollX:0,scrollY:0,
+    windowWidth:Math.max(W+200,window.innerWidth),
+    windowHeight:Math.max(H+200,window.innerHeight),
+    x:0,y:0,
+  });
 }
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
 function csvEsc(v){return'"'+String(v??'').replace(/"/g,'""')+'"';}
