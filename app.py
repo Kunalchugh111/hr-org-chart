@@ -1,24 +1,3 @@
-import streamlit as st
-import streamlit.components.v1 as components
-
-st.set_page_config(
-    page_title="OrgDesign Pro",
-    page_icon="🏢",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
-st.markdown("""
-<style>
-  #MainMenu, footer, header, .stDeployButton,
-  [data-testid="stSidebar"], [data-testid="stToolbar"],
-  [data-testid="stDecoration"], [data-testid="stHeader"] { display: none !important; }
-  .stApp { background: #ffffff !important; }
-  .block-container { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
-  iframe { border-radius: 0 !important; border: none !important; }
-</style>
-""", unsafe_allow_html=True)
-
 APP_HTML = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,7 +78,6 @@ body{display:flex;flex-direction:column}
 .data-preview-table th{background:var(--bg3);padding:7px 12px;text-align:left;font-weight:700;color:var(--text2);border:1px solid var(--border);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em}
 .data-preview-table td{padding:6px 12px;border:1px solid var(--border);color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .data-preview-table tr:nth-child(even) td{background:var(--bg2)}
-/* CARD DESIGN */
 .card-design-layout{display:grid;grid-template-columns:280px 1fr;gap:24px;flex:1;min-height:0}
 .fields-panel{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:18px;overflow-y:auto}
 .fields-panel-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:12px}
@@ -113,7 +91,6 @@ body{display:flex;flex-direction:column}
 .card-preview-area{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .preview-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3)}
 .preview-card{width:320px;background:var(--bg);border:2px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--r-lg);box-shadow:var(--shadow-md)}
-/* 3-slot header/footer rows */
 .preview-card-header{padding:7px 10px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:5px}
 .preview-card-body{padding:12px 14px}
 .preview-card-footer{padding:7px 10px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;align-items:center;gap:5px}
@@ -131,13 +108,11 @@ body{display:flex;flex-direction:column}
 .preview-name-fixed .lock{font-size:0.75rem;opacity:0.5}
 .ncard-photo{object-fit:cover;object-position:center top;display:block;flex-shrink:0}
 .ncard-photo-fallback{font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.02em}
-/* Employment type color setup */
 .emp-type-setup{margin-top:14px}
 .emp-type-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .emp-type-label{font-size:0.78rem;font-weight:700;color:var(--text2);min-width:80px}
 .emp-type-color-input{width:34px;height:28px;border-radius:7px;border:2px solid var(--border2);cursor:pointer;padding:0;background:none}
 .emp-type-value-select{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;font-size:0.76rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer}
-/* Filter screen */
 .filter-setup{max-width:640px}
 .filter-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
 .filter-chip{padding:7px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:999px;font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none}
@@ -159,7 +134,6 @@ body{display:flex;flex-direction:column}
 .btn-row{display:flex;gap:10px;margin-top:28px}
 .btn-export-all{background:linear-gradient(135deg,#7c3aed,#0284c7)!important;color:#fff!important;border:none!important;box-shadow:0 4px 14px rgba(124,58,237,0.35)!important}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
-/* CHART */
 .chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
 .stats-bar{flex-shrink:0;height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:18px;font-size:0.73rem}
 .stat-item{display:flex;align-items:center;gap:6px;color:var(--text3);font-weight:600}
@@ -177,31 +151,26 @@ body{display:flex;flex-direction:column}
 .depth-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .depth-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
 .depth-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
-/* Manager-only mode toggle */
 .mgr-mode-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;user-select:none}
 .mgr-mode-btn:hover{border-color:#7c3aed;color:#7c3aed;background:#f5f3ff}
 .mgr-mode-btn.active{background:#f5f3ff;border-color:#7c3aed;color:#7c3aed;box-shadow:0 0 0 2px #ddd6fe}
 .mgr-mode-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);transition:background 0.15s}
 .mgr-mode-btn.active .mgr-mode-dot{background:#7c3aed}
-/* Summary fields selector */
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237c3aed'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
-/* Compact summary list card (manager-only mode) */
 .summary-list-card{display:inline-block;min-width:200px;max-width:280px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid #7c3aed;border-radius:var(--r-lg);box-shadow:var(--shadow-sm);font-family:'Plus Jakarta Sans',sans-serif;cursor:default}
 .summary-list-header{padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
 .summary-list-title{font-size:0.68rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em}
 .summary-list-count{font-size:0.68rem;font-weight:800;background:#7c3aed;color:#fff;border-radius:999px;padding:1px 8px}
-/* NOTE: max-height/overflow-y set inline per instance so export captures all rows */
 .summary-list-body{padding:4px 0}
-.summary-person-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s}
+.summary-person-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid var(--border);transition:background 0.1s}
 .summary-person-row:last-child{border-bottom:none}
 .summary-person-row:hover{background:var(--bg2)}
 .summary-person-avatar{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:800;flex-shrink:0}
 .summary-person-info{flex:1;min-width:0}
 .summary-person-name{font-size:0.75rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .summary-person-field2{font-size:0.68rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Node card */
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-wrap::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(148,163,184,0.12) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.12) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
@@ -221,7 +190,6 @@ body{display:flex;flex-direction:column}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);border-color:var(--accent);z-index:10}
 .node-card.highlighted{border-color:var(--warning)!important;border-top-color:var(--warning)!important;box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
 .node-card.collapsed-node{opacity:0.65}
-/* 3-slot ncard header/footer */
 .ncard-header{padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:4px}
 .ncard-footer{padding:6px 10px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;align-items:center;gap:4px}
 .ncard-slot{font-size:0.64rem;font-weight:700;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:center}
@@ -288,9 +256,6 @@ body{display:flex;flex-direction:column}
 .modal-note{font-size:0.73rem;color:var(--text3);flex:1;display:flex;align-items:center}
 .tb-sep{width:1px;height:22px;background:var(--border);flex-shrink:0}
 .photo-folder-input{display:none}
-/* Drill-down modal for summary list */
-.drill-modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:680px;max-width:100%;display:flex;flex-direction:column;max-height:85vh;overflow:hidden}
-/* Body slot b1 zone in card design preview */
 .preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
 </style>
 </head>
@@ -313,42 +278,18 @@ body{display:flex;flex-direction:column}
 </nav>
 
 <main class="main">
-  <!-- UPLOAD -->
   <div class="screen active" id="screen-upload">
     <div class="upload-center">
-      <div class="upload-hero">
-        <h1>Build your Org Chart</h1>
-        <p>Upload your HR roster and we'll guide you through designing a beautiful, interactive org chart in minutes.</p>
-      </div>
-      <div class="upload-zone" id="upload-dropzone">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls"/>
-        <span class="upload-emoji">📊</span>
-        <h3>Drop your file here</h3>
-        <p>Supports CSV and Excel (.xlsx, .xls)<br>or <span>click to browse</span></p>
-      </div>
+      <div class="upload-hero"><h1>Build your Org Chart</h1><p>Upload your HR roster and we'll guide you through designing a beautiful, interactive org chart in minutes.</p></div>
+      <div class="upload-zone" id="upload-dropzone"><input type="file" id="file-input" accept=".csv,.xlsx,.xls"/><span class="upload-emoji">📊</span><h3>Drop your file here</h3><p>Supports CSV and Excel (.xlsx, .xls)<br>or <span>click to browse</span></p></div>
       <div class="info-cards">
-        <div class="info-card">
-          <div class="info-card-title">✅ Required Columns</div>
-          <div class="info-card-row">Employee Code / ID</div>
-          <div class="info-card-row">Employee Name</div>
-          <div class="info-card-row">Manager Code / ID</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-title">📸 Photo Tip</div>
-          <div class="info-card-row">Name photos by Employee ID</div>
-          <div class="info-card-row">e.g. EMP001.jpg, E001.png</div>
-          <div class="info-card-row">Load folder from Chart toolbar</div>
-        </div>
+        <div class="info-card"><div class="info-card-title">✅ Required Columns</div><div class="info-card-row">Employee Code / ID</div><div class="info-card-row">Employee Name</div><div class="info-card-row">Manager Code / ID</div></div>
+        <div class="info-card"><div class="info-card-title">📸 Photo Tip</div><div class="info-card-row">Name photos by Employee ID</div><div class="info-card-row">e.g. EMP001.jpg, E001.png</div><div class="info-card-row">Load folder from Chart toolbar</div></div>
       </div>
     </div>
   </div>
-
-  <!-- MAP -->
   <div class="screen" id="screen-map">
-    <div class="section-header">
-      <div class="section-title">Map Your Columns</div>
-      <div class="section-sub">We detected <span id="col-count">0</span> columns. Auto-mapped where possible.</div>
-    </div>
+    <div class="section-header"><div class="section-title">Map Your Columns</div><div class="section-sub">We detected <span id="col-count">0</span> columns. Auto-mapped where possible.</div></div>
     <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:9px">Detected Columns</div>
     <div class="detected-chips" id="detected-columns"></div>
     <div class="map-grid">
@@ -358,166 +299,60 @@ body{display:flex;flex-direction:column}
     </div>
     <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:9px">Data Preview (first 3 rows)</div>
     <div id="data-preview-wrap" style="margin-bottom:24px;overflow-x:auto"></div>
-    <div class="btn-row" style="margin-top:0">
-      <button class="btn btn-ghost" onclick="goTo('upload')">← Back</button>
-      <button class="btn btn-primary" onclick="confirmColumnMap()">Continue to Card Design →</button>
-    </div>
+    <div class="btn-row" style="margin-top:0"><button class="btn btn-ghost" onclick="goTo('upload')">← Back</button><button class="btn btn-primary" onclick="confirmColumnMap()">Continue to Card Design →</button></div>
   </div>
-
-  <!-- CARD DESIGN -->
   <div class="screen" id="screen-card">
-    <div class="section-header" style="margin-bottom:18px">
-      <div class="section-title">Design Your Card</div>
-      <div class="section-sub">Drag fields into 3 header, 1 body, and 3 footer slots. Configure employment type colors.</div>
-    </div>
+    <div class="section-header" style="margin-bottom:18px"><div class="section-title">Design Your Card</div><div class="section-sub">Drag fields into 3 header, 1 body, and 3 footer slots. Configure employment type colors.</div></div>
     <div class="card-design-layout">
       <div class="fields-panel">
-        <div class="fields-panel-title">Available Fields</div>
-        <div id="card-fields-panel"></div>
-
-        <div class="fields-section" style="margin-top:16px">
-          <div class="fields-section-label" style="margin-bottom:8px">🎨 Card Accent Color</div>
-          <div class="color-palette" id="color-palette"></div>
-        </div>
-
+        <div class="fields-panel-title">Available Fields</div><div id="card-fields-panel"></div>
+        <div class="fields-section" style="margin-top:16px"><div class="fields-section-label" style="margin-bottom:8px">🎨 Card Accent Color</div><div class="color-palette" id="color-palette"></div></div>
         <div class="fields-section" style="margin-top:14px">
           <div class="fields-section-label" style="margin-bottom:8px">🖼️ Photo Size &amp; Shape</div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Size (px)</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <input type="range" id="photo-size-slider" min="40" max="160" step="10" value="80"
-              style="flex:1;accent-color:var(--accent);cursor:pointer"
-              oninput="S.photoSize=parseInt(this.value);document.getElementById('photo-size-val').textContent=this.value+'px';renderCardPreview();renderChart()"/>
-            <span id="photo-size-val" style="font-size:0.78rem;font-weight:700;color:var(--accent);min-width:36px">80px</span>
-          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="range" id="photo-size-slider" min="40" max="160" step="10" value="80" style="flex:1;accent-color:var(--accent);cursor:pointer" oninput="S.photoSize=parseInt(this.value);document.getElementById('photo-size-val').textContent=this.value+'px';renderCardPreview();renderChart()"/><span id="photo-size-val" style="font-size:0.78rem;font-weight:700;color:var(--accent);min-width:36px">80px</span></div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Shape</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-            <div class="shape-btn selected" data-shape="circle" onclick="setPhotoShape('circle')">⬤ Circle</div>
-            <div class="shape-btn" data-shape="rounded" onclick="setPhotoShape('rounded')">▪ Rounded</div>
-            <div class="shape-btn" data-shape="square" onclick="setPhotoShape('square')">■ Square</div>
-          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><div class="shape-btn selected" data-shape="circle" onclick="setPhotoShape('circle')">⬤ Circle</div><div class="shape-btn" data-shape="rounded" onclick="setPhotoShape('rounded')">▪ Rounded</div><div class="shape-btn" data-shape="square" onclick="setPhotoShape('square')">■ Square</div></div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Placement</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <div class="shape-btn selected" data-placement="top" onclick="setPhotoPlacement('top')">⬆ Top</div>
-            <div class="shape-btn" data-placement="left" onclick="setPhotoPlacement('left')">◀ Left</div>
-            <div class="shape-btn" data-placement="right" onclick="setPhotoPlacement('right')">▶ Right</div>
-            <div class="shape-btn" data-placement="none" onclick="setPhotoPlacement('none')">✕ None</div>
-          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><div class="shape-btn selected" data-placement="top" onclick="setPhotoPlacement('top')">⬆ Top</div><div class="shape-btn" data-placement="left" onclick="setPhotoPlacement('left')">◀ Left</div><div class="shape-btn" data-placement="right" onclick="setPhotoPlacement('right')">▶ Right</div><div class="shape-btn" data-placement="none" onclick="setPhotoPlacement('none')">✕ None</div></div>
         </div>
-
-        <!-- Employment Type Color Mapping -->
         <div class="fields-section emp-type-setup">
           <div class="fields-section-label" style="margin-bottom:10px">🎨 Employment Type Colors</div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:10px;line-height:1.5">Map a column + values to control card border color. Overrides global accent.</div>
-          <div style="margin-bottom:8px">
-            <select class="vacant-select" id="emp-type-col" onchange="onEmpTypeColChange()" style="width:100%;margin-bottom:8px"><option value="">Select column…</option></select>
-          </div>
+          <div style="margin-bottom:8px"><select class="vacant-select" id="emp-type-col" onchange="onEmpTypeColChange()" style="width:100%;margin-bottom:8px"><option value="">Select column…</option></select></div>
           <div id="emp-type-rows" style="display:none">
-            <div class="emp-type-row">
-              <div class="emp-type-label">Active</div>
-              <select class="emp-type-value-select" id="emp-val-active"><option value="">Value…</option></select>
-              <input type="color" class="emp-type-color-input" id="emp-color-active" value="#059669" title="Color for Active"/>
-            </div>
-            <div class="emp-type-row">
-              <div class="emp-type-label">Vacant</div>
-              <select class="emp-type-value-select" id="emp-val-vacant"><option value="">Value…</option></select>
-              <input type="color" class="emp-type-color-input" id="emp-color-vacant" value="#dc2626" title="Color for Vacant"/>
-            </div>
-            <div class="emp-type-row">
-              <div class="emp-type-label">Resigned</div>
-              <select class="emp-type-value-select" id="emp-val-resigned"><option value="">Value…</option></select>
-              <input type="color" class="emp-type-color-input" id="emp-color-resigned" value="#d97706" title="Color for Resigned"/>
-            </div>
+            <div class="emp-type-row"><div class="emp-type-label">Active</div><select class="emp-type-value-select" id="emp-val-active"><option value="">Value…</option></select><input type="color" class="emp-type-color-input" id="emp-color-active" value="#059669" title="Color for Active"/></div>
+            <div class="emp-type-row"><div class="emp-type-label">Vacant</div><select class="emp-type-value-select" id="emp-val-vacant"><option value="">Value…</option></select><input type="color" class="emp-type-color-input" id="emp-color-vacant" value="#dc2626" title="Color for Vacant"/></div>
+            <div class="emp-type-row"><div class="emp-type-label">Resigned</div><select class="emp-type-value-select" id="emp-val-resigned"><option value="">Value…</option></select><input type="color" class="emp-type-color-input" id="emp-color-resigned" value="#d97706" title="Color for Resigned"/></div>
           </div>
         </div>
       </div>
-
-      <div class="card-preview-area">
-        <div class="preview-label">Live Card Preview — 3 Header + 1 Body + 3 Footer Slots</div>
-        <div id="card-preview"></div>
-        <div class="preview-hint">Drag field chips onto header, body, or footer zones. Name is always fixed in the card body. Body slot appears beneath the name.</div>
-      </div>
+      <div class="card-preview-area"><div class="preview-label">Live Card Preview — 3 Header + 1 Body + 3 Footer Slots</div><div id="card-preview"></div><div class="preview-hint">Drag field chips onto header, body, or footer zones. Name is always fixed in the card body. Body slot appears beneath the name.</div></div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goTo('map')">← Back</button>
-      <button class="btn btn-primary" onclick="confirmCardDesign()">Continue to Filters →</button>
-    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="goTo('map')">← Back</button><button class="btn btn-primary" onclick="confirmCardDesign()">Continue to Filters →</button></div>
   </div>
-
-  <!-- FILTER -->
   <div class="screen" id="screen-filter">
-    <div class="section-header">
-      <div class="section-title">Set Up Filters</div>
-      <div class="section-sub">Choose up to 3 columns to use as filters. The last filter drives "Export All".</div>
-    </div>
-    <div class="filter-setup">
-      <div class="filter-counter" id="filter-counter">0 of 3 filters selected</div>
-      <div class="filter-chips" id="filter-chip-picker"></div>
-      <div id="filter-preview-area"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goTo('card')">← Back</button>
-      <button class="btn btn-primary" onclick="launchChart()">🚀 Launch Org Chart</button>
-    </div>
+    <div class="section-header"><div class="section-title">Set Up Filters</div><div class="section-sub">Choose up to 3 columns to use as filters. The last filter drives "Export All".</div></div>
+    <div class="filter-setup"><div class="filter-counter" id="filter-counter">0 of 3 filters selected</div><div class="filter-chips" id="filter-chip-picker"></div><div id="filter-preview-area"></div></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="goTo('card')">← Back</button><button class="btn btn-primary" onclick="launchChart()">🚀 Launch Org Chart</button></div>
   </div>
-
-  <!-- CHART -->
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
-      <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">← Setup</button>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">← Setup</button><div class="tb-sep"></div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Search name or ID…" autocomplete="off"/><div id="chart-search-results"></div></div>
       <div class="tb-sep"></div>
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input id="chart-search" type="text" placeholder="Search name or ID…" autocomplete="off"/>
-        <div id="chart-search-results"></div>
-      </div>
+      <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
+      <button class="btn btn-ghost btn-sm" onclick="centerView()">🧭</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
       <div class="tb-sep"></div>
-      <div class="zoom-strip">
-        <button class="btn-zoom" onclick="zoomBy(-0.1)">−</button>
-        <span class="zoom-label" id="zoom-level">100%</span>
-        <button class="btn-zoom" onclick="zoomBy(0.1)">+</button>
-        <button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="centerView()">🧭</button>
-      <button class="btn btn-ghost btn-sm" onclick="expandAll()">⊞</button>
-      <button class="btn btn-ghost btn-sm" onclick="collapseAll()">⊟</button>
+      <div class="depth-wrap" title="Skip top N levels"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
       <div class="tb-sep"></div>
-      <div class="depth-wrap" title="Skip top N levels">
-        <span class="depth-label">Skip Top</span>
-        <select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))">
-          <option value="0">None</option>
-          <option value="1">L1</option><option value="2">L2</option><option value="3">L3</option>
-          <option value="4">L4</option><option value="5">L5</option><option value="6">L6</option>
-        </select>
-      </div>
-      <div class="tb-sep"></div>
-      <!-- Manager-Only Mode Toggle -->
-      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: sub-managers shown as compact list; leaf employees always shown as full cards">
-        <div class="mgr-mode-dot"></div>
-        👔 Manager View
-      </div>
-      <!-- Summary fields selectors (visible when mgr mode on) -->
-      <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none">
-        <span class="summary-fields-label">Show</span>
-        <select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart()" title="First field in summary list">
-          <option value="">Field 1…</option>
-        </select>
-        <span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span>
-        <select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart()" title="Second field in summary list">
-          <option value="">Field 2…</option>
-        </select>
-      </div>
+      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Manager View: direct reports shown as cards; their teams summarized underneath"><div class="mgr-mode-dot"></div>👔 Manager View</div>
+      <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none"><span class="summary-fields-label">Show</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart()" title="First field in summary list"><option value="">Field 1…</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart()" title="Second field in summary list"><option value="">Field 2…</option></select></div>
       <div class="tb-sep"></div>
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple/>
-      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">
-        📸 <span id="photo-btn-label">Load Photos</span>
-        <span class="photo-count" id="photo-count" style="display:none">0</span>
-      </div>
-      <div class="tb-sep"></div>
-      <div style="flex:1"></div>
-      <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">💾 CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="exportPNG()">🖼️ PNG</button>
-      <button class="btn btn-ghost btn-sm" onclick="exportPPTX()">📊 PPTX</button>
-      <button class="btn btn-sm btn-export-all" onclick="exportAll()">📦 Export All</button>
+      <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">📸 <span id="photo-btn-label">Load Photos</span><span class="photo-count" id="photo-count" style="display:none">0</span></div>
+      <div class="tb-sep"></div><div style="flex:1"></div>
+      <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">💾 CSV</button><button class="btn btn-ghost btn-sm" onclick="exportPNG()">🖼️ PNG</button><button class="btn btn-ghost btn-sm" onclick="exportPPTX()">📊 PPTX</button><button class="btn btn-sm btn-export-all" onclick="exportAll()">📦 Export All</button>
     </div>
     <div class="stats-bar">
       <div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div>
@@ -528,46 +363,15 @@ body{display:flex;flex-direction:column}
       <div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">⚠️ Filtered</div>
     </div>
     <div class="filter-bar" id="filter-bar" style="display:none"></div>
-    <div class="chart-canvas-wrap" id="chart-canvas-wrap">
-      <div class="chart-canvas-content" id="chart-canvas-content">
-        <div class="org-tree" id="org-tree"></div>
-      </div>
-    </div>
+    <div class="chart-canvas-wrap" id="chart-canvas-wrap"><div class="chart-canvas-content" id="chart-canvas-content"><div class="org-tree" id="org-tree"></div></div></div>
   </div>
 </main>
 
-<!-- Reassign modal -->
 <div class="modal-overlay hidden" id="reassign-modal">
   <div class="modal-box">
-    <div class="modal-header">
-      <div><div class="modal-title">Reassign Manager</div><div class="modal-sub" id="reassign-subject">Moving <strong>—</strong></div></div>
-      <button class="modal-close" onclick="closeReassignModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input class="modal-search" id="reassign-search" type="text" placeholder="Search employee name or ID…" autocomplete="off" oninput="filterReassignList()"/>
-      <div class="modal-list" id="reassign-list"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-sm" onclick="removeCurrentNode()" style="background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;margin-right:auto">🗑 Remove</button>
-      <span class="modal-note" id="reassign-note">Select a new manager above</span>
-      <button class="btn btn-ghost btn-sm" onclick="closeReassignModal()">Cancel</button>
-      <button class="btn btn-primary btn-sm" id="reassign-confirm-btn" onclick="confirmReassign()" disabled>Reassign</button>
-    </div>
-  </div>
-</div>
-
-<!-- Drill-down modal for summary list person -->
-<div class="modal-overlay hidden" id="drill-modal">
-  <div class="drill-modal-box">
-    <div class="modal-header">
-      <div><div class="modal-title" id="drill-modal-title">Sub-tree</div><div class="modal-sub" id="drill-modal-sub"></div></div>
-      <button class="modal-close" onclick="closeDrillModal()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:0;overflow:hidden">
-      <div style="overflow:auto;background:var(--bg3);padding:24px;min-height:200px">
-        <div class="org-tree" id="drill-tree"></div>
-      </div>
-    </div>
+    <div class="modal-header"><div><div class="modal-title">Reassign Manager</div><div class="modal-sub" id="reassign-subject">Moving <strong>—</strong></div></div><button class="modal-close" onclick="closeReassignModal()">✕</button></div>
+    <div class="modal-body"><input class="modal-search" id="reassign-search" type="text" placeholder="Search employee name or ID…" autocomplete="off" oninput="filterReassignList()"/><div class="modal-list" id="reassign-list"></div></div>
+    <div class="modal-footer"><button class="btn btn-sm" onclick="removeCurrentNode()" style="background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;margin-right:auto">🗑 Remove</button><span class="modal-note" id="reassign-note">Select a new manager above</span><button class="btn btn-ghost btn-sm" onclick="closeReassignModal()">Cancel</button><button class="btn btn-primary btn-sm" id="reassign-confirm-btn" onclick="confirmReassign()" disabled>Reassign</button></div>
   </div>
 </div>
 
@@ -577,10 +381,7 @@ const S={
   colMap:{empId:'',empName:'',managerId:''},
   cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},
   cardAccent:'#4f46e5',
-  empTypeCol:'',
-  empTypeMap:{},
-  empTypeLabels:{active:'',vacant:'',resigned:''},
-  empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},
+  empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},
   filterCols:[],activeFilters:{},
   managerOverrides:{},removedIds:new Set(),
   viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},
@@ -607,7 +408,6 @@ function goTo(step){
   if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);}
 }
 
-/* ── FILE HANDLING ── */
 function handleFile(file){
   const ext=file.name.split('.').pop().toLowerCase();
   if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}
@@ -626,7 +426,6 @@ function autoDetect(cols){
   return{empId:find(['employee code','emp code','emp id','employee id','empcode','empid','staff id']),empName:find(['employee name','emp name','full name','person name','staff name','name']),managerId:find(['l1 manager code','l1 manager','manager code','manager id','reports to','supervisor','mgr code','mgrid'])};
 }
 
-/* ── PHOTOS ── */
 async function openPhotoFolder(){
   if('showDirectoryPicker' in window){try{const d=await window.showDirectoryPicker({mode:'read'});await loadFromDirectoryHandle(d);}catch(e){if(e.name!=='AbortError')document.getElementById('photo-folder-input').click();}}
   else{document.getElementById('photo-folder-input').click();}
@@ -656,7 +455,6 @@ function getPhotoUrl(node){
   return '';
 }
 
-/* ── MAP SCREEN ── */
 function buildMapScreen(){
   document.getElementById('col-count').textContent=S.columns.length;
   document.getElementById('detected-columns').innerHTML=S.columns.map(c=>`<div class="col-chip">📋 ${esc(c)}${S.colSamples[c].length?`<span class="chip-sample">${esc(S.colSamples[c].join(', '))}</span>`:''}</div>`).join('');
@@ -677,7 +475,6 @@ function confirmColumnMap(){
   buildCardScreen();goTo('card');
 }
 
-/* ── CARD DESIGN SCREEN ── */
 const AUTO_FIELDS=[
   {id:'__auto_reports__',icon:'📊',label:'Direct Reports',desc:'Count of direct reports'},
   {id:'__auto_teamsize__',icon:'👥',label:'Total Team Size',desc:'All descendants count'},
@@ -783,7 +580,6 @@ function setPhotoPlacement(p){S.photoPlacement=p;document.querySelectorAll('[dat
 function getPhotoRadius(){if(S.photoShape==='circle')return'50%';if(S.photoShape==='rounded')return'12px';return'4px';}
 function confirmCardDesign(){buildEmpTypeMap();buildFilterScreen();goTo('filter');}
 
-/* ── FILTER SCREEN ── */
 function buildFilterScreen(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const filterable=S.columns.filter(c=>!core.has(c));
@@ -805,7 +601,6 @@ function renderFilterPreview(){
 }
 function launchChart(){S.activeFilters={};S.skipDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
-/* ── SUMMARY FIELDS ── */
 function populateSummaryFields(){
   const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));
   const opts='<option value="">—</option>'+'<option value="__name__">👤 Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
@@ -815,7 +610,6 @@ function populateSummaryFields(){
   document.getElementById('depth-select').value=S.skipDepth;
 }
 
-/* ── MANAGER MODE ── */
 function toggleManagerMode(){
   S.managerMode=!S.managerMode;
   const btn=document.getElementById('mgr-mode-btn');
@@ -825,10 +619,8 @@ function toggleManagerMode(){
   renderChart();
 }
 
-/* Is a node a manager (has ≥1 direct report in current viewData)? */
 function isManager(nodeId){return (S.childMap[nodeId]||[]).length>0;}
 
-/* ── VIEW DATA ── */
 function buildViewData(){
   const {empId,empName,managerId}=S.colMap;
   let nodes=S.rawRows.map(row=>{
@@ -866,7 +658,6 @@ function buildViewData(){
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
-/* ── FILTER BAR ── */
 function buildFilterBar(){
   const bar=document.getElementById('filter-bar');
   if(!S.filterCols.length){bar.style.display='none';return;}
@@ -881,7 +672,6 @@ function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.acti
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function setSkipDepth(n){S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
 
-/* ── SLOT VALUE HELPERS ── */
 function getSlotVal(node,slot){
   const f=S.cardSlots[slot];if(!f)return '';
   if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';
@@ -889,7 +679,6 @@ function getSlotVal(node,slot){
   return String(node[f]||'').substring(0,28);
 }
 
-/* ── RENDER CHART ── */
 function renderChart(){
   const tree=document.getElementById('org-tree');tree.innerHTML='';
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;
@@ -898,13 +687,13 @@ function renderChart(){
   else{roots=S.viewData.filter(n=>!n.manager);}
   if(!roots.length){tree.innerHTML=`<div class="no-data">No nodes found. Try a lower Skip Top value.</div>`;updateStats(roots);return;}
   const ul=document.createElement('ul');
-  roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
+  roots.forEach(r=>ul.appendChild(mkNodeLI(r,0,false)));
   tree.appendChild(ul);updateStats(roots);
   clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
 }
 
-/* ── NODE LI ── */
-function mkNodeLI(node,depth){
+/* ── UPDATED NODE LI WITH MANAGER VIEW SANCTITY ── */
+function mkNodeLI(node, depth, summarizeChildren=false){
   depth=depth||0;
   const li=document.createElement('li');li.dataset.id=node.id;
   const borderColor=getNodeBorderColor(node);
@@ -963,97 +752,49 @@ function mkNodeLI(node,depth){
   li.appendChild(card);
 
   if(kids.length){
-    /*
-     * MANAGER VIEW SUMMARISATION RULES:
-     *
-     * The node card itself is ALWAYS a full card — never summarised.
-     * Among a node's children:
-     *   - Leaf children (0 direct reports) → ALWAYS rendered as full cards
-     *   - Manager children (≥1 direct report) → shown as a compact summary list
-     *     (their reportees are summarised under them, but their own card row is visible in the list)
-     *
-     * Example A → B(mgr), C(mgr), D(mgr), E(leaf):
-     *   E → full card  ✓
-     *   B, C, D → appear as rows in summary list under A  ✓
-     *   B/C/D's own cards are shown when user clicks their row to drill down  ✓
-     *
-     * Example B → X(mgr), Y(leaf), Z(leaf):
-     *   Y, Z → full cards  ✓
-     *   X → appears as row in summary list under B  ✓
-     *   X's reportees (P,Q,R) shown when user drills into X  ✓
-     */
-    if(S.managerMode){
-      const managerKids=kids.filter(k=>isManager(k.id));   // children who themselves have reports
-      const leafKids=kids.filter(k=>!isManager(k.id));     // children with no reports
-
-      const ul=document.createElement('ul');
-
-      // Leaf children always get full cards — never summarised
-      leafKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-
-      // Manager children are shown as a compact summary list
-      // Their own subtrees are accessible via drill-down click
-      if(managerKids.length>0){
-        ul.appendChild(mkSummaryListLI(node,managerKids,ac));
-      }
-
-      li.appendChild(ul);
+    const ul=document.createElement('ul');
+    if(summarizeChildren){
+      /* Manager View Sanctity Rule: Summarize direct reportees under this manager. Stop recursion. */
+      ul.appendChild(mkSummaryListLI(node, kids, ac));
+    } else if(S.managerMode){
+      /* Manager View Sanctity Rule: All direct children are full cards. If a child is a manager, ITS children will be summarized. */
+      kids.forEach(k=>{
+        ul.appendChild(mkNodeLI(k, depth+1, isManager(k.id)));
+      });
     } else {
-      const ul=document.createElement('ul');
-      kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-      li.appendChild(ul);
+      /* Normal View: Full recursive expansion */
+      kids.forEach(k=>ul.appendChild(mkNodeLI(k, depth+1, false)));
     }
+    li.appendChild(ul);
   }
   return li;
 }
 
-/* ── COMPACT SUMMARY LIST NODE ──
- *
- * Renders a compact card listing sub-managers under a parent.
- * Each row shows: avatar, primary field (f1 / name), secondary field (f2).
- * Clicking a row opens the drill-down modal showing that sub-manager's full subtree.
- *
- * FIX — Blank export issue:
- *   The summary-list-body div uses max-height + overflow:auto for interactive scroll,
- *   but html2canvas only captures the visible portion of scrollable containers.
- *   We set max-height:none; overflow:visible inline so ALL rows are rendered in exports.
- *   The interactive scroll is restored via CSS class on the live chart (not in export stage).
- */
-function mkSummaryListLI(parentNode,subManagerNodes,ac){
+/* ── UPDATED SUMMARY LIST (No drill-down, Fixed Export Blank Issue) ── */
+function mkSummaryListLI(parentNode, childNodes, ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const card=document.createElement('div');card.className='summary-list-card';
-  const count=subManagerNodes.length;
+  const count=childNodes.length;
 
-  const rowsHtml=subManagerNodes.map(n=>{
+  const rowsHtml=childNodes.map(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
-
-    // Avatar: photo if available, else initials fallback
     let avatarHtml;
     if(photoUrl){
       avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;border-radius:8px;object-fit:cover;border:2px solid ${borderC}55;flex-shrink:0" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="summary-person-avatar" style="display:none;background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     } else {
       avatarHtml=`<div class="summary-person-avatar" style="background:${borderC}18;color:${borderC};border:2px solid ${borderC}44">${esc(initials)}</div>`;
     }
-
-    // Primary display value: f1 field, or name as fallback
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
-    const primaryVal=f1
-      ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24))
-      : nameVal;
-
-    // Show actual name as subtitle when f1 is a non-name field and differs from name
+    const primaryVal=f1 ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24)) : nameVal;
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
+    const val2=f2 ? (f2==='__name__' ? n.name.substring(0,22) : String(n[f2]||'').substring(0,22)) : '';
 
-    // Secondary field
-    const val2=f2
-      ? (f2==='__name__' ? n.name.substring(0,22) : String(n[f2]||'').substring(0,22))
-      : '';
-
-    return`<div class="summary-person-row" onclick="openDrillModal('${esc(n.id)}','${esc(n.name)}')" title="Click to expand ${esc(n.name)}'s team">
+    /* Drill-down removed. Rows are static display only. */
+    return`<div class="summary-person-row" title="${esc(n.name)}">
       ${avatarHtml}
       <div class="summary-person-info">
         <div class="summary-person-name">${esc(primaryVal)}</div>
@@ -1063,68 +804,20 @@ function mkSummaryListLI(parentNode,subManagerNodes,ac){
     </div>`;
   }).join('');
 
-  /*
-   * CRITICAL FIX for blank export:
-   * We set max-height and overflow directly as inline styles so they can be
-   * overridden during export (buildRenderStage sets these to none/visible).
-   * The CSS class .summary-list-body only sets padding now; scroll is inline.
-   */
+  /* CRITICAL EXPORT FIX: Removed max-height & overflow:auto. 
+     html2canvas cannot capture scrollable containers reliably. 
+     List now expands naturally so ALL rows render in PNG/PPTX exports. */
   card.innerHTML=
     `<div class="summary-list-header">
-      <span class="summary-list-title">Sub-Managers (${count})</span>
+      <span class="summary-list-title">Direct Reports (${count})</span>
       <span class="summary-list-count">${count}</span>
     </div>
-    <div class="summary-list-body" style="max-height:240px;overflow-y:auto">${rowsHtml}</div>`;
+    <div class="summary-list-body">${rowsHtml}</div>`;
 
   li.appendChild(card);
   return li;
 }
 
-/* ── DRILL-DOWN MODAL ──
- * Opens when a row in the summary list is clicked.
- * Shows the sub-manager's full subtree as a mini org chart.
- * S.managerMode is preserved so the mini-tree respects manager view rules.
- */
-function openDrillModal(nodeId,name){
-  const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;
-  document.getElementById('drill-modal-title').textContent=name;
-  document.getElementById('drill-modal-sub').textContent='Sub-team reporting structure';
-  const treeEl=document.getElementById('drill-tree');treeEl.innerHTML='';
-
-  // Collect this node + all descendants
-  const allDescIds=new Set([nodeId]);
-  function collectAll(id){(S.childMap[id]||[]).forEach(k=>{allDescIds.add(k.id);collectAll(k.id);});}
-  collectAll(nodeId);
-
-  // Snapshot live state
-  const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;
-
-  // Build a mini dataset for just this subtree
-  S.viewData=savedViewData.filter(n=>allDescIds.has(n.id));
-  S.childMap={};
-  S.viewData.forEach(n=>{
-    // Make the clicked node a root (no parent)
-    const mgr=(n.id===nodeId)?'':n.manager;
-    if(!S.childMap[mgr])S.childMap[mgr]=[];
-    S.childMap[mgr].push(n);
-  });
-  S.descCount={};S.nodeHeight={};S.nodeDepth={};
-  function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}
-  function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
-  function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
-  cD(nodeId);cH(nodeId);cDep(nodeId,0);
-
-  // Render mini tree (respects current S.managerMode)
-  const ul=document.createElement('ul');ul.appendChild(mkNodeLI(node,0));treeEl.appendChild(ul);
-
-  // Restore live state
-  S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;
-
-  document.getElementById('drill-modal').classList.remove('hidden');
-}
-function closeDrillModal(){document.getElementById('drill-modal').classList.add('hidden');}
-
-/* ── COLLAPSE / EXPAND ── */
 function toggleCollapse(li,btn){
   li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');
   const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display=c?'none':'';
@@ -1145,7 +838,6 @@ function updateStats(roots){
   if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){const mgrCount=S.viewData.filter(n=>isManager(n.id)).length;mgrVal.textContent=mgrCount+' managers shown';}}
 }
 
-/* ── ZOOM / PAN ── */
 function cwrap(){return document.getElementById('chart-canvas-wrap');}
 function ccontent(){return document.getElementById('chart-canvas-content');}
 function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';}
@@ -1168,7 +860,6 @@ function initPan(){
   wrap.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();zoomBy(e.deltaY<0?0.08:-0.08);}},{passive:false});
 }
 
-/* ── SEARCH ── */
 function initSearch(){
   const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;
   function positionBox(){const r=input.getBoundingClientRect();box.style.top=(r.bottom+4)+'px';box.style.left=r.left+'px';box.style.width=Math.max(270,r.width)+'px';}
@@ -1190,14 +881,11 @@ function highlightNode(id){
   document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
 }
 
-/* ── EXPORT HELPERS ── */
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
-    // Fix overflow: open up hidden/auto overflow so html2canvas captures everything.
-    // Exceptions: node-card, ncard-name, ncard-sub need overflow:hidden for text clipping.
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
     const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
@@ -1218,51 +906,33 @@ async function buildRenderStage(rootNodeId){
   if(rootNodeId){
     sourceTree=document.createElement('div');sourceTree.className='org-tree';
     const ul=document.createElement('ul');const node=S.viewData.find(n=>n.id===rootNodeId);
-    if(node)ul.appendChild(mkNodeLI(node,0));sourceTree.appendChild(ul);
+    if(node)ul.appendChild(mkNodeLI(node,0,false));sourceTree.appendChild(ul);
   } else {
     sourceTree=document.createElement('div');sourceTree.className='org-tree';
     const exportRoots=S.skipDepth>0?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth):S.viewData.filter(n=>!n.manager);
     const exportUl=document.createElement('ul');
-    exportRoots.forEach(r=>exportUl.appendChild(mkNodeLI(r,0)));sourceTree.appendChild(exportUl);
+    exportRoots.forEach(r=>exportUl.appendChild(mkNodeLI(r,0,false)));sourceTree.appendChild(exportUl);
   }
   sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
   sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
   sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
 
-  /*
-   * CRITICAL FIX — Blank export for summary list rows:
-   *
-   * The .summary-list-body has max-height + overflow-y:auto set inline (for interactive scroll).
-   * html2canvas only captures the visible (non-scrolled) portion of overflow:auto containers,
-   * causing all rows beyond the first viewport to appear blank in exports.
-   *
-   * Fix: Before attaching to DOM and capturing, explicitly remove height constraints
-   * and set overflow to visible on ALL summary list bodies so every row is rendered.
-   */
+  /* Ensure summary lists are fully visible for html2canvas */
   sourceTree.querySelectorAll('.summary-list-body').forEach(el=>{
-    el.style.maxHeight='none';
-    el.style.height='auto';
-    el.style.overflow='visible';
-    el.style.overflowY='visible';
+    el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';el.style.overflowY='visible';
   });
   sourceTree.querySelectorAll('.summary-list-card').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
+    el.style.overflow='visible';el.style.maxHeight='none';
   });
 
   stage.appendChild(sourceTree);document.body.appendChild(stage);
   await new Promise(r=>setTimeout(r,300));if(document.fonts?.ready)await document.fonts.ready;await new Promise(r=>setTimeout(r,120));
   inlineStyles(stage);
-  // Re-apply after inlineStyles (which may re-set overflow from computed styles)
   stage.querySelectorAll('.summary-list-body').forEach(el=>{
-    el.style.maxHeight='none';
-    el.style.height='auto';
-    el.style.overflow='visible';
-    el.style.overflowY='visible';
+    el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';el.style.overflowY='visible';
   });
   stage.querySelectorAll('.summary-list-card').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
+    el.style.overflow='visible';el.style.maxHeight='none';
   });
   await new Promise(r=>setTimeout(r,80));
   return stage;
@@ -1311,7 +981,6 @@ async function exportSubtree(e,nodeId){
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
 }
 
-/* ── PPTX ── */
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 const SW=12192000,SH=6858000;
 function pptxRect(id,x,y,cx,cy,fill){return`<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="r${id}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr/><a:lstStyle/><a:p/></p:txBody></p:sp>`;}
@@ -1417,7 +1086,6 @@ async function _exportAllSingleView(){
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
-/* ── REASSIGN MODAL ── */
 let _reassignAllNodes=[];
 function openReassignModal(e,nodeId){
   e.stopPropagation();S.reassignTarget=nodeId;S.reassignPick=null;
@@ -1451,17 +1119,13 @@ function removeCurrentNode(){if(!S.reassignTarget)return;S.removedIds.add(S.reas
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* ── EVENT BINDINGS ── */
 document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
 document.getElementById('photo-folder-input').addEventListener('change',e=>{if(e.target.files.length)loadFromFileInput(e.target.files);});
 const dz=document.getElementById('upload-dropzone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
-document.getElementById('drill-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDrillModal();});
 document.getElementById('reassign-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeReassignModal();});
 </script>
 </body>
 </html>'''
-
-components.html(APP_HTML, height=900, scrolling=False)
