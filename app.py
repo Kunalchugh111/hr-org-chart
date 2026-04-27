@@ -992,74 +992,121 @@ function mkNodeLI(node,depth){
 
 /* ── LEAF SUMMARY LIST NODE ──
  *
- * Renders a compact static card listing leaf employees (no direct reports) under a parent.
- * Used only in Manager View. No click / no drill-down — purely display.
+ * Renders a compact static card listing leaf employees (no direct reports).
+ * Used only in Manager View. Static — no click, no drill-down.
  *
- * EXPORT FIX — all styles are 100% inline (no CSS class dependencies).
- * CSS classes rely on :root variables (var(--bg), var(--text) etc.) which do NOT resolve
- * in the off-screen export stage, causing blank content. By writing every style attribute
- * inline with resolved hex/rgb values, html2canvas captures them correctly.
+ * CRITICAL EXPORT FIX:
+ * Built entirely with createElement + direct style assignment (zero innerHTML).
+ * html2canvas reliably renders DOM nodes built this way; innerHTML-based nodes
+ * in off-screen stages often paint blank even with correct styles.
  */
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
+  const FONT="'Plus Jakarta Sans',sans-serif";
 
-  // Resolved colour constants (no CSS variables)
-  const C={
-    bg:'#ffffff',bg2:'#f8fafc',bg3:'#f5f3ff',
-    border:'#e2e8f0',border2:'#e9d5ff',
-    text:'#0f172a',text2:'#475569',text3:'#94a3b8',
-    accent:'#7c3aed',accentLight:'#f5f3ff',
-    font:"'Plus Jakarta Sans',sans-serif",
-  };
+  /* ── card wrapper ── */
+  const card=document.createElement('div');
+  Object.assign(card.style,{
+    display:'inline-block',minWidth:'200px',maxWidth:'280px',
+    background:'#ffffff',border:'1.5px solid #e2e8f0',
+    borderTop:'3px solid #7c3aed',borderRadius:'14px',
+    boxShadow:'0 1px 4px rgba(0,0,0,0.07)',
+    fontFamily:FONT,overflow:'visible',verticalAlign:'top',
+  });
 
-  const rowsHtml=leafNodes.map(n=>{
+  /* ── header ── */
+  const header=document.createElement('div');
+  Object.assign(header.style,{
+    padding:'7px 12px',background:'#f5f3ff',
+    borderBottom:'1px solid #e9d5ff',
+    borderRadius:'12px 12px 0 0',
+    display:'flex',justifyContent:'space-between',alignItems:'center',
+    fontFamily:FONT,
+  });
+  const titleSpan=document.createElement('span');
+  Object.assign(titleSpan.style,{fontSize:'0.68rem',fontWeight:'800',color:'#7c3aed',textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:FONT});
+  titleSpan.textContent='ICs ('+count+')';
+  const countBadge=document.createElement('span');
+  Object.assign(countBadge.style,{fontSize:'0.68rem',fontWeight:'800',background:'#7c3aed',color:'#ffffff',borderRadius:'999px',padding:'1px 8px',fontFamily:FONT});
+  countBadge.textContent=String(count);
+  header.appendChild(titleSpan);header.appendChild(countBadge);
+  card.appendChild(header);
+
+  /* ── body ── */
+  const body=document.createElement('div');
+  Object.assign(body.style,{padding:'4px 0',overflow:'visible',fontFamily:FONT});
+
+  leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
 
-    // Avatar — fully inline styles
-    let avatarHtml;
-    const avatarStyle=`display:flex;align-items:center;justify-content:center;width:26px;height:26px;min-width:26px;border-radius:8px;font-size:0.6rem;font-weight:800;font-family:${C.font};background:${borderC}18;color:${borderC};border:2px solid ${borderC}44;flex-shrink:0;`;
+    /* row */
+    const row=document.createElement('div');
+    Object.assign(row.style,{
+      display:'flex',alignItems:'center',gap:'8px',
+      padding:'6px 12px',fontFamily:FONT,
+      borderBottom: idx<leafNodes.length-1 ? '1px solid #e2e8f0' : 'none',
+    });
+    row.title=n.name;
+
+    /* avatar */
+    const fallback=document.createElement('div');
+    Object.assign(fallback.style,{
+      display:'flex',alignItems:'center',justifyContent:'center',
+      width:'26px',height:'26px',minWidth:'26px',
+      borderRadius:'8px',fontSize:'0.6rem',fontWeight:'800',
+      fontFamily:FONT,background:borderC+'18',color:borderC,
+      border:'2px solid '+borderC+'44',flexShrink:'0',
+    });
+    fallback.textContent=initials;
+
     if(photoUrl){
-      avatarHtml=`<img src="${esc(photoUrl)}" style="width:26px;height:26px;min-width:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid ${borderC}55;flex-shrink:0;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="${avatarStyle}display:none">${esc(initials)}</div>`;
+      const img=document.createElement('img');
+      Object.assign(img.style,{width:'26px',height:'26px',minWidth:'26px',borderRadius:'8px',objectFit:'cover',objectPosition:'center top',border:'2px solid '+borderC+'55',flexShrink:'0',display:'block'});
+      img.src=photoUrl;img.crossOrigin='anonymous';
+      img.onerror=function(){this.style.display='none';fallback.style.display='flex';};
+      fallback.style.display='none';
+      row.appendChild(img);row.appendChild(fallback);
     } else {
-      avatarHtml=`<div style="${avatarStyle}">${esc(initials)}</div>`;
+      row.appendChild(fallback);
     }
 
-    // Primary display: f1 field or name
+    /* text block */
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
-    const primaryVal=f1
-      ? (f1IsName ? nameVal : (String(n[f1]||'').trim()||nameVal).substring(0,24))
-      : nameVal;
+    const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
-    const nameLineHtml=`<div style="font-size:0.75rem;font-weight:700;color:${C.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${C.font};max-width:210px">${esc(primaryVal)}</div>`;
-    const subNameHtml=showNameSub?`<div style="font-size:0.65rem;color:${C.text2};font-weight:600;font-family:${C.font};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px">${esc(nameVal)}</div>`:'';
-    const val2Html=val2?`<div style="font-size:0.68rem;color:${C.text3};font-family:${C.font};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px">${esc(val2)}</div>`:'';
+    const textWrap=document.createElement('div');
+    Object.assign(textWrap.style,{flex:'1',minWidth:'0',overflow:'hidden',fontFamily:FONT});
 
-    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid ${C.border};font-family:${C.font}" title="${esc(n.name)}">
-      ${avatarHtml}
-      <div style="flex:1;min-width:0;overflow:hidden">${nameLineHtml}${subNameHtml}${val2Html}</div>
-    </div>`;
-  }).join('');
+    const nameLine=document.createElement('div');
+    Object.assign(nameLine.style,{fontSize:'0.75rem',fontWeight:'700',color:'#0f172a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:FONT,maxWidth:'210px'});
+    nameLine.textContent=primaryVal;
+    textWrap.appendChild(nameLine);
 
-  // Card — fully inline styles, no CSS class dependencies
-  const card=document.createElement('div');
-  card.style.cssText=`display:inline-block;min-width:200px;max-width:280px;background:${C.bg};border:1.5px solid ${C.border};border-top:3px solid ${C.accent};border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:${C.font};overflow:visible`;
+    if(showNameSub){
+      const subLine=document.createElement('div');
+      Object.assign(subLine.style,{fontSize:'0.65rem',color:'#475569',fontWeight:'600',fontFamily:FONT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'210px'});
+      subLine.textContent=nameVal;
+      textWrap.appendChild(subLine);
+    }
+    if(val2){
+      const val2Line=document.createElement('div');
+      Object.assign(val2Line.style,{fontSize:'0.68rem',color:'#94a3b8',fontFamily:FONT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'210px'});
+      val2Line.textContent=val2;
+      textWrap.appendChild(val2Line);
+    }
 
-  const headerHtml=`<div style="padding:7px 12px;background:${C.accentLight};border-bottom:1px solid ${C.border2};border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;font-family:${C.font}"><span style="font-size:0.68rem;font-weight:800;color:${C.accent};text-transform:uppercase;letter-spacing:0.05em;font-family:${C.font}">ICs (${count})</span><span style="font-size:0.68rem;font-weight:800;background:${C.accent};color:#ffffff;border-radius:999px;padding:1px 8px;font-family:${C.font}">${count}</span></div>`;
-  const bodyHtml=`<div style="padding:4px 0;overflow:visible;font-family:${C.font}">${rowsHtml}</div>`;
+    row.appendChild(textWrap);
+    body.appendChild(row);
+  });
 
-  // Last row: remove bottom border
-  card.innerHTML=headerHtml+bodyHtml;
-  // Fix last row border
-  const rows=card.querySelectorAll('div[style*="border-bottom"]');
-  if(rows.length>0)rows[rows.length-1].style.borderBottom='none';
-
+  card.appendChild(body);
   li.appendChild(card);
   return li;
 }
