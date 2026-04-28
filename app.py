@@ -1204,35 +1204,45 @@ function inlineStyles(root){
   });
 }
 
-async function buildRenderStage(rootNodeId){
+async function buildRenderStage(){
   const PAD=20;
+  // THE FIX: Clone the live #org-tree which is already fully painted by the browser.
+  // Rebuilding from scratch via mkNodeLI creates elements the browser hasn't painted yet
+  // — html2canvas captures them before paint = blank boxes.
+  // The live tree's IC summary cards, node cards, photos are already rendered correctly.
+
+  // Step 1: Expand all nodes so nothing is collapsed in the export
+  expandAll();
+  await new Promise(r=>setTimeout(r,200));
+
+  // Step 2: Deep-clone the live rendered tree
+  const liveTree=document.getElementById('org-tree');
+  const cloned=liveTree.cloneNode(true);
+
+  // Step 3: Strip interactive-only elements from the clone
+  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
+  cloned.querySelectorAll('li.collapsed').forEach(li=>{
+    li.classList.remove('collapsed');
+    const u=li.querySelector(':scope > ul');if(u)u.style.display='';
+    li.querySelector('.node-card')?.classList.remove('collapsed-node');
+  });
+  // Ensure all child ULs are visible
+  cloned.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
+
+  // Step 4: Place clone in an on-screen stage behind the export overlay
   const stage=document.createElement('div');
-  // Must be on-screen (so browser paints it) but behind the export overlay (z:9999).
-  // No opacity/visibility hiding — those prevent html2canvas from capturing content.
-  // The overlay is always appended BEFORE this is called, so it covers the stage visually.
   stage.style.cssText=`position:fixed;top:0;left:0;z-index:9998;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
-  let sourceTree;
-  if(rootNodeId){
-    sourceTree=document.createElement('div');sourceTree.className='org-tree';
-    const ul=document.createElement('ul');const node=S.viewData.find(n=>n.id===rootNodeId);
-    if(node)ul.appendChild(mkNodeLI(node,0));sourceTree.appendChild(ul);
-  } else {
-    sourceTree=document.createElement('div');sourceTree.className='org-tree';
-    const exportRoots=S.skipDepth>0?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth):S.viewData.filter(n=>!n.manager);
-    const exportUl=document.createElement('ul');
-    exportRoots.forEach(r=>exportUl.appendChild(mkNodeLI(r,0)));sourceTree.appendChild(exportUl);
-  }
-  sourceTree.querySelectorAll('li').forEach(li=>li.classList.remove('collapsed'));
-  sourceTree.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
-  sourceTree.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
-  stage.appendChild(sourceTree);
+  stage.appendChild(cloned);
   document.body.appendChild(stage);
-  // Give browser time to fully lay out and paint
-  await new Promise(r=>setTimeout(r,400));
+
+  // Step 5: Allow one full paint cycle + font load
+  await new Promise(r=>setTimeout(r,350));
   if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,150));
+  await new Promise(r=>setTimeout(r,120));
+
+  // Step 6: Freeze computed styles for node cards (IC summary cards are skipped — already inline-styled)
   inlineStyles(stage);
-  await new Promise(r=>setTimeout(r,100));
+  await new Promise(r=>setTimeout(r,80));
   return stage;
 }
 async function renderToCanvas(stage){
@@ -1280,8 +1290,12 @@ async function exportSubtree(e,nodeId){
   function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
   function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
   cD(nodeId);cH(nodeId);cDep(nodeId,0);
-  const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,120));let stage;
-  try{stage=await buildRenderStage(nodeId);const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));}
+  const savedZoom=S.zoom;applyZoom(1);
+  // Render the subtree into the LIVE chart first, then clone it.
+  // buildRenderStage now clones the live #org-tree, so the live chart must show the subtree.
+  renderChart();
+  await new Promise(r=>setTimeout(r,300));let stage;
+  try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));}
   catch(ex){alert('Subtree export failed: '+ex.message);}
   finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
 }
