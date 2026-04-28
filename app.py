@@ -553,8 +553,6 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 
-
-
 <script>
 const S={
   rawRows:[],columns:[],colSamples:{},
@@ -809,7 +807,6 @@ function toggleManagerMode(){
   renderChart();
 }
 
-/* Is a node a manager (has ≥1 direct report in current viewData)? */
 function isManager(nodeId){return (S.childMap[nodeId]||[]).length>0;}
 
 /* ── VIEW DATA ── */
@@ -1139,120 +1136,66 @@ function highlightNode(id){
 }
 
 /* ── EXPORT HELPERS ── */
+// 🔧 FIXED: Removed skip for .summary-list-card children so IC list content renders correctly
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
-    if(el.classList.contains('summary-list-card')){return;}
+    // 🔧 REMOVED: if(el.closest('.summary-list-card')){ return; }
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
-   const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
-const isSummaryChild=el.closest('.summary-list-card');
-if(!isTextClipper&&!isSummaryChild&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
-  el.style.overflow='visible';
-  el.style.overflowY='visible';
-  el.style.overflowX='visible';
-}
+    const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub')||el.classList.contains('summary-list-card')||el.classList.contains('summary-list-body');
+    if(!isTextClipper&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
+      el.style.overflow='visible';
+      el.style.overflowY='visible';
+      el.style.overflowX='visible';
+    }
     el.classList.remove('collapsed');
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    buildRenderStage — FIXED for Streamlit Cloud iframe export
-   ═══════════════════════════════════════════════════════════════════════════
-   ROOT CAUSE: The original used position:fixed for the off-screen render stage.
-   Inside a Streamlit Cloud iframe, position:fixed is relative to the iframe's
-   visible viewport. html2canvas captures only what fits inside that viewport
-   height — IC summary list rows that overflow below it render as blank boxes.
-
-   FIX 1: Use position:absolute inside a wrapper div that is in document flow.
-           html2canvas can now measure the true content height and capture
-           every row regardless of how tall the chart is.
-   FIX 2: Force .summary-list-card and all children to overflow:visible BEFORE
-           inlineStyles freezes computed styles, so no row is clipped.
-   FIX 3: Return {stage, wrapper} so callers can remove the wrapper (not just
-           the inner stage div).
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
+  const PAD=40;
   expandAll();
-  await new Promise(r=>setTimeout(r,300));
-
-  const wrap=document.getElementById('chart-canvas-wrap');
-  const content=document.getElementById('chart-canvas-content');
-
-  // Save state
-  const savedOverflow=wrap.style.overflow;
-  const savedHeight=wrap.style.height;
-  const savedTransform=content.style.transform;
-
-  // Unlock the scroll container so html2canvas sees the full content
-  wrap.style.overflow='visible';
-  wrap.style.height='auto';
-
-  // Reset zoom to 1:1
-  content.style.transform='scale(1)';
-  content.style.transformOrigin='top left';
-
-  // Ensure IC summary cards are not clipped
-  content.querySelectorAll('.summary-list-card').forEach(c=>{
-    c.style.overflow='visible';c.style.maxHeight='none';
-  });
-  content.querySelectorAll('.summary-list-card *').forEach(el=>{
-    el.style.overflow='visible';el.style.maxHeight='none';
-  });
-
-  // Hide interactive controls without removing them (keeps layout intact)
-  const hideEls=[...content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')];
-  hideEls.forEach(el=>el.style.visibility='hidden');
-
   await new Promise(r=>setTimeout(r,200));
-  if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,100));
-
-  // Return a fake wrapper whose .remove() restores DOM state
-  // This keeps all existing finally{stage.wrapper.remove()} calls working
-  return {
-    stage: content,
-    wrapper: {
-      remove: ()=>{
-        wrap.style.overflow=savedOverflow;
-        wrap.style.height=savedHeight;
-        content.style.transform=savedTransform;
-        hideEls.forEach(el=>el.style.visibility='');
-      }
-    }
-  };
-}
-
-async function renderToCanvas(stageObj){
-  const stage=stageObj.stage||stageObj;
-  const W=Math.ceil(stage.scrollWidth);
-  const H=Math.ceil(stage.scrollHeight);
-  return html2canvas(stage,{
-    backgroundColor:'#f8fafc',
-    scale:2,
-    useCORS:true,
-    logging:false,
-    allowTaint:true,
-    foreignObjectRendering:false,
-    width:W,
-    height:H,
-    scrollX:0,
-    scrollY:0,
-    x:0,
-    y:0,
+  const liveTree=document.getElementById('org-tree');
+  const cloned=liveTree.cloneNode(true);
+  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
+  cloned.querySelectorAll('li.collapsed').forEach(li=>{
+    li.classList.remove('collapsed');
+    const u=li.querySelector(':scope > ul');if(u)u.style.display='';
+    li.querySelector('.node-card')?.classList.remove('collapsed-node');
   });
+  cloned.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='position:absolute;top:-99999px;left:0;width:100%;overflow:visible;pointer-events:none;z-index:9998';
+  const stage=document.createElement('div');
+  stage.style.cssText=`background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;overflow:visible`;
+  stage.appendChild(cloned);
+  wrapper.appendChild(stage);
+  document.body.appendChild(wrapper);
+  await new Promise(r=>setTimeout(r,400));
+  if(document.fonts?.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,150));
+
+  stage.querySelectorAll('.summary-list-card').forEach(card=>{
+    card.style.overflow='visible';
+    card.style.maxHeight='none';
+  });
+  stage.querySelectorAll('.summary-list-card *').forEach(el=>{
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
+  });
+
+  inlineStyles(stage);
+  await new Promise(r=>setTimeout(r,100));
+  return {stage, wrapper};
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — FIXED for Streamlit Cloud iframe export
-   ═══════════════════════════════════════════════════════════════════════════
-   FIX: Accept {stage,wrapper} object from buildRenderStage.
-   FIX: Remove windowWidth/windowHeight overrides — inside a Streamlit iframe
-        these values are capped by the iframe and cause html2canvas to clip
-        the output to the iframe viewport height, hiding IC summary rows.
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj){
   const stage=stageObj.stage||stageObj;
   const W=Math.ceil(stage.scrollWidth),H=Math.ceil(stage.scrollHeight);
