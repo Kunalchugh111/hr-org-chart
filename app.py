@@ -1197,20 +1197,27 @@ async function buildRenderStage() {
   };
 }
 
-async function renderToCanvas(stageObj){
-  return html2canvas(stageObj.stage,{
-    backgroundColor:'#f8fafc',
-    scale:2,
-    useCORS:true,
-    logging:false,
-    allowTaint:true,
-    foreignObjectRendering:false,
-    scrollX:0,
-    scrollY:0,
+async function renderToCanvas(stageObj) {
+  const el = stageObj.stage;
+  const w  = el.scrollWidth  || el.offsetWidth;
+  const h  = el.scrollHeight || el.offsetHeight;
+  return html2canvas(el, {
+    backgroundColor: '#f8fafc',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    allowTaint: true,
+    foreignObjectRendering: false,
+    width:        w,
+    height:       h,
+    windowWidth:  w + 300,
+    windowHeight: h + 300,
+    scrollX: 0,
+    scrollY: 0,
+    x: 0,
+    y: 0,
   });
 }
-
-
 /* ═══════════════════════════════════════════════════════════════════════════
    renderToCanvas — auto-size from the clone; no manual width/height needed
    ═══════════════════════════════════════════════════════════════════════════ */
