@@ -1137,22 +1137,18 @@ function highlightNode(id){
 }
 
 /* ── EXPORT HELPERS ── */
-// 🔧 FIXED: Process ALL elements including .summary-list-card children
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
-    // 🔧 REMOVED EARLY RETURN - process ALL elements now
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{
       try{
         const v=cs[p];
-        // Only set if value exists and is meaningful
         if(v && v !== 'none' && v !== 'normal' && v !== 'auto'){
           el.style[p]=v;
         }
       }catch(e){}
     });
-    // Handle overflow for clipping elements
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
     const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
@@ -1166,7 +1162,7 @@ function inlineStyles(root){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — FIXED for IC summary list export
+   buildRenderStage — FIXED: Full content capture without scroll clipping
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
   expandAll();
@@ -1174,32 +1170,43 @@ async function buildRenderStage(){
 
   const wrap=document.getElementById('chart-canvas-wrap');
   const content=document.getElementById('chart-canvas-content');
+  const orgTree=document.getElementById('org-tree');
   const screenChart=document.getElementById('screen-chart');
   const mainEl=document.querySelector('.main');
 
-  // Save ALL clipping ancestors
-  const savedWrapOverflow=wrap.style.overflow;
-  const savedWrapHeight=wrap.style.height;
-  const savedTransform=content.style.transform;
-  const savedScreenOverflow=screenChart.style.overflow;
-  const savedMainOverflow=mainEl.style.overflow;
-  const savedBodyOverflow=document.body.style.overflow;
+  // Save ALL original styles for restoration
+  const saved={
+    wrapOverflow:wrap.style.overflow,
+    wrapHeight:wrap.style.height,
+    wrapScrollLeft:wrap.scrollLeft,
+    wrapScrollTop:wrap.scrollTop,
+    contentTransform:content.style.transform,
+    contentTransformOrigin:content.style.transformOrigin,
+    screenOverflow:screenChart.style.overflow,
+    mainOverflow:mainEl?.style.overflow,
+    bodyOverflow:document.body.style.overflow,
+  };
 
-  // Unlock EVERY overflow:hidden/auto ancestor so html2canvas sees full content
+  // Unlock ALL clipping ancestors
   wrap.style.overflow='visible';
   wrap.style.height='auto';
   screenChart.style.overflow='visible';
-  mainEl.style.overflow='visible';
+  if(mainEl)mainEl.style.overflow='visible';
   document.body.style.overflow='visible';
 
+  // Reset scroll to top-left for consistent capture
+  wrap.scrollLeft=0;
+  wrap.scrollTop=0;
+
+  // Remove zoom transform for true dimensions
   content.style.transform='scale(1)';
   content.style.transformOrigin='top left';
 
-  // 🔧 Force summary list cards and ALL children to have visible overflow
+  // Force summary cards to show full content
   content.querySelectorAll('.summary-list-card').forEach(c=>{
     c.style.overflow='visible';
     c.style.maxHeight='none';
-    c.style.background='#ffffff'; // Explicit fallback
+    c.style.background='#ffffff';
   });
   content.querySelectorAll('.summary-list-card *').forEach(el=>{
     el.style.overflow='visible';
@@ -1210,43 +1217,77 @@ async function buildRenderStage(){
   const hideEls=[...content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')];
   hideEls.forEach(el=>el.style.visibility='hidden');
 
+  // Wait for fonts and layout
   await new Promise(r=>setTimeout(r,200));
   if(document.fonts?.ready)await document.fonts.ready;
   await new Promise(r=>setTimeout(r,100));
 
+  // Calculate TRUE content dimensions from org-tree
+  const treeRect=orgTree.getBoundingClientRect();
+  const contentRect=content.getBoundingClientRect();
+  
   return {
     stage: content,
+    orgTree: orgTree,
     wrapper: {
       remove: ()=>{
-        wrap.style.overflow=savedWrapOverflow;
-        wrap.style.height=savedWrapHeight;
-        content.style.transform=savedTransform;
-        screenChart.style.overflow=savedScreenOverflow;
-        mainEl.style.overflow=savedMainOverflow;
-        document.body.style.overflow=savedBodyOverflow;
+        // Restore ALL saved styles
+        wrap.style.overflow=saved.wrapOverflow;
+        wrap.style.height=saved.wrapHeight;
+        wrap.scrollLeft=saved.wrapScrollLeft;
+        wrap.scrollTop=saved.wrapScrollTop;
+        content.style.transform=saved.contentTransform;
+        content.style.transformOrigin=saved.contentTransformOrigin;
+        screenChart.style.overflow=saved.screenOverflow;
+        if(mainEl)mainEl.style.overflow=saved.mainOverflow;
+        document.body.style.overflow=saved.bodyOverflow;
         hideEls.forEach(el=>el.style.visibility='');
       }
+    },
+    dimensions: {
+      width: Math.ceil(Math.max(treeRect.width, contentRect.width) + 160), // padding
+      height: Math.ceil(Math.max(treeRect.height, contentRect.height) + 160),
     }
   };
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   renderToCanvas — FIXED: Capture full content with proper dimensions
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj){
-  const stage=stageObj.stage||stageObj;
-  const W=Math.ceil(stage.scrollWidth);
-  const H=Math.ceil(stage.scrollHeight);
+  const stage=stageObj.stage;
+  const orgTree=stageObj.orgTree;
+  const dims=stageObj.dimensions;
+  
+  // Use actual content dimensions, not viewport
+  const W=dims.width;
+  const H=dims.height;
+  
   return html2canvas(stage,{
     backgroundColor:'#f8fafc',
     scale:2,
     useCORS:true,
     logging:false,
     allowTaint:true,
-    foreignObjectRendering:true,  // 🔧 Better CSS variable support
+    foreignObjectRendering:true,
     width:W,
     height:H,
     scrollX:0,
     scrollY:0,
     x:0,
     y:0,
+    windowWidth:W,
+    windowHeight:H,
+    onclone:(doc)=>{
+      // Ensure org-tree is positioned at (0,0) in the clone
+      const clonedTree=doc.getElementById('org-tree');
+      if(clonedTree){
+        clonedTree.style.position='relative';
+        clonedTree.style.left='0';
+        clonedTree.style.top='0';
+        clonedTree.style.margin='0';
+      }
+    }
   });
 }
 
@@ -1264,11 +1305,18 @@ function makeOverlay(title,sub){
 }
 
 async function exportPNG(){
-  const overlay=makeOverlay('Rendering org chart…','Capturing at 3× resolution');document.body.appendChild(overlay);
+  const overlay=makeOverlay('Rendering org chart…','Capturing full chart at 2× resolution');document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
-  try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${stamp}.png`);res();},'image/png'));}
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+    const mode=S.managerMode?'_mgr_view':'';
+    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${stamp}.png`);res();},'image/png'));
+  }
   catch(e){alert('PNG export failed: '+e.message);}
-  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 async function exportSubtree(e,nodeId){
@@ -1287,9 +1335,15 @@ async function exportSubtree(e,nodeId){
   const savedZoom=S.zoom;applyZoom(1);
   renderChart();
   await new Promise(r=>setTimeout(r,300));let stage;
-  try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));}
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');
+    await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));
+  }
   catch(ex){alert('Subtree export failed: '+ex.message);}
-  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
+  finally{if(stage?.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
 }
 
 /* ── PPTX ── */
@@ -1358,9 +1412,17 @@ async function exportPPTX(){
   if(typeof JSZip==='undefined'){alert('ZIP library failed to load.');return;}
   const overlay=makeOverlay('Building PowerPoint…','Rendering then packaging');document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
-  try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr':'';triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${dp}.pptx`);}
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
+    const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
+    const mode=S.managerMode?'_mgr':'';
+    triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${dp}.pptx`);
+  }
   catch(e){alert('PPTX failed: '+e.message);console.error(e);}
-  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 async function exportAll(){
@@ -1384,7 +1446,14 @@ async function exportAll(){
       S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();await new Promise(r=>setTimeout(r,320));
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
       let stage2;
-      try{stage2=await buildRenderStage();const canvas2=await renderToCanvas(stage2);outerZip.file(`${safeName}/${safeName}.png`,canvas2.toDataURL('image/png').split(',')[1],{base64:true});const pptxBlob=await buildPPTXBlob(canvas2.toDataURL('image/png').split(',')[1],canvas2.width,canvas2.height,val);outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);successCount++;}
+      try{
+        stage2=await buildRenderStage();
+        const canvas2=await renderToCanvas(stage2);
+        outerZip.file(`${safeName}/${safeName}.png`,canvas2.toDataURL('image/png').split(',')[1],{base64:true});
+        const pptxBlob=await buildPPTXBlob(canvas2.toDataURL('image/png').split(',')[1],canvas2.width,canvas2.height,val);
+        outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);
+        successCount++;
+      }
       finally{if(stage2?.wrapper)stage2.wrapper.remove();else if(stage2)stage2.remove();}
     }
   }finally{S.activeFilters=savedFilters;buildViewData();renderChart();buildFilterBar();overlay.remove();applyZoom(savedZoom);}
@@ -1393,9 +1462,20 @@ async function exportAll(){
 async function _exportAllSingleView(){
   const overlay=makeOverlay('Exporting current view…','PNG + PPTX + CSV');document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
-  try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');const zip=new JSZip();zip.file('orgchart.csv',buildCSVContent());zip.file('orgchart.png',canvas.toDataURL('image/png').split(',')[1],{base64:true});const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);zip.file('orgchart.pptx',pptxBlob);const zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});triggerDownload(zipBlob,`orgchart_${dp}.zip`);}
+  try{
+    stage=await buildRenderStage();
+    const canvas=await renderToCanvas(stage);
+    const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const zip=new JSZip();
+    zip.file('orgchart.csv',buildCSVContent());
+    zip.file('orgchart.png',canvas.toDataURL('image/png').split(',')[1],{base64:true});
+    const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);
+    zip.file('orgchart.pptx',pptxBlob);
+    const zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+    triggerDownload(zipBlob,`orgchart_${dp}.zip`);
+  }
   catch(e){alert('Export failed: '+e.message);}
-  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 /* ── REASSIGN MODAL ── */
