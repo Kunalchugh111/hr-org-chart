@@ -92,7 +92,7 @@ body{display:flex;flex-direction:column}
 .map-card-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:7px}
 .badge-req{background:#fee2e2;color:var(--danger);padding:1px 7px;border-radius:999px;font-size:0.6rem;font-weight:700}
 .badge-opt{background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:999px;font-size:0.6rem;font-weight:700}
-.map-select{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:0.84rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color 0.15s}
+.map-select{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:0.84rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer;appearance:none;background-image:url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color 0.15s}
 .map-select:focus{border-color:var(--accent);background-color:var(--bg)}
 .map-hint{font-size:0.72rem;color:var(--text3);margin-top:6px}
 .data-preview-table{width:100%;max-width:740px;border-collapse:collapse;margin-bottom:28px;font-size:0.78rem}
@@ -175,7 +175,7 @@ body{display:flex;flex-direction:column}
 .photo-count{background:#059669;color:#fff;border-radius:999px;padding:1px 6px;font-size:0.65rem;font-weight:800}
 .depth-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .depth-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
-.depth-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
+.depth-select{background:transparent;border:none;border-radius:6px;padding:3px 20px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234f46e5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 3px center}
 /* Manager-only mode toggle */
 .mgr-mode-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;user-select:none}
 .mgr-mode-btn:hover{border-color:#7c3aed;color:#7c3aed;background:#f5f3ff}
@@ -185,7 +185,7 @@ body{display:flex;flex-direction:column}
 /* Summary fields selector */
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
-.summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237c3aed'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
+.summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237c3aed'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
 /* Compact summary list card (manager-only mode) */
 .summary-list-card{display:inline-block;min-width:200px;max-width:280px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid #7c3aed;border-radius:var(--r-lg);box-shadow:var(--shadow-sm);font-family:'Plus Jakarta Sans',sans-serif;cursor:default}
 .summary-list-header{padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
@@ -1162,7 +1162,7 @@ function inlineStyles(root){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — FIXED: Full content capture without scroll clipping
+   buildRenderStage — FIXED: Capture ONLY the org-tree with precise bounds
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
   expandAll();
@@ -1182,6 +1182,7 @@ async function buildRenderStage(){
     wrapScrollTop:wrap.scrollTop,
     contentTransform:content.style.transform,
     contentTransformOrigin:content.style.transformOrigin,
+    contentPadding:content.style.padding,
     screenOverflow:screenChart.style.overflow,
     mainOverflow:mainEl?.style.overflow,
     bodyOverflow:document.body.style.overflow,
@@ -1194,13 +1195,14 @@ async function buildRenderStage(){
   if(mainEl)mainEl.style.overflow='visible';
   document.body.style.overflow='visible';
 
-  // Reset scroll to top-left for consistent capture
+  // Reset scroll to top-left
   wrap.scrollLeft=0;
   wrap.scrollTop=0;
 
   // Remove zoom transform for true dimensions
   content.style.transform='scale(1)';
   content.style.transformOrigin='top left';
+  content.style.padding='0'; // Remove padding that causes wasted space
 
   // Force summary cards to show full content
   content.querySelectorAll('.summary-list-card').forEach(c=>{
@@ -1222,13 +1224,13 @@ async function buildRenderStage(){
   if(document.fonts?.ready)await document.fonts.ready;
   await new Promise(r=>setTimeout(r,100));
 
-  // Calculate TRUE content dimensions from org-tree
+  // Get PRECISE bounds of the org-tree element only
   const treeRect=orgTree.getBoundingClientRect();
-  const contentRect=content.getBoundingClientRect();
-  
+  const captureWidth=Math.ceil(treeRect.width)+40; // 20px padding each side
+  const captureHeight=Math.ceil(treeRect.height)+40;
+
   return {
-    stage: content,
-    orgTree: orgTree,
+    stage: orgTree, // Capture the org-tree directly, not the wrapper
     wrapper: {
       remove: ()=>{
         // Restore ALL saved styles
@@ -1238,6 +1240,7 @@ async function buildRenderStage(){
         wrap.scrollTop=saved.wrapScrollTop;
         content.style.transform=saved.contentTransform;
         content.style.transformOrigin=saved.contentTransformOrigin;
+        content.style.padding=saved.contentPadding;
         screenChart.style.overflow=saved.screenOverflow;
         if(mainEl)mainEl.style.overflow=saved.mainOverflow;
         document.body.style.overflow=saved.bodyOverflow;
@@ -1245,23 +1248,18 @@ async function buildRenderStage(){
       }
     },
     dimensions: {
-      width: Math.ceil(Math.max(treeRect.width, contentRect.width) + 160), // padding
-      height: Math.ceil(Math.max(treeRect.height, contentRect.height) + 160),
+      width: captureWidth,
+      height: captureHeight,
     }
   };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — FIXED: Capture full content with proper dimensions
+   renderToCanvas — FIXED: Capture org-tree with exact dimensions
    ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj){
-  const stage=stageObj.stage;
-  const orgTree=stageObj.orgTree;
+  const stage=stageObj.stage; // This is now the org-tree element
   const dims=stageObj.dimensions;
-  
-  // Use actual content dimensions, not viewport
-  const W=dims.width;
-  const H=dims.height;
   
   return html2canvas(stage,{
     backgroundColor:'#f8fafc',
@@ -1270,22 +1268,23 @@ async function renderToCanvas(stageObj){
     logging:false,
     allowTaint:true,
     foreignObjectRendering:true,
-    width:W,
-    height:H,
+    width:dims.width,
+    height:dims.height,
     scrollX:0,
     scrollY:0,
     x:0,
     y:0,
-    windowWidth:W,
-    windowHeight:H,
+    windowWidth:dims.width,
+    windowHeight:dims.height,
     onclone:(doc)=>{
-      // Ensure org-tree is positioned at (0,0) in the clone
+      // Ensure the cloned org-tree is positioned at (0,0) with no extra spacing
       const clonedTree=doc.getElementById('org-tree');
       if(clonedTree){
         clonedTree.style.position='relative';
         clonedTree.style.left='0';
         clonedTree.style.top='0';
         clonedTree.style.margin='0';
+        clonedTree.style.padding='0';
       }
     }
   });
