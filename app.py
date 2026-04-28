@@ -1008,6 +1008,7 @@ function mkLeafSummaryLI(leafNodes,ac){
 
   /* ── card wrapper ── */
   const card=document.createElement('div');
+  card.className='summary-list-card'; // triggers inlineStyles skip — preserves all inline styles
   Object.assign(card.style,{
     display:'inline-block',minWidth:'200px',maxWidth:'280px',
     background:'#ffffff',border:'1.5px solid #e2e8f0',
