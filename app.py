@@ -264,7 +264,7 @@ body{display:flex;flex-direction:column}
 .shape-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff}
 .vacant-setup{margin-top:14px}
 .vacant-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
-.vacant-select{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:0.78rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.vacant-select{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-size:0.78rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;appearance:none;cursor:pointer;background-image:url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
 .modal-overlay{position:fixed;inset:0;z-index:8000;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.hidden{display:none}
 .modal-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,0.18);width:440px;max-width:100%;display:flex;flex-direction:column;max-height:80vh;overflow:hidden}
@@ -1153,9 +1153,6 @@ function makeOverlay(title,sub){
 /* ═══════════════════════════════════════════════════════════════════════════
    buildRenderStage — Clone-based with FULL style resolution for IC lists
    ═══════════════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — FIXED: Full style inlining for IC summary lists
-   ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage() {
   expandAll();
   await new Promise(r => setTimeout(r, 400));
@@ -1198,7 +1195,7 @@ async function buildRenderStage() {
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 300));
 
-  // ── COMPREHENSIVE STYLE INLINING FOR ALL ELEMENTS ──
+  // ── COMPREHENSIVE STYLE RESOLUTION FOR ALL ELEMENTS ──
   const ALL_PROPS = [
     'color','backgroundColor','borderTopColor','borderBottomColor',
     'borderLeftColor','borderRightColor','borderTopWidth','borderBottomWidth',
@@ -1246,54 +1243,14 @@ async function buildRenderStage() {
     el.classList.remove('collapsed');
   });
 
-  // ── EXTRA: Force summary list cards to have explicit backgrounds & borders ──
+  // ── EXTRA: Force summary list cards to have explicit backgrounds ──
   clone.querySelectorAll('.summary-list-card').forEach(card => {
-    // Get computed styles and force them inline
-    const cs = window.getComputedStyle(card);
-    card.style.background = cs.backgroundColor || '#ffffff';
-    card.style.border = cs.border || '1.5px solid #e2e8f0';
-    card.style.borderTop = cs.borderTop || '3px solid #7c3aed';
-    card.style.borderRadius = cs.borderRadius || '14px';
-    card.style.boxShadow = cs.boxShadow || '0 1px 4px rgba(0,0,0,0.07)';
-    
-    // Force explicit dimensions
-    const rect = card.getBoundingClientRect();
-    card.style.width = rect.width + 'px';
-    card.style.minWidth = rect.width + 'px';
-    card.style.maxWidth = rect.width + 'px';
+    card.style.background = '#ffffff';
+    card.style.border = '1.5px solid #e2e8f0';
+    card.style.borderTop = '3px solid #7c3aed';
   });
 
-  // ── EXTRA: Force summary list body & rows to render correctly ──
-  clone.querySelectorAll('.summary-list-body, .summary-person-row').forEach(el => {
-    const cs = window.getComputedStyle(el);
-    el.style.display = cs.display || 'flex';
-    el.style.alignItems = cs.alignItems || 'center';
-    el.style.gap = cs.gap || '8px';
-    el.style.padding = cs.padding || '6px 12px';
-    el.style.overflow = 'visible';
-  });
-
-  // ── EXTRA: Force avatar/initials elements to render ──
-  clone.querySelectorAll('.summary-person-avatar, .modal-emp-avatar, [style*="border-radius: 8px"]').forEach(el => {
-    const cs = window.getComputedStyle(el);
-    el.style.background = cs.backgroundColor || el.style.background || '#eef2ff';
-    el.style.color = cs.color || el.style.color || '#4f46e5';
-    el.style.border = cs.border || '2px solid ' + (cs.borderColor || '#c7d2fe');
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-  });
-
-  // ── EXTRA: Force text elements to have explicit colors ──
-  clone.querySelectorAll('.summary-person-name, .summary-person-field2, .modal-emp-name, .modal-emp-sub').forEach(el => {
-    const cs = window.getComputedStyle(el);
-    el.style.color = cs.color || el.style.color || '#0f172a';
-    el.style.fontSize = cs.fontSize || el.style.fontSize || '0.75rem';
-    el.style.fontWeight = cs.fontWeight || el.style.fontWeight || '700';
-    el.style.whiteSpace = 'nowrap';
-    el.style.overflow = 'hidden';
-    el.style.textOverflow = 'ellipsis';
-  });
+  return { wrapper: container, stage: container };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1301,10 +1258,6 @@ async function buildRenderStage() {
    ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
-  
-  // Measure actual dimensions after styling
-  const rect = el.getBoundingClientRect();
-  
   return html2canvas(el, {
     backgroundColor: '#f8fafc',
     scale: 2,
@@ -1312,31 +1265,11 @@ async function renderToCanvas(stageObj) {
     logging: false,
     allowTaint: true,
     foreignObjectRendering: false,
-    width: Math.ceil(rect.width),
-    height: Math.ceil(rect.height),
-    windowWidth: Math.ceil(rect.width),
-    windowHeight: Math.ceil(rect.height),
     scrollX: 0,
     scrollY: 0,
-    x: 0,
-    y: 0,
   });
 }
-// Helper: Get computed style with CSS variable fallback
-function getResolvedStyle(el, prop) {
-  const cs = window.getComputedStyle(el);
-  let val = cs[prop];
-  
-  // If it's a CSS variable, try to resolve it
-  if (val && val.includes('var(')) {
-    const varName = val.match(/var\((--[^,)]+)/)?.[1];
-    if (varName) {
-      const resolved = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-      if (resolved) val = resolved;
-    }
-  }
-  return val;
-}
+
 async function exportPNG(){
   const overlay=makeOverlay('Rendering org chart…','Capturing full chart at 2× resolution');document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
