@@ -1137,159 +1137,6 @@ function highlightNode(id){
 }
 
 /* ── EXPORT HELPERS ── */
-function inlineStyles(root){
-  const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
-  root.querySelectorAll('*').forEach(el=>{
-    const cs=window.getComputedStyle(el);
-    PROPS.forEach(p=>{
-      try{
-        const v=cs[p];
-        if(v && v !== 'none' && v !== 'normal' && v !== 'auto'){
-          el.style[p]=v;
-        }
-      }catch(e){}
-    });
-    const ov=el.style.overflow;
-    const ovY=cs.overflowY;
-    const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
-    if(!isTextClipper&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
-      el.style.overflow='visible';
-      el.style.overflowY='visible';
-      el.style.overflowX='visible';
-    }
-    el.classList.remove('collapsed');
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — FIXED: Capture ONLY the org-tree with precise bounds
-   ═══════════════════════════════════════════════════════════════════════════ */
-async function buildRenderStage(){
-  expandAll();
-  await new Promise(r=>setTimeout(r,300));
-
-  const wrap=document.getElementById('chart-canvas-wrap');
-  const content=document.getElementById('chart-canvas-content');
-  const orgTree=document.getElementById('org-tree');
-  const screenChart=document.getElementById('screen-chart');
-  const mainEl=document.querySelector('.main');
-
-  // Save ALL original styles for restoration
-  const saved={
-    wrapOverflow:wrap.style.overflow,
-    wrapHeight:wrap.style.height,
-    wrapScrollLeft:wrap.scrollLeft,
-    wrapScrollTop:wrap.scrollTop,
-    contentTransform:content.style.transform,
-    contentTransformOrigin:content.style.transformOrigin,
-    contentPadding:content.style.padding,
-    screenOverflow:screenChart.style.overflow,
-    mainOverflow:mainEl?.style.overflow,
-    bodyOverflow:document.body.style.overflow,
-  };
-
-  // Unlock ALL clipping ancestors
-  wrap.style.overflow='visible';
-  wrap.style.height='auto';
-  screenChart.style.overflow='visible';
-  if(mainEl)mainEl.style.overflow='visible';
-  document.body.style.overflow='visible';
-
-  // Reset scroll to top-left
-  wrap.scrollLeft=0;
-  wrap.scrollTop=0;
-
-  // Remove zoom transform for true dimensions
-  content.style.transform='scale(1)';
-  content.style.transformOrigin='top left';
-  content.style.padding='0'; // Remove padding that causes wasted space
-
-  // Force summary cards to show full content
-  content.querySelectorAll('.summary-list-card').forEach(c=>{
-    c.style.overflow='visible';
-    c.style.maxHeight='none';
-    c.style.background='#ffffff';
-  });
-  content.querySelectorAll('.summary-list-card *').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
-  });
-
-  // Hide interactive elements during capture
-  const hideEls=[...content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')];
-  hideEls.forEach(el=>el.style.visibility='hidden');
-
-  // Wait for fonts and layout
-  await new Promise(r=>setTimeout(r,200));
-  if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,100));
-
-  // Get PRECISE bounds of the org-tree element only
-  const treeRect=orgTree.getBoundingClientRect();
-  const captureWidth=Math.ceil(treeRect.width)+40; // 20px padding each side
-  const captureHeight=Math.ceil(treeRect.height)+40;
-
-  return {
-    stage: orgTree, // Capture the org-tree directly, not the wrapper
-    wrapper: {
-      remove: ()=>{
-        // Restore ALL saved styles
-        wrap.style.overflow=saved.wrapOverflow;
-        wrap.style.height=saved.wrapHeight;
-        wrap.scrollLeft=saved.wrapScrollLeft;
-        wrap.scrollTop=saved.wrapScrollTop;
-        content.style.transform=saved.contentTransform;
-        content.style.transformOrigin=saved.contentTransformOrigin;
-        content.style.padding=saved.contentPadding;
-        screenChart.style.overflow=saved.screenOverflow;
-        if(mainEl)mainEl.style.overflow=saved.mainOverflow;
-        document.body.style.overflow=saved.bodyOverflow;
-        hideEls.forEach(el=>el.style.visibility='');
-      }
-    },
-    dimensions: {
-      width: captureWidth,
-      height: captureHeight,
-    }
-  };
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — FIXED: Capture org-tree with exact dimensions
-   ═══════════════════════════════════════════════════════════════════════════ */
-async function renderToCanvas(stageObj){
-  const stage=stageObj.stage; // This is now the org-tree element
-  const dims=stageObj.dimensions;
-  
-  return html2canvas(stage,{
-    backgroundColor:'#f8fafc',
-    scale:2,
-    useCORS:true,
-    logging:false,
-    allowTaint:true,
-    foreignObjectRendering:true,
-    width:dims.width,
-    height:dims.height,
-    scrollX:0,
-    scrollY:0,
-    x:0,
-    y:0,
-    windowWidth:dims.width,
-    windowHeight:dims.height,
-    onclone:(doc)=>{
-      // Ensure the cloned org-tree is positioned at (0,0) with no extra spacing
-      const clonedTree=doc.getElementById('org-tree');
-      if(clonedTree){
-        clonedTree.style.position='relative';
-        clonedTree.style.left='0';
-        clonedTree.style.top='0';
-        clonedTree.style.margin='0';
-        clonedTree.style.padding='0';
-      }
-    }
-  });
-}
-
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
 function csvEsc(v){return'"'+String(v??'').replace(/"/g,'""')+'"';}
 function buildCSVContent(){
@@ -1301,6 +1148,73 @@ function makeOverlay(title,sub){
   const o=document.createElement('div');o.className='export-overlay';
   o.innerHTML=`<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">${title}</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">${sub}</div>`;
   return o;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   buildRenderStage — Clone-based: no live DOM changes, zero wasted space
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function buildRenderStage(){
+  expandAll();
+  await new Promise(r=>setTimeout(r,350));
+
+  const orgTree=document.getElementById('org-tree');
+
+  /* Off-screen scratch container — never touches the live chart */
+  const container=document.createElement('div');
+  container.style.cssText=[
+    'position:fixed','top:-999999px','left:-999999px',
+    'background:#f8fafc','padding:24px','display:inline-block',
+    'z-index:-9999','visibility:hidden','pointer-events:none',
+    "font-family:'Plus Jakarta Sans',sans-serif",
+  ].join(';');
+
+  /* Deep-clone the current rendered tree */
+  const clone=orgTree.cloneNode(true);
+
+  /* Strip interactive chrome */
+  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
+
+  /* Expand every collapsed branch in the clone */
+  clone.querySelectorAll('li.collapsed').forEach(li=>{
+    li.classList.remove('collapsed');
+    const ul=li.querySelector('ul');
+    if(ul)ul.style.display='';
+  });
+
+  /* Show every row in summary-list cards (remove scroll clipping) */
+  clone.querySelectorAll('.summary-list-card,.summary-list-body,.summary-list-card *').forEach(el=>{
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
+  });
+
+  container.appendChild(clone);
+  document.body.appendChild(container);
+
+  /* Let the browser lay out the clone */
+  await new Promise(r=>setTimeout(r,260));
+  if(document.fonts?.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,120));
+
+  return{
+    stage:container,
+    wrapper:{remove:()=>container.remove()},
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   renderToCanvas — auto-size from the clone; no manual width/height needed
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function renderToCanvas(stageObj){
+  return html2canvas(stageObj.stage,{
+    backgroundColor:'#f8fafc',
+    scale:2,
+    useCORS:true,
+    logging:false,
+    allowTaint:true,
+    foreignObjectRendering:false,
+    scrollX:0,
+    scrollY:0,
+  });
 }
 
 async function exportPNG(){
@@ -1333,7 +1247,8 @@ async function exportSubtree(e,nodeId){
   cD(nodeId);cH(nodeId);cDep(nodeId,0);
   const savedZoom=S.zoom;applyZoom(1);
   renderChart();
-  await new Promise(r=>setTimeout(r,300));let stage;
+  await new Promise(r=>setTimeout(r,400));
+  let stage;
   try{
     stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
@@ -1442,7 +1357,7 @@ async function exportAll(){
       const val=lastVals[i];const safeName=val.replace(/[^a-zA-Z0-9]/g,'_');
       document.getElementById('_ea_step').textContent=`📊 ${val}`;
       document.getElementById('_ea_prog').textContent=`${i+1} / ${lastVals.length}`;
-      S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();await new Promise(r=>setTimeout(r,320));
+      S.activeFilters[lastFilterCol]=val;buildViewData();renderChart();await new Promise(r=>setTimeout(r,400));
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
       let stage2;
       try{
@@ -1453,7 +1368,7 @@ async function exportAll(){
         outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);
         successCount++;
       }
-      finally{if(stage2?.wrapper)stage2.wrapper.remove();else if(stage2)stage2.remove();}
+      finally{if(stage2?.wrapper)stage2.wrapper.remove();}
     }
   }finally{S.activeFilters=savedFilters;buildViewData();renderChart();buildFilterBar();overlay.remove();applyZoom(savedZoom);}
   if(successCount>0){const zipBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');triggerDownload(zipBlob,`orgcharts_all_${dp}.zip`);}
