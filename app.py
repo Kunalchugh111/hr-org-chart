@@ -1159,48 +1159,57 @@ async function buildRenderStage() {
   if (document.fonts?.ready) await document.fonts.ready;
   await new Promise(r => setTimeout(r, 150));
 
-  const wrap    = document.getElementById('chart-canvas-wrap');
-  const content = document.getElementById('chart-canvas-content');
+  const orgTree = document.getElementById('org-tree');
 
-  // Save current state
-  const savedOverflow  = wrap.style.overflow;
-  const savedTransform = content.style.transform;
-  const savedWidth     = wrap.style.width;
-  const savedHeight    = wrap.style.height;
+  // Sits BEHIND the export overlay (overlay=9999, this=9998)
+  // Browser must fully paint it — no visibility:hidden, no opacity:0
+  const container = document.createElement('div');
+  container.style.cssText = [
+    'position:fixed', 'top:0', 'left:0',
+    'background:#f8fafc', 'padding:24px',
+    'display:inline-block',
+    'z-index:9998',
+    'pointer-events:none',
+    "font-family:'Plus Jakarta Sans',sans-serif",
+  ].join(';');
 
-  // Unlock the container so html2canvas sees the full tree
-  wrap.style.overflow = 'visible';
-  wrap.style.width    = 'max-content';
-  wrap.style.height   = 'max-content';
-  content.style.transform       = 'scale(1)';
-  content.style.transformOrigin = 'top left';
+  // Deep clone the live tree
+  const clone = orgTree.cloneNode(true);
 
-  // Hide interactive chrome (collapse btns, edit/export icons)
-  const toHide = content.querySelectorAll(
-    '.collapse-btn,.ncard-edit-btn,.ncard-export-btn'
-  );
-  toHide.forEach(el => el.style.visibility = 'hidden');
+  // Strip interactive chrome
+  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')
+       .forEach(el => el.remove());
 
-  await new Promise(r => setTimeout(r, 300));
+  // Expand every collapsed branch
+  clone.querySelectorAll('li.collapsed').forEach(li => {
+    li.classList.remove('collapsed');
+    const ul = li.querySelector('ul');
+    if (ul) ul.style.display = '';
+  });
+
+  // Remove ALL overflow/max-height clipping so IC rows fully paint
+  clone.querySelectorAll('*').forEach(el => {
+    if (el.style.overflow && el.style.overflow !== 'visible')
+      el.style.overflow = 'visible';
+    if (el.style.overflowY) el.style.overflowY = 'visible';
+    if (el.style.maxHeight) el.style.maxHeight = 'none';
+  });
+
+  container.appendChild(clone);
+  document.body.appendChild(container);
+
+  // Give browser two animation frames to fully paint
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await new Promise(r => setTimeout(r, 200));
 
   return {
-    stage: content,
-    wrapper: {
-      remove: () => {
-        wrap.style.overflow  = savedOverflow  || '';
-        wrap.style.width     = savedWidth     || '';
-        wrap.style.height    = savedHeight    || '';
-        content.style.transform = savedTransform || '';
-        toHide.forEach(el => el.style.visibility = '');
-      }
-    }
+    stage: container,
+    wrapper: { remove: () => container.remove() },
   };
 }
 
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
-  const w  = el.scrollWidth  || el.offsetWidth;
-  const h  = el.scrollHeight || el.offsetHeight;
   return html2canvas(el, {
     backgroundColor: '#f8fafc',
     scale: 2,
@@ -1208,14 +1217,8 @@ async function renderToCanvas(stageObj) {
     logging: false,
     allowTaint: true,
     foreignObjectRendering: false,
-    width:        w,
-    height:       h,
-    windowWidth:  w + 300,
-    windowHeight: h + 300,
     scrollX: 0,
     scrollY: 0,
-    x: 0,
-    y: 0,
   });
 }
 /* ═══════════════════════════════════════════════════════════════════════════
