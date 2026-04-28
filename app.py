@@ -553,8 +553,6 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 
-
-
 <script>
 const S={
   rawRows:[],columns:[],colSamples:{},
@@ -1139,40 +1137,36 @@ function highlightNode(id){
 }
 
 /* ── EXPORT HELPERS ── */
+// 🔧 FIXED: Process ALL elements including .summary-list-card children
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
-    if(el.classList.contains('summary-list-card')){return;}
+    // 🔧 REMOVED EARLY RETURN - process ALL elements now
     const cs=window.getComputedStyle(el);
-    PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
+    PROPS.forEach(p=>{
+      try{
+        const v=cs[p];
+        // Only set if value exists and is meaningful
+        if(v && v !== 'none' && v !== 'normal' && v !== 'auto'){
+          el.style[p]=v;
+        }
+      }catch(e){}
+    });
+    // Handle overflow for clipping elements
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
-   const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
-const isSummaryChild=el.closest('.summary-list-card');
-if(!isTextClipper&&!isSummaryChild&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
-  el.style.overflow='visible';
-  el.style.overflowY='visible';
-  el.style.overflowX='visible';
-}
+    const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
+    if(!isTextClipper&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
+      el.style.overflow='visible';
+      el.style.overflowY='visible';
+      el.style.overflowX='visible';
+    }
     el.classList.remove('collapsed');
   });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — FIXED for Streamlit Cloud iframe export
-   ═══════════════════════════════════════════════════════════════════════════
-   ROOT CAUSE: The original used position:fixed for the off-screen render stage.
-   Inside a Streamlit Cloud iframe, position:fixed is relative to the iframe's
-   visible viewport. html2canvas captures only what fits inside that viewport
-   height — IC summary list rows that overflow below it render as blank boxes.
-
-   FIX 1: Use position:absolute inside a wrapper div that is in document flow.
-           html2canvas can now measure the true content height and capture
-           every row regardless of how tall the chart is.
-   FIX 2: Force .summary-list-card and all children to overflow:visible BEFORE
-           inlineStyles freezes computed styles, so no row is clipped.
-   FIX 3: Return {stage, wrapper} so callers can remove the wrapper (not just
-           the inner stage div).
+   buildRenderStage — FIXED for IC summary list export
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
   expandAll();
@@ -1192,7 +1186,6 @@ async function buildRenderStage(){
   const savedBodyOverflow=document.body.style.overflow;
 
   // Unlock EVERY overflow:hidden/auto ancestor so html2canvas sees full content
-  // html2canvas reads window.getComputedStyle — inline style overrides CSS rules
   wrap.style.overflow='visible';
   wrap.style.height='auto';
   screenChart.style.overflow='visible';
@@ -1202,13 +1195,18 @@ async function buildRenderStage(){
   content.style.transform='scale(1)';
   content.style.transformOrigin='top left';
 
+  // 🔧 Force summary list cards and ALL children to have visible overflow
   content.querySelectorAll('.summary-list-card').forEach(c=>{
-    c.style.overflow='visible';c.style.maxHeight='none';
+    c.style.overflow='visible';
+    c.style.maxHeight='none';
+    c.style.background='#ffffff'; // Explicit fallback
   });
   content.querySelectorAll('.summary-list-card *').forEach(el=>{
-    el.style.overflow='visible';el.style.maxHeight='none';
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
   });
 
+  // Hide interactive elements during capture
   const hideEls=[...content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')];
   hideEls.forEach(el=>el.style.visibility='hidden');
 
@@ -1231,14 +1229,7 @@ async function buildRenderStage(){
     }
   };
 }
-/* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — FIXED for Streamlit Cloud iframe export
-   ═══════════════════════════════════════════════════════════════════════════
-   FIX: Accept {stage,wrapper} object from buildRenderStage.
-   FIX: Remove windowWidth/windowHeight overrides — inside a Streamlit iframe
-        these values are capped by the iframe and cause html2canvas to clip
-        the output to the iframe viewport height, hiding IC summary rows.
-   ═══════════════════════════════════════════════════════════════════════════ */
+
 async function renderToCanvas(stageObj){
   const stage=stageObj.stage||stageObj;
   const W=Math.ceil(stage.scrollWidth);
@@ -1249,7 +1240,7 @@ async function renderToCanvas(stageObj){
     useCORS:true,
     logging:false,
     allowTaint:true,
-    foreignObjectRendering:false,
+    foreignObjectRendering:true,  // 🔧 Better CSS variable support
     width:W,
     height:H,
     scrollX:0,
