@@ -289,6 +289,13 @@ body{display:flex;flex-direction:column}
 .photo-folder-input{display:none}
 /* Body slot b1 zone in card design preview */
 .preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
+/* ── Export-stage: override any overflow/clipping on cloned tree ── */
+.export-stage-root .org-tree li,
+.export-stage-root .org-tree ul,
+.export-stage-root .node-card,
+.export-stage-root .summary-list-card {
+  overflow: visible !important;
+}
 </style>
 </head>
 <body>
@@ -970,70 +977,88 @@ function mkLeafSummaryLI(leafNodes,ac){
   const count=leafNodes.length;
   const FONT="'Plus Jakarta Sans',sans-serif";
 
+  // ── card shell ──
   const card=document.createElement('div');
   card.className='summary-list-card';
-  Object.assign(card.style,{
-    display:'inline-block',minWidth:'200px',maxWidth:'280px',
-    background:'#ffffff',border:'1.5px solid #e2e8f0',
-    borderTop:'3px solid #7c3aed',borderRadius:'14px',
-    boxShadow:'0 1px 4px rgba(0,0,0,0.07)',
-    fontFamily:FONT,overflow:'visible',verticalAlign:'top',
-  });
+  // Hard-code all visual styles inline so cloneNode captures them for export
+  card.style.cssText=[
+    'display:inline-block','min-width:200px','max-width:280px',
+    'background:#ffffff','border:1.5px solid #e2e8f0',
+    'border-top:3px solid #7c3aed','border-radius:14px',
+    'box-shadow:0 1px 4px rgba(0,0,0,0.07)',
+    'font-family:'+FONT,'overflow:visible','vertical-align:top',
+  ].join(';');
 
+  // ── header ──
   const header=document.createElement('div');
-  Object.assign(header.style,{
-    padding:'7px 12px',background:'#f5f3ff',
-    borderBottom:'1px solid #e9d5ff',
-    borderRadius:'12px 12px 0 0',
-    display:'flex',justifyContent:'space-between',alignItems:'center',
-    fontFamily:FONT,
-  });
+  header.style.cssText=[
+    'padding:7px 12px','background:#f5f3ff',
+    'border-bottom:1px solid #e9d5ff',
+    'border-radius:12px 12px 0 0',
+    'display:flex','justify-content:space-between','align-items:center',
+    'font-family:'+FONT,
+  ].join(';');
+
   const titleSpan=document.createElement('span');
-  Object.assign(titleSpan.style,{fontSize:'0.68rem',fontWeight:'800',color:'#7c3aed',textTransform:'uppercase',letterSpacing:'0.05em',fontFamily:FONT});
+  titleSpan.style.cssText='font-size:0.68rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;font-family:'+FONT;
   titleSpan.textContent='ICs ('+count+')';
+
   const countBadge=document.createElement('span');
-  Object.assign(countBadge.style,{fontSize:'0.68rem',fontWeight:'800',background:'#7c3aed',color:'#ffffff',borderRadius:'999px',padding:'1px 8px',fontFamily:FONT});
+  countBadge.style.cssText='font-size:0.68rem;font-weight:800;background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;font-family:'+FONT;
   countBadge.textContent=String(count);
-  header.appendChild(titleSpan);header.appendChild(countBadge);
+
+  header.appendChild(titleSpan);
+  header.appendChild(countBadge);
   card.appendChild(header);
 
+  // ── body ──
   const body=document.createElement('div');
-  Object.assign(body.style,{padding:'4px 0',overflow:'visible',fontFamily:FONT});
+  body.style.cssText='padding:4px 0;overflow:visible;font-family:'+FONT;
+  card.appendChild(body);
 
   leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
+    const isLast=idx===leafNodes.length-1;
 
+    // ── row ──
     const row=document.createElement('div');
-    Object.assign(row.style,{
-      display:'flex',alignItems:'center',gap:'8px',
-      padding:'6px 12px',fontFamily:FONT,
-      borderBottom: idx<leafNodes.length-1 ? '1px solid #e2e8f0' : 'none',
-    });
+    row.style.cssText=[
+      'display:flex','align-items:center','gap:8px',
+      'padding:6px 12px',
+      'font-family:'+FONT,
+      'border-bottom:'+(isLast?'none':'1px solid #e2e8f0'),
+      'background:#ffffff',
+    ].join(';');
     row.title=n.name;
 
+    // ── avatar / photo ──
     const fallback=document.createElement('div');
-    Object.assign(fallback.style,{
-      display:'flex',alignItems:'center',justifyContent:'center',
-      width:'26px',height:'26px',minWidth:'26px',
-      borderRadius:'8px',fontSize:'0.6rem',fontWeight:'800',
-      fontFamily:FONT,background:borderC+'18',color:borderC,
-      border:'2px solid '+borderC+'44',flexShrink:'0',
-    });
+    fallback.style.cssText=[
+      'display:flex','align-items:center','justify-content:center',
+      'width:26px','height:26px','min-width:26px',
+      'border-radius:8px','font-size:0.6rem','font-weight:800',
+      'font-family:'+FONT,
+      'background:'+borderC+'18','color:'+borderC,
+      'border:2px solid '+borderC+'44','flex-shrink:0',
+    ].join(';');
     fallback.textContent=initials;
 
     if(photoUrl){
       const img=document.createElement('img');
-      Object.assign(img.style,{width:'26px',height:'26px',minWidth:'26px',borderRadius:'8px',objectFit:'cover',objectPosition:'center top',border:'2px solid '+borderC+'55',flexShrink:'0',display:'block'});
-      img.src=photoUrl;img.crossOrigin='anonymous';
+      img.style.cssText='width:26px;height:26px;min-width:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;flex-shrink:0;display:block';
+      img.src=photoUrl;
+      img.crossOrigin='anonymous';
       img.onerror=function(){this.style.display='none';fallback.style.display='flex';};
+      row.appendChild(img);
+      row.appendChild(fallback);
       fallback.style.display='none';
-      row.appendChild(img);row.appendChild(fallback);
     } else {
       row.appendChild(fallback);
     }
 
+    // ── text ──
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
     const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
@@ -1041,22 +1066,22 @@ function mkLeafSummaryLI(leafNodes,ac){
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
     const textWrap=document.createElement('div');
-    Object.assign(textWrap.style,{flex:'1',minWidth:'0',overflow:'hidden',fontFamily:FONT});
+    textWrap.style.cssText='flex:1;min-width:0;overflow:hidden;font-family:'+FONT;
 
     const nameLine=document.createElement('div');
-    Object.assign(nameLine.style,{fontSize:'0.75rem',fontWeight:'700',color:'#0f172a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:FONT,maxWidth:'210px'});
+    nameLine.style.cssText='font-size:0.75rem;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'+FONT+';max-width:210px';
     nameLine.textContent=primaryVal;
     textWrap.appendChild(nameLine);
 
     if(showNameSub){
       const subLine=document.createElement('div');
-      Object.assign(subLine.style,{fontSize:'0.65rem',color:'#475569',fontWeight:'600',fontFamily:FONT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'210px'});
+      subLine.style.cssText='font-size:0.65rem;color:#475569;font-weight:600;font-family:'+FONT+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px';
       subLine.textContent=nameVal;
       textWrap.appendChild(subLine);
     }
     if(val2){
       const val2Line=document.createElement('div');
-      Object.assign(val2Line.style,{fontSize:'0.68rem',color:'#94a3b8',fontFamily:FONT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:'210px'});
+      val2Line.style.cssText='font-size:0.68rem;color:#94a3b8;font-family:'+FONT+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px';
       val2Line.textContent=val2;
       textWrap.appendChild(val2Line);
     }
@@ -1065,7 +1090,6 @@ function mkLeafSummaryLI(leafNodes,ac){
     body.appendChild(row);
   });
 
-  card.appendChild(body);
   li.appendChild(card);
   return li;
 }
@@ -1151,110 +1175,70 @@ function makeOverlay(title,sub){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — Clone-based with FULL style resolution for IC lists
+   buildRenderStage — Minimal-interference clone approach
+   Key insight: all styles are already inline on elements (set during mkNodeLI /
+   mkLeafSummaryLI). cloneNode(true) preserves them. We just need the clone in
+   document.body so that CSS-class rules and :root variables also resolve, then
+   let html2canvas capture it without any post-processing that could destroy
+   computed heights or flex layouts.
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage() {
   expandAll();
   await new Promise(r => setTimeout(r, 400));
   if (document.fonts?.ready) await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 150));
+  await new Promise(r => setTimeout(r, 200));
 
   const orgTree = document.getElementById('org-tree');
-  
-  // Create off-screen container for clone
+
+  /* Wrapper that gives html2canvas a clean, padded canvas */
   const container = document.createElement('div');
+  container.className = 'export-stage-root';
   container.style.cssText = [
-    'position:fixed','top:0','left:0',
-    'background:#f8fafc','padding:24px',
+    'position:fixed',
+    'top:0',
+    'left:0',
+    'background:#f8fafc',
+    'padding:48px 64px 80px 64px',
     'display:inline-block',
     'z-index:9998',
     'pointer-events:none',
     "font-family:'Plus Jakarta Sans',sans-serif",
+    'overflow:visible',
   ].join(';');
 
-  // Deep clone the org tree
   const clone = orgTree.cloneNode(true);
-  
-  // Remove interactive elements
-  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')
+
+  /* Remove UI-only widgets that must not appear in the export */
+  clone.querySelectorAll('.collapse-btn, .ncard-edit-btn, .ncard-export-btn')
        .forEach(el => el.remove());
-  
-  // Expand all collapsed nodes in clone
+
+  /* Expand any collapsed branches */
   clone.querySelectorAll('li.collapsed').forEach(li => {
     li.classList.remove('collapsed');
-    const ul = li.querySelector('ul');
-    if (ul) ul.style.display = '';
+    const ul = li.querySelector(':scope > ul');
+    if (ul) ul.style.removeProperty('display');
     const card = li.querySelector('.node-card');
     if (card) card.classList.remove('collapsed-node');
+  });
+
+  /* Remove the opacity-0.65 style that collapsed-node adds */
+  clone.querySelectorAll('.node-card').forEach(c => {
+    c.style.removeProperty('opacity');
+    c.style.removeProperty('transform');
   });
 
   container.appendChild(clone);
   document.body.appendChild(container);
 
-  // Force browser to compute layout
+  /* Give browser two full frames + extra settling time to lay out the clone */
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  await new Promise(r => setTimeout(r, 300));
-
-  // ── COMPREHENSIVE STYLE RESOLUTION FOR ALL ELEMENTS ──
-  const ALL_PROPS = [
-    'color','backgroundColor','borderTopColor','borderBottomColor',
-    'borderLeftColor','borderRightColor','borderTopWidth','borderBottomWidth',
-    'borderLeftWidth','borderRightWidth','borderTopStyle','borderBottomStyle',
-    'borderLeftStyle','borderRightStyle','borderRadius','fontFamily','fontSize',
-    'fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom',
-    'paddingLeft','paddingRight','margin','marginTop','marginBottom','marginLeft',
-    'marginRight','display','flexDirection','justifyContent','alignItems','gap',
-    'whiteSpace','overflow','overflowX','overflowY','textOverflow','opacity',
-    'boxShadow','borderWidth','borderStyle','borderColor','width','height',
-    'minWidth','minHeight','maxWidth','maxHeight','flex','flexGrow','flexShrink',
-    'flexBasis','position','top','left','right','bottom','zIndex','textAlign',
-    'verticalAlign','textDecoration','textTransform','letterSpacing','wordSpacing'
-  ];
-
-  // Process ALL elements in the clone
-  clone.querySelectorAll('*').forEach(el => {
-    const cs = window.getComputedStyle(el);
-    
-    // Resolve ALL CSS properties to inline styles
-    ALL_PROPS.forEach(prop => {
-      try {
-        const val = cs[prop];
-        if (val && val !== 'auto' && val !== 'normal' && val !== 'none') {
-          el.style[prop] = val;
-        }
-      } catch(e) {}
-    });
-    
-    // Special handling for flex items to prevent reflow
-    if (cs.display === 'flex' || cs.display === 'inline-flex') {
-      el.style.flex = '0 0 auto';
-      el.style.flexGrow = '0';
-      el.style.flexShrink = '0';
-      el.style.flexBasis = 'auto';
-    }
-    
-    // Ensure no clipping
-    el.style.overflow = 'visible';
-    el.style.overflowX = 'visible';
-    el.style.overflowY = 'visible';
-    el.style.textOverflow = 'clip';
-    
-    // Remove any collapse state
-    el.classList.remove('collapsed');
-  });
-
-  // ── EXTRA: Force summary list cards to have explicit backgrounds ──
-  clone.querySelectorAll('.summary-list-card').forEach(card => {
-    card.style.background = '#ffffff';
-    card.style.border = '1.5px solid #e2e8f0';
-    card.style.borderTop = '3px solid #7c3aed';
-  });
+  await new Promise(r => setTimeout(r, 500));
 
   return { wrapper: container, stage: container };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — Auto-size from clone dimensions
+   renderToCanvas — Capture the staged clone at 2x resolution
    ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
@@ -1267,6 +1251,16 @@ async function renderToCanvas(stageObj) {
     foreignObjectRendering: false,
     scrollX: 0,
     scrollY: 0,
+    onclone: (clonedDoc, clonedEl) => {
+      /* Ensure every summary-list row and its text children are fully visible */
+      clonedEl.querySelectorAll('.summary-list-card').forEach(card => {
+        card.style.overflow = 'visible';
+        card.querySelectorAll('div').forEach(d => {
+          if (d.style.display === 'none') return; // keep intentionally hidden (fallback avatars)
+          d.style.overflow = 'visible';
+        });
+      });
+    },
   });
 }
 
