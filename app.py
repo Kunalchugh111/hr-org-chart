@@ -807,7 +807,7 @@ function toggleManagerMode(){
   renderChart();
 }
 
-/* Is a node a manager (has ≥1 direct report in current viewData)? */
+/* Is a node a manager (has >=1 direct report in current viewData)? */
 function isManager(nodeId){return (S.childMap[nodeId]||[]).length>0;}
 
 /* ── VIEW DATA ── */
@@ -1189,50 +1189,58 @@ async function buildRenderStage() {
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 300));
 
- // ── FREEZE: resolve flex widths → explicit px, then disable flex re-evaluation ──
-clone.querySelectorAll('.summary-list-card, .summary-list-card *').forEach(el => {
-  const cs = window.getComputedStyle(el);
-  const w  = parseFloat(cs.width);
-  const h  = parseFloat(cs.height);
+  // ── FREEZE: resolve flex widths → explicit px, then disable flex re-evaluation ──
+  clone.querySelectorAll('.summary-list-card, .summary-list-card *').forEach(el => {
+    const cs = window.getComputedStyle(el);
+    const w  = parseFloat(cs.width);
+    const h  = parseFloat(cs.height);
 
-  // Step 1: stamp resolved pixel dimensions
-  if (isFinite(w) && w > 0) {
-    el.style.width    = w + 'px';
-    el.style.minWidth = w + 'px';
-    el.style.maxWidth = w + 'px';
-  }
-  if (isFinite(h) && h > 0) {
-    el.style.height    = h + 'px';
-    el.style.minHeight = h + 'px';
-    el.style.maxHeight = 'none';
-  }
+    // Step 1: stamp resolved pixel dimensions
+    if (isFinite(w) && w > 0) {
+      el.style.width    = w + 'px';
+      el.style.minWidth = w + 'px';
+      el.style.maxWidth = w + 'px';
+    }
+    if (isFinite(h) && h > 0) {
+      el.style.height    = h + 'px';
+      el.style.minHeight = h + 'px';
+      el.style.maxHeight = 'none';
+    }
 
-  // Step 2: KILL flex so html2canvas cannot override our frozen width
-  el.style.flex       = '0 0 auto';
-  el.style.flexGrow   = '0';
-  el.style.flexShrink = '0';
-  el.style.flexBasis  = 'auto';
+    // Step 2: KILL flex so html2canvas cannot override our frozen width
+    el.style.flex       = '0 0 auto';
+    el.style.flexGrow   = '0';
+    el.style.flexShrink = '0';
+    el.style.flexBasis  = 'auto';
 
-  // Step 3: resolve CSS variables → actual values
-  el.style.color              = cs.color;
-  el.style.fontSize           = cs.fontSize;
-  el.style.fontWeight         = cs.fontWeight;
-  el.style.fontFamily         = cs.fontFamily;
-  el.style.lineHeight         = cs.lineHeight;
-  el.style.backgroundColor    = cs.backgroundColor;
-  el.style.borderTopColor     = cs.borderTopColor;
-  el.style.borderBottomColor  = cs.borderBottomColor;
-  el.style.borderLeftColor    = cs.borderLeftColor;
-  el.style.borderRightColor   = cs.borderRightColor;
-  el.style.padding            = cs.padding;
+    // Step 3: resolve CSS variables → actual values
+    el.style.color              = cs.color;
+    el.style.fontSize           = cs.fontSize;
+    el.style.fontWeight         = cs.fontWeight;
+    el.style.fontFamily         = cs.fontFamily;
+    el.style.lineHeight         = cs.lineHeight;
+    el.style.backgroundColor    = cs.backgroundColor;
+    el.style.borderTopColor     = cs.borderTopColor;
+    el.style.borderBottomColor  = cs.borderBottomColor;
+    el.style.borderLeftColor    = cs.borderLeftColor;
+    el.style.borderRightColor   = cs.borderRightColor;
+    el.style.padding            = cs.padding;
 
-  // Step 4: remove all clipping
-  el.style.overflow     = 'visible';
-  el.style.overflowX    = 'visible';
-  el.style.overflowY    = 'visible';
-  el.style.textOverflow = 'clip';
-  el.style.whiteSpace   = 'normal';
-});
+    // Step 4: remove all clipping
+    el.style.overflow     = 'visible';
+    el.style.overflowX    = 'visible';
+    el.style.overflowY    = 'visible';
+    el.style.textOverflow = 'clip';
+    el.style.whiteSpace   = 'normal';
+  });
+
+  // ── FIX: return the stage object so callers can render and clean up ──
+  return { wrapper: container, stage: container };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   renderToCanvas — auto-size from the clone; no manual width/height needed
+   ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
   return html2canvas(el, {
@@ -1246,9 +1254,6 @@ async function renderToCanvas(stageObj) {
     scrollY: 0,
   });
 }
-/* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — auto-size from the clone; no manual width/height needed
-   ═══════════════════════════════════════════════════════════════════════════ */
 
 async function exportPNG(){
   const overlay=makeOverlay('Rendering org chart…','Capturing full chart at 2× resolution');document.body.appendChild(overlay);
