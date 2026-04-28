@@ -1175,85 +1175,74 @@ if(!isTextClipper&&!isSummaryChild&&(ov==='hidden'||ovY==='auto'||ovY==='scroll'
            the inner stage div).
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
-  const PAD = 40;
   expandAll();
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r=>setTimeout(r,300));
 
-  const liveTree = document.getElementById('org-tree');
+  const wrap=document.getElementById('chart-canvas-wrap');
+  const content=document.getElementById('chart-canvas-content');
 
-  // CRITICAL FIX: Before cloning, stamp explicit pixel dimensions onto every
-  // summary list card element from live DOM measurements.
-  // This is necessary because .org-tree li uses display:table-cell which
-  // collapses in off-screen clones, making all row heights compute to 0.
-  liveTree.querySelectorAll('.summary-list-card').forEach(card => {
-    const cardRect = card.getBoundingClientRect();
-    card.style.width = cardRect.width + 'px';
-    card.style.height = cardRect.height + 'px';
+  // Save state
+  const savedOverflow=wrap.style.overflow;
+  const savedHeight=wrap.style.height;
+  const savedTransform=content.style.transform;
 
-    card.querySelectorAll('*').forEach(el => {
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        el.style.width = r.width + 'px';
-        el.style.height = r.height + 'px';
-        el.style.minWidth = r.width + 'px';
-        el.style.minHeight = r.height + 'px';
-        el.style.flexShrink = '0';
-        el.style.display = el.style.display || window.getComputedStyle(el).display;
-        el.style.boxSizing = 'border-box';
+  // Unlock the scroll container so html2canvas sees the full content
+  wrap.style.overflow='visible';
+  wrap.style.height='auto';
+
+  // Reset zoom to 1:1
+  content.style.transform='scale(1)';
+  content.style.transformOrigin='top left';
+
+  // Ensure IC summary cards are not clipped
+  content.querySelectorAll('.summary-list-card').forEach(c=>{
+    c.style.overflow='visible';c.style.maxHeight='none';
+  });
+  content.querySelectorAll('.summary-list-card *').forEach(el=>{
+    el.style.overflow='visible';el.style.maxHeight='none';
+  });
+
+  // Hide interactive controls without removing them (keeps layout intact)
+  const hideEls=[...content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')];
+  hideEls.forEach(el=>el.style.visibility='hidden');
+
+  await new Promise(r=>setTimeout(r,200));
+  if(document.fonts?.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,100));
+
+  // Return a fake wrapper whose .remove() restores DOM state
+  // This keeps all existing finally{stage.wrapper.remove()} calls working
+  return {
+    stage: content,
+    wrapper: {
+      remove: ()=>{
+        wrap.style.overflow=savedOverflow;
+        wrap.style.height=savedHeight;
+        content.style.transform=savedTransform;
+        hideEls.forEach(el=>el.style.visibility='');
       }
-    });
+    }
+  };
+}
+
+async function renderToCanvas(stageObj){
+  const stage=stageObj.stage||stageObj;
+  const W=Math.ceil(stage.scrollWidth);
+  const H=Math.ceil(stage.scrollHeight);
+  return html2canvas(stage,{
+    backgroundColor:'#f8fafc',
+    scale:2,
+    useCORS:true,
+    logging:false,
+    allowTaint:true,
+    foreignObjectRendering:false,
+    width:W,
+    height:H,
+    scrollX:0,
+    scrollY:0,
+    x:0,
+    y:0,
   });
-
-  await new Promise(r => setTimeout(r, 100));
-
-  const cloned = liveTree.cloneNode(true);
-
-  // Clean up the live DOM stamps we added (restore natural sizing)
-  liveTree.querySelectorAll('.summary-list-card').forEach(card => {
-    card.style.width = '';
-    card.style.height = '';
-    card.querySelectorAll('*').forEach(el => {
-      el.style.width = '';
-      el.style.height = '';
-      el.style.minWidth = '';
-      el.style.minHeight = '';
-      el.style.flexShrink = '';
-    });
-  });
-
-  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b => b.remove());
-  cloned.querySelectorAll('li.collapsed').forEach(li => {
-    li.classList.remove('collapsed');
-    const u = li.querySelector(':scope > ul'); if (u) u.style.display = '';
-    li.querySelector('.node-card')?.classList.remove('collapsed-node');
-  });
-  cloned.querySelectorAll('ul').forEach(ul => { ul.style.display = ''; });
-
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:absolute;top:-99999px;left:0;overflow:visible;pointer-events:none;z-index:9998';
-  const stage = document.createElement('div');
-  stage.style.cssText = `background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;overflow:visible`;
-  stage.appendChild(cloned);
-  wrapper.appendChild(stage);
-  document.body.appendChild(wrapper);
-
-  await new Promise(r => setTimeout(r, 400));
-  if (document.fonts?.ready) await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 150));
-
-  stage.querySelectorAll('.summary-list-card').forEach(card => {
-    card.style.overflow = 'visible';
-    card.style.maxHeight = 'none';
-  });
-  stage.querySelectorAll('.summary-list-card *').forEach(el => {
-    el.style.overflow = 'visible';
-    el.style.maxHeight = 'none';
-  });
-
-  inlineStyles(stage);
-  await new Promise(r => setTimeout(r, 100));
-
-  return { stage, wrapper };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
