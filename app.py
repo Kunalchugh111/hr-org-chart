@@ -1294,17 +1294,6 @@ async function buildRenderStage() {
     el.style.overflow = 'hidden';
     el.style.textOverflow = 'ellipsis';
   });
-
-  return { wrapper: container, stage: container// Debug: Log first summary card styles
-const firstCard = clone.querySelector('.summary-list-card');
-if (firstCard) {
-  console.log('Summary card styles:', {
-    background: firstCard.style.background,
-    border: firstCard.style.border,
-    borderTop: firstCard.style.borderTop,
-    children: firstCard.querySelectorAll('*').length
-  });
-}};
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
