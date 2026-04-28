@@ -1161,10 +1161,10 @@ async function buildRenderStage(){
 
   /* Off-screen scratch container — never touches the live chart */
   const container=document.createElement('div');
-  container.style.cssText=[
+container.style.cssText=[
     'position:fixed','top:-999999px','left:-999999px',
     'background:#f8fafc','padding:24px','display:inline-block',
-    'z-index:-9999','visibility:hidden','pointer-events:none',
+    'z-index:-9999','opacity:0','pointer-events:none',
     "font-family:'Plus Jakarta Sans',sans-serif",
   ].join(';');
 
