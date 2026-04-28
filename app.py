@@ -1231,6 +1231,7 @@ async function exportPNG(){
   try{
     stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
+    console.log('Canvas size:', canvas.width, canvas.height);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
     const mode=S.managerMode?'_mgr_view':'';
