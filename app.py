@@ -1153,52 +1153,70 @@ function makeOverlay(title,sub){
 /* ═══════════════════════════════════════════════════════════════════════════
    buildRenderStage — Clone-based: no live DOM changes, zero wasted space
    ═══════════════════════════════════════════════════════════════════════════ */
-async function buildRenderStage(){
+async function buildRenderStage() {
   expandAll();
-  await new Promise(r=>setTimeout(r,350));
+  await new Promise(r => setTimeout(r, 400));
+  if (document.fonts?.ready) await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 150));
 
-  const orgTree=document.getElementById('org-tree');
+  const wrap    = document.getElementById('chart-canvas-wrap');
+  const content = document.getElementById('chart-canvas-content');
 
-  /* Off-screen scratch container — never touches the live chart */
-  const container=document.createElement('div');
-container.style.cssText=[
-    'position:fixed','top:-999999px','left:-999999px',
-    'background:#f8fafc','padding:24px','display:inline-block',
-    'z-index:-9999','opacity:0','pointer-events:none',
-    "font-family:'Plus Jakarta Sans',sans-serif",
-  ].join(';');
+  // Save current state
+  const savedOverflow  = wrap.style.overflow;
+  const savedTransform = content.style.transform;
+  const savedWidth     = wrap.style.width;
+  const savedHeight    = wrap.style.height;
 
-  /* Deep-clone the current rendered tree */
-  const clone=orgTree.cloneNode(true);
+  // Unlock the container so html2canvas sees the full tree
+  wrap.style.overflow = 'visible';
+  wrap.style.width    = 'max-content';
+  wrap.style.height   = 'max-content';
+  content.style.transform       = 'scale(1)';
+  content.style.transformOrigin = 'top left';
 
-  /* Strip interactive chrome */
-  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
+  // Hide interactive chrome (collapse btns, edit/export icons)
+  const toHide = content.querySelectorAll(
+    '.collapse-btn,.ncard-edit-btn,.ncard-export-btn'
+  );
+  toHide.forEach(el => el.style.visibility = 'hidden');
 
-  /* Expand every collapsed branch in the clone */
-  clone.querySelectorAll('li.collapsed').forEach(li=>{
-    li.classList.remove('collapsed');
-    const ul=li.querySelector('ul');
-    if(ul)ul.style.display='';
-  });
+  await new Promise(r => setTimeout(r, 300));
 
-  /* Show every row in summary-list cards (remove scroll clipping) */
-  clone.querySelectorAll('.summary-list-card,.summary-list-body,.summary-list-card *').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
-  });
-
-  container.appendChild(clone);
-  document.body.appendChild(container);
-
-  /* Let the browser lay out the clone */
-  await new Promise(r=>setTimeout(r,260));
-  if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,120));
-
-  return{
-    stage:container,
-    wrapper:{remove:()=>container.remove()},
+  return {
+    stage: content,
+    wrapper: {
+      remove: () => {
+        wrap.style.overflow  = savedOverflow  || '';
+        wrap.style.width     = savedWidth     || '';
+        wrap.style.height    = savedHeight    || '';
+        content.style.transform = savedTransform || '';
+        toHide.forEach(el => el.style.visibility = '');
+      }
+    }
   };
+}
+
+async function renderToCanvas(stageObj) {
+  const el = stageObj.stage;
+  const w  = el.scrollWidth  || el.offsetWidth;
+  const h  = el.scrollHeight || el.offsetHeight;
+  return html2canvas(el, {
+    backgroundColor: '#f8fafc',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    allowTaint: true,
+    foreignObjectRendering: false,
+    width:        w,
+    height:       h,
+    windowWidth:  w + 300,
+    windowHeight: h + 300,
+    scrollX: 0,
+    scrollY: 0,
+    x: 0,
+    y: 0,
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
