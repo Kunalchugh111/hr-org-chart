@@ -1189,50 +1189,50 @@ async function buildRenderStage() {
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 300));
 
-  // ── FREEZE computed dimensions on every element inside summary cards ──
-  // This is the critical step: once we read getComputedStyle from the live
-  // clone, flex:1 has already resolved to a real pixel width. We stamp it
-  // as an explicit inline style so html2canvas never needs to re-solve flex.
-  clone.querySelectorAll(
-    '.summary-list-card, .summary-list-card *'
-  ).forEach(el => {
-    const cs = window.getComputedStyle(el);
-    const w  = parseFloat(cs.width);
-    const h  = parseFloat(cs.height);
+ // ── FREEZE: resolve flex widths → explicit px, then disable flex re-evaluation ──
+clone.querySelectorAll('.summary-list-card, .summary-list-card *').forEach(el => {
+  const cs = window.getComputedStyle(el);
+  const w  = parseFloat(cs.width);
+  const h  = parseFloat(cs.height);
 
-    if (isFinite(w) && w > 0)  el.style.width  = w + 'px';
-    if (isFinite(h) && h > 0)  el.style.height = h + 'px';
-    if (isFinite(h) && h > 0)  el.style.minHeight = h + 'px';
+  // Step 1: stamp resolved pixel dimensions
+  if (isFinite(w) && w > 0) {
+    el.style.width    = w + 'px';
+    el.style.minWidth = w + 'px';
+    el.style.maxWidth = w + 'px';
+  }
+  if (isFinite(h) && h > 0) {
+    el.style.height    = h + 'px';
+    el.style.minHeight = h + 'px';
+    el.style.maxHeight = 'none';
+  }
 
-    // Freeze all visual styles so html2canvas doesn't recompute from CSS vars
-    el.style.color           = cs.color;
-    el.style.fontSize        = cs.fontSize;
-    el.style.fontWeight      = cs.fontWeight;
-    el.style.fontFamily      = cs.fontFamily;
-    el.style.lineHeight      = cs.lineHeight;
-    el.style.backgroundColor = cs.backgroundColor;
-    el.style.borderTopColor  = cs.borderTopColor;
-    el.style.borderBottomColor = cs.borderBottomColor;
-    el.style.borderLeftColor = cs.borderLeftColor;
-    el.style.borderRightColor = cs.borderRightColor;
-    el.style.padding         = cs.padding;
-    el.style.display         = cs.display;
+  // Step 2: KILL flex so html2canvas cannot override our frozen width
+  el.style.flex       = '0 0 auto';
+  el.style.flexGrow   = '0';
+  el.style.flexShrink = '0';
+  el.style.flexBasis  = 'auto';
 
-    // Remove ALL clipping — with explicit px widths set above,
-    // nothing will actually overflow anyway
-    el.style.overflow        = 'visible';
-    el.style.overflowX       = 'visible';
-    el.style.overflowY       = 'visible';
-    el.style.maxHeight       = 'none';
-    el.style.textOverflow    = 'clip';
-    el.style.whiteSpace      = 'normal';
-  });
+  // Step 3: resolve CSS variables → actual values
+  el.style.color              = cs.color;
+  el.style.fontSize           = cs.fontSize;
+  el.style.fontWeight         = cs.fontWeight;
+  el.style.fontFamily         = cs.fontFamily;
+  el.style.lineHeight         = cs.lineHeight;
+  el.style.backgroundColor    = cs.backgroundColor;
+  el.style.borderTopColor     = cs.borderTopColor;
+  el.style.borderBottomColor  = cs.borderBottomColor;
+  el.style.borderLeftColor    = cs.borderLeftColor;
+  el.style.borderRightColor   = cs.borderRightColor;
+  el.style.padding            = cs.padding;
 
-  return {
-    stage: container,
-    wrapper: { remove: () => container.remove() },
-  };
-}
+  // Step 4: remove all clipping
+  el.style.overflow     = 'visible';
+  el.style.overflowX    = 'visible';
+  el.style.overflowY    = 'visible';
+  el.style.textOverflow = 'clip';
+  el.style.whiteSpace   = 'normal';
+});
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
   return html2canvas(el, {
