@@ -1142,17 +1142,18 @@ function highlightNode(id){
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
-    if(el.closest('.summary-list-card')){return;}
+    if(el.classList.contains('summary-list-card')){return;}
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
-    const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
-    if(!isTextClipper&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
-      el.style.overflow='visible';
-      el.style.overflowY='visible';
-      el.style.overflowX='visible';
-    }
+   const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
+const isSummaryChild=el.closest('.summary-list-card');
+if(!isTextClipper&&!isSummaryChild&&(ov==='hidden'||ovY==='auto'||ovY==='scroll')){
+  el.style.overflow='visible';
+  el.style.overflowY='visible';
+  el.style.overflowX='visible';
+}
     el.classList.remove('collapsed');
   });
 }
