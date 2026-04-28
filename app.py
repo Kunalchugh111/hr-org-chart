@@ -156,7 +156,6 @@ body{display:flex;flex-direction:column}
 .btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
 .btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
 .btn-sm{padding:6px 13px;font-size:0.78rem;border-radius:8px}
-.btn-row{display:flex;gap:10px;margin-top:28px}
 .btn-export-all{background:linear-gradient(135deg,#7c3aed,#0284c7)!important;color:#fff!important;border:none!important;box-shadow:0 4px 14px rgba(124,58,237,0.35)!important}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
 /* CHART */
@@ -948,38 +947,14 @@ function mkNodeLI(node,depth){
   li.appendChild(card);
 
   if(kids.length){
-    /*
-     * MANAGER VIEW SUMMARISATION RULES:
-     *
-     * The node card itself is ALWAYS a full card — never summarised.
-     * Among a node's children:
-     *   - Manager children (≥1 direct report) → ALWAYS rendered as full cards in the tree
-     *   - Leaf children (0 direct reports)     → shown in a compact static summary list
-     *
-     * Example A → B(mgr), C(mgr), D(mgr), E(leaf):
-     *   B, C, D → full cards in tree  ✓
-     *   E       → appears in compact list attached below A  ✓
-     *
-     * Example B → X(mgr), Y(leaf), Z(leaf):
-     *   X       → full card in tree  ✓
-     *   Y, Z    → appear in compact list attached below B  ✓
-     *
-     * The compact list is static — no click / no drill-down.
-     */
     if(S.managerMode){
-      const managerKids=kids.filter(k=>isManager(k.id));  // have reportees → full cards
-      const leafKids=kids.filter(k=>!isManager(k.id));    // no reportees  → compact list
-
+      const managerKids=kids.filter(k=>isManager(k.id));
+      const leafKids=kids.filter(k=>!isManager(k.id));
       const ul=document.createElement('ul');
-
-      // Manager children always get full tree cards
       managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
-
-      // Leaf children are shown in a compact static list (no click)
       if(leafKids.length>0){
         ul.appendChild(mkLeafSummaryLI(leafKids,ac));
       }
-
       li.appendChild(ul);
     } else {
       const ul=document.createElement('ul');
@@ -990,25 +965,15 @@ function mkNodeLI(node,depth){
   return li;
 }
 
-/* ── LEAF SUMMARY LIST NODE ──
- *
- * Renders a compact static card listing leaf employees (no direct reports).
- * Used only in Manager View. Static — no click, no drill-down.
- *
- * CRITICAL EXPORT FIX:
- * Built entirely with createElement + direct style assignment (zero innerHTML).
- * html2canvas reliably renders DOM nodes built this way; innerHTML-based nodes
- * in off-screen stages often paint blank even with correct styles.
- */
+/* ── LEAF SUMMARY LIST NODE ── */
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
   const FONT="'Plus Jakarta Sans',sans-serif";
 
-  /* ── card wrapper ── */
   const card=document.createElement('div');
-  card.className='summary-list-card'; // triggers inlineStyles skip — preserves all inline styles
+  card.className='summary-list-card';
   Object.assign(card.style,{
     display:'inline-block',minWidth:'200px',maxWidth:'280px',
     background:'#ffffff',border:'1.5px solid #e2e8f0',
@@ -1017,7 +982,6 @@ function mkLeafSummaryLI(leafNodes,ac){
     fontFamily:FONT,overflow:'visible',verticalAlign:'top',
   });
 
-  /* ── header ── */
   const header=document.createElement('div');
   Object.assign(header.style,{
     padding:'7px 12px',background:'#f5f3ff',
@@ -1035,7 +999,6 @@ function mkLeafSummaryLI(leafNodes,ac){
   header.appendChild(titleSpan);header.appendChild(countBadge);
   card.appendChild(header);
 
-  /* ── body ── */
   const body=document.createElement('div');
   Object.assign(body.style,{padding:'4px 0',overflow:'visible',fontFamily:FONT});
 
@@ -1044,7 +1007,6 @@ function mkLeafSummaryLI(leafNodes,ac){
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
 
-    /* row */
     const row=document.createElement('div');
     Object.assign(row.style,{
       display:'flex',alignItems:'center',gap:'8px',
@@ -1053,7 +1015,6 @@ function mkLeafSummaryLI(leafNodes,ac){
     });
     row.title=n.name;
 
-    /* avatar */
     const fallback=document.createElement('div');
     Object.assign(fallback.style,{
       display:'flex',alignItems:'center',justifyContent:'center',
@@ -1075,7 +1036,6 @@ function mkLeafSummaryLI(leafNodes,ac){
       row.appendChild(fallback);
     }
 
-    /* text block */
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
     const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
@@ -1111,8 +1071,6 @@ function mkLeafSummaryLI(leafNodes,ac){
   li.appendChild(card);
   return li;
 }
-
-
 
 /* ── COLLAPSE / EXPAND ── */
 function toggleCollapse(li,btn){
@@ -1184,14 +1142,9 @@ function highlightNode(id){
 function inlineStyles(root){
   const PROPS=['color','backgroundColor','borderTopColor','borderBottomColor','borderLeftColor','borderRightColor','borderTopWidth','borderTopStyle','borderRadius','fontFamily','fontSize','fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom','paddingLeft','paddingRight','margin','display','flexDirection','justifyContent','alignItems','gap','whiteSpace','overflow','textOverflow','opacity','boxShadow','borderWidth','borderStyle','borderColor'];
   root.querySelectorAll('*').forEach(el=>{
-    // Skip summary list elements — they are 100% inline-styled already.
-    // Overwriting their computed styles would destroy the resolved colours/layout.
     if(el.closest('.summary-list-card')){return;}
-
     const cs=window.getComputedStyle(el);
     PROPS.forEach(p=>{try{const v=cs[p];if(v)el.style[p]=v;}catch(e){}});
-    // Open up hidden/auto overflow so html2canvas captures everything.
-    // Exceptions: node-card, ncard-name, ncard-sub need overflow:hidden for text clipping.
     const ov=el.style.overflow;
     const ovY=cs.overflowY;
     const isTextClipper=el.classList.contains('node-card')||el.classList.contains('ncard-name')||el.classList.contains('ncard-sub');
@@ -1204,58 +1157,91 @@ function inlineStyles(root){
   });
 }
 
-async function buildRenderStage(){
-  const PAD=20;
-  // THE FIX: Clone the live #org-tree which is already fully painted by the browser.
-  // Rebuilding from scratch via mkNodeLI creates elements the browser hasn't painted yet
-  // — html2canvas captures them before paint = blank boxes.
-  // The live tree's IC summary cards, node cards, photos are already rendered correctly.
+/* ═══════════════════════════════════════════════════════════════════════════
+   buildRenderStage — FIXED for Streamlit Cloud iframe export
+   ═══════════════════════════════════════════════════════════════════════════
+   ROOT CAUSE: The original used position:fixed for the off-screen render stage.
+   Inside a Streamlit Cloud iframe, position:fixed is relative to the iframe's
+   visible viewport. html2canvas captures only what fits inside that viewport
+   height — IC summary list rows that overflow below it render as blank boxes.
 
-  // Step 1: Expand all nodes so nothing is collapsed in the export
+   FIX 1: Use position:absolute inside a wrapper div that is in document flow.
+           html2canvas can now measure the true content height and capture
+           every row regardless of how tall the chart is.
+   FIX 2: Force .summary-list-card and all children to overflow:visible BEFORE
+           inlineStyles freezes computed styles, so no row is clipped.
+   FIX 3: Return {stage, wrapper} so callers can remove the wrapper (not just
+           the inner stage div).
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function buildRenderStage(){
+  const PAD=40;
+
+  // Step 1: expand all so nothing is hidden
   expandAll();
   await new Promise(r=>setTimeout(r,200));
 
-  // Step 2: Deep-clone the live rendered tree
+  // Step 2: deep-clone the live rendered tree
   const liveTree=document.getElementById('org-tree');
   const cloned=liveTree.cloneNode(true);
 
-  // Step 3: Strip interactive-only elements from the clone
+  // Step 3: strip interactive-only controls from the clone
   cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
   cloned.querySelectorAll('li.collapsed').forEach(li=>{
     li.classList.remove('collapsed');
     const u=li.querySelector(':scope > ul');if(u)u.style.display='';
     li.querySelector('.node-card')?.classList.remove('collapsed-node');
   });
-  // Ensure all child ULs are visible
   cloned.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
 
-  // Step 4: Place clone in an on-screen stage behind the export overlay
+  // FIX 1 ── position:absolute wrapper (not position:fixed)
+  const wrapper=document.createElement('div');
+  wrapper.style.cssText='position:absolute;top:-99999px;left:0;width:100%;overflow:visible;pointer-events:none;z-index:9998';
   const stage=document.createElement('div');
-  stage.style.cssText=`position:fixed;top:0;left:0;z-index:9998;background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;pointer-events:none;font-family:'Plus Jakarta Sans',sans-serif`;
+  stage.style.cssText=`background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;overflow:visible`;
   stage.appendChild(cloned);
-  document.body.appendChild(stage);
+  wrapper.appendChild(stage);
+  document.body.appendChild(wrapper);
 
-  // Step 5: Allow one full paint cycle + font load
-  await new Promise(r=>setTimeout(r,350));
+  // Allow one full paint cycle + font load
+  await new Promise(r=>setTimeout(r,400));
   if(document.fonts?.ready)await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,120));
+  await new Promise(r=>setTimeout(r,150));
 
-  // Step 6: Freeze computed styles for node cards (IC summary cards are skipped — already inline-styled)
+  // FIX 2 ── force summary list cards open before inlineStyles freezes styles
+  stage.querySelectorAll('.summary-list-card').forEach(card=>{
+    card.style.overflow='visible';
+    card.style.maxHeight='none';
+  });
+  stage.querySelectorAll('.summary-list-card *').forEach(el=>{
+    el.style.overflow='visible';
+    el.style.maxHeight='none';
+  });
+
   inlineStyles(stage);
-  await new Promise(r=>setTimeout(r,80));
-  return stage;
+  await new Promise(r=>setTimeout(r,100));
+
+  // FIX 3 ── return both so callers can remove the wrapper
+  return {stage, wrapper};
 }
-async function renderToCanvas(stage){
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   renderToCanvas — FIXED for Streamlit Cloud iframe export
+   ═══════════════════════════════════════════════════════════════════════════
+   FIX: Accept {stage,wrapper} object from buildRenderStage.
+   FIX: Remove windowWidth/windowHeight overrides — inside a Streamlit iframe
+        these values are capped by the iframe and cause html2canvas to clip
+        the output to the iframe viewport height, hiding IC summary rows.
+   ═══════════════════════════════════════════════════════════════════════════ */
+async function renderToCanvas(stageObj){
+  const stage=stageObj.stage||stageObj;
   const W=Math.ceil(stage.scrollWidth),H=Math.ceil(stage.scrollHeight);
   return html2canvas(stage,{
     backgroundColor:'#f8fafc',scale:3,useCORS:true,logging:false,
     allowTaint:true,foreignObjectRendering:false,
-    width:W,height:H,scrollX:0,scrollY:0,
-    windowWidth:Math.max(W+200,window.innerWidth),
-    windowHeight:Math.max(H+200,window.innerHeight),
-    x:0,y:0,
+    width:W,height:H,scrollX:0,scrollY:0,x:0,y:0,
   });
 }
+
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
 function csvEsc(v){return'"'+String(v??'').replace(/"/g,'""')+'"';}
 function buildCSVContent(){
@@ -1274,7 +1260,7 @@ async function exportPNG(){
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
   try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${stamp}.png`);res();},'image/png'));}
   catch(e){alert('PNG export failed: '+e.message);}
-  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 async function exportSubtree(e,nodeId){
@@ -1291,13 +1277,11 @@ async function exportSubtree(e,nodeId){
   function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
   cD(nodeId);cH(nodeId);cDep(nodeId,0);
   const savedZoom=S.zoom;applyZoom(1);
-  // Render the subtree into the LIVE chart first, then clone it.
-  // buildRenderStage now clones the live #org-tree, so the live chart must show the subtree.
   renderChart();
   await new Promise(r=>setTimeout(r,300));let stage;
   try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,`team_${safeName}_${stamp}.png`);res();},'image/png'));}
   catch(ex){alert('Subtree export failed: '+ex.message);}
-  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
+  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;renderChart();}
 }
 
 /* ── PPTX ── */
@@ -1368,7 +1352,7 @@ async function exportPPTX(){
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
   try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const blob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr':'';triggerDownload(blob,`orgchart_${fp?fp+'_':''}${mode}${dp}.pptx`);}
   catch(e){alert('PPTX failed: '+e.message);console.error(e);}
-  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 async function exportAll(){
@@ -1393,7 +1377,7 @@ async function exportAll(){
       outerZip.file(`${safeName}/${safeName}.csv`,buildCSVContent());
       let stage2;
       try{stage2=await buildRenderStage();const canvas2=await renderToCanvas(stage2);outerZip.file(`${safeName}/${safeName}.png`,canvas2.toDataURL('image/png').split(',')[1],{base64:true});const pptxBlob=await buildPPTXBlob(canvas2.toDataURL('image/png').split(',')[1],canvas2.width,canvas2.height,val);outerZip.file(`${safeName}/${safeName}.pptx`,pptxBlob);successCount++;}
-      finally{if(stage2)stage2.remove();}
+      finally{if(stage2?.wrapper)stage2.wrapper.remove();else if(stage2)stage2.remove();}
     }
   }finally{S.activeFilters=savedFilters;buildViewData();renderChart();buildFilterBar();overlay.remove();applyZoom(savedZoom);}
   if(successCount>0){const zipBlob=await outerZip.generateAsync({type:'blob',compression:'DEFLATE'});const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');triggerDownload(zipBlob,`orgcharts_all_${dp}.zip`);}
@@ -1403,7 +1387,7 @@ async function _exportAllSingleView(){
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
   try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const dp=new Date().toISOString().slice(0,10).replace(/-/g,'');const zip=new JSZip();zip.file('orgchart.csv',buildCSVContent());zip.file('orgchart.png',canvas.toDataURL('image/png').split(',')[1],{base64:true});const pptxBlob=await buildPPTXBlob(canvas.toDataURL('image/png').split(',')[1],canvas.width,canvas.height);zip.file('orgchart.pptx',pptxBlob);const zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});triggerDownload(zipBlob,`orgchart_${dp}.zip`);}
   catch(e){alert('Export failed: '+e.message);}
-  finally{if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
+  finally{if(stage?.wrapper)stage.wrapper.remove();else if(stage?.stage)stage.stage.remove();else if(stage)stage.remove();overlay.remove();applyZoom(savedZoom);}
 }
 
 /* ── REASSIGN MODAL ── */
