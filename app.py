@@ -167,7 +167,7 @@ body{display:flex;flex-direction:column}
 .filter-bar{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--border);padding:7px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:44px}
 .filter-dropdown-wrap{display:flex;align-items:center;gap:6px;font-size:0.79rem}
 .filter-dropdown-label{font-weight:700;color:var(--text2)}
-.filter-dropdown{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;font-size:0.79rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color 0.15s}
+.filter-dropdown{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;font-size:0.79rem;font-weight:600;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-image:url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color 0.15s}
 .filter-dropdown:focus{border-color:var(--accent)}
 .photo-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0}
 .photo-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
@@ -1151,7 +1151,7 @@ function makeOverlay(title,sub){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   buildRenderStage — Clone-based: no live DOM changes, zero wasted space
+   buildRenderStage — Clone-based with FULL style resolution for IC lists
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage() {
   expandAll();
@@ -1160,7 +1160,8 @@ async function buildRenderStage() {
   await new Promise(r => setTimeout(r, 150));
 
   const orgTree = document.getElementById('org-tree');
-
+  
+  // Create off-screen container for clone
   const container = document.createElement('div');
   container.style.cssText = [
     'position:fixed','top:0','left:0',
@@ -1171,75 +1172,89 @@ async function buildRenderStage() {
     "font-family:'Plus Jakarta Sans',sans-serif",
   ].join(';');
 
+  // Deep clone the org tree
   const clone = orgTree.cloneNode(true);
-
+  
+  // Remove interactive elements
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')
        .forEach(el => el.remove());
-
+  
+  // Expand all collapsed nodes in clone
   clone.querySelectorAll('li.collapsed').forEach(li => {
     li.classList.remove('collapsed');
     const ul = li.querySelector('ul');
     if (ul) ul.style.display = '';
+    const card = li.querySelector('.node-card');
+    if (card) card.classList.remove('collapsed-node');
   });
 
   container.appendChild(clone);
   document.body.appendChild(container);
 
-  // Clone is now in the LIVE DOM — browser computes real flex widths
+  // Force browser to compute layout
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 300));
 
-  // ── FREEZE: resolve flex widths → explicit px, then disable flex re-evaluation ──
-  clone.querySelectorAll('.summary-list-card, .summary-list-card *').forEach(el => {
+  // ── COMPREHENSIVE STYLE RESOLUTION FOR ALL ELEMENTS ──
+  const ALL_PROPS = [
+    'color','backgroundColor','borderTopColor','borderBottomColor',
+    'borderLeftColor','borderRightColor','borderTopWidth','borderBottomWidth',
+    'borderLeftWidth','borderRightWidth','borderTopStyle','borderBottomStyle',
+    'borderLeftStyle','borderRightStyle','borderRadius','fontFamily','fontSize',
+    'fontWeight','fontStyle','lineHeight','padding','paddingTop','paddingBottom',
+    'paddingLeft','paddingRight','margin','marginTop','marginBottom','marginLeft',
+    'marginRight','display','flexDirection','justifyContent','alignItems','gap',
+    'whiteSpace','overflow','overflowX','overflowY','textOverflow','opacity',
+    'boxShadow','borderWidth','borderStyle','borderColor','width','height',
+    'minWidth','minHeight','maxWidth','maxHeight','flex','flexGrow','flexShrink',
+    'flexBasis','position','top','left','right','bottom','zIndex','textAlign',
+    'verticalAlign','textDecoration','textTransform','letterSpacing','wordSpacing'
+  ];
+
+  // Process ALL elements in the clone
+  clone.querySelectorAll('*').forEach(el => {
     const cs = window.getComputedStyle(el);
-    const w  = parseFloat(cs.width);
-    const h  = parseFloat(cs.height);
-
-    // Step 1: stamp resolved pixel dimensions
-    if (isFinite(w) && w > 0) {
-      el.style.width    = w + 'px';
-      el.style.minWidth = w + 'px';
-      el.style.maxWidth = w + 'px';
+    
+    // Resolve ALL CSS properties to inline styles
+    ALL_PROPS.forEach(prop => {
+      try {
+        const val = cs[prop];
+        if (val && val !== 'auto' && val !== 'normal' && val !== 'none') {
+          el.style[prop] = val;
+        }
+      } catch(e) {}
+    });
+    
+    // Special handling for flex items to prevent reflow
+    if (cs.display === 'flex' || cs.display === 'inline-flex') {
+      el.style.flex = '0 0 auto';
+      el.style.flexGrow = '0';
+      el.style.flexShrink = '0';
+      el.style.flexBasis = 'auto';
     }
-    if (isFinite(h) && h > 0) {
-      el.style.height    = h + 'px';
-      el.style.minHeight = h + 'px';
-      el.style.maxHeight = 'none';
-    }
-
-    // Step 2: KILL flex so html2canvas cannot override our frozen width
-    el.style.flex       = '0 0 auto';
-    el.style.flexGrow   = '0';
-    el.style.flexShrink = '0';
-    el.style.flexBasis  = 'auto';
-
-    // Step 3: resolve CSS variables → actual values
-    el.style.color              = cs.color;
-    el.style.fontSize           = cs.fontSize;
-    el.style.fontWeight         = cs.fontWeight;
-    el.style.fontFamily         = cs.fontFamily;
-    el.style.lineHeight         = cs.lineHeight;
-    el.style.backgroundColor    = cs.backgroundColor;
-    el.style.borderTopColor     = cs.borderTopColor;
-    el.style.borderBottomColor  = cs.borderBottomColor;
-    el.style.borderLeftColor    = cs.borderLeftColor;
-    el.style.borderRightColor   = cs.borderRightColor;
-    el.style.padding            = cs.padding;
-
-    // Step 4: remove all clipping
-    el.style.overflow     = 'visible';
-    el.style.overflowX    = 'visible';
-    el.style.overflowY    = 'visible';
+    
+    // Ensure no clipping
+    el.style.overflow = 'visible';
+    el.style.overflowX = 'visible';
+    el.style.overflowY = 'visible';
     el.style.textOverflow = 'clip';
-    el.style.whiteSpace   = 'normal';
+    
+    // Remove any collapse state
+    el.classList.remove('collapsed');
   });
 
-  // ── FIX: return the stage object so callers can render and clean up ──
+  // ── EXTRA: Force summary list cards to have explicit backgrounds ──
+  clone.querySelectorAll('.summary-list-card').forEach(card => {
+    card.style.background = '#ffffff';
+    card.style.border = '1.5px solid #e2e8f0';
+    card.style.borderTop = '3px solid #7c3aed';
+  });
+
   return { wrapper: container, stage: container };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   renderToCanvas — auto-size from the clone; no manual width/height needed
+   renderToCanvas — Auto-size from clone dimensions
    ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
@@ -1261,7 +1276,6 @@ async function exportPNG(){
   try{
     stage=await buildRenderStage();
     const canvas=await renderToCanvas(stage);
-    console.log('Canvas size:', canvas.width, canvas.height);
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');
     const mode=S.managerMode?'_mgr_view':'';
