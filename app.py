@@ -1161,53 +1161,78 @@ async function buildRenderStage() {
 
   const orgTree = document.getElementById('org-tree');
 
-  // Sits BEHIND the export overlay (overlay=9999, this=9998)
-  // Browser must fully paint it — no visibility:hidden, no opacity:0
   const container = document.createElement('div');
   container.style.cssText = [
-    'position:fixed', 'top:0', 'left:0',
-    'background:#f8fafc', 'padding:24px',
+    'position:fixed','top:0','left:0',
+    'background:#f8fafc','padding:24px',
     'display:inline-block',
     'z-index:9998',
     'pointer-events:none',
     "font-family:'Plus Jakarta Sans',sans-serif",
   ].join(';');
 
-  // Deep clone the live tree
   const clone = orgTree.cloneNode(true);
 
-  // Strip interactive chrome
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn')
        .forEach(el => el.remove());
 
-  // Expand every collapsed branch
   clone.querySelectorAll('li.collapsed').forEach(li => {
     li.classList.remove('collapsed');
     const ul = li.querySelector('ul');
     if (ul) ul.style.display = '';
   });
 
-  // Remove ALL overflow/max-height clipping so IC rows fully paint
-  clone.querySelectorAll('*').forEach(el => {
-    if (el.style.overflow && el.style.overflow !== 'visible')
-      el.style.overflow = 'visible';
-    if (el.style.overflowY) el.style.overflowY = 'visible';
-    if (el.style.maxHeight) el.style.maxHeight = 'none';
-  });
-
   container.appendChild(clone);
   document.body.appendChild(container);
 
-  // Give browser two animation frames to fully paint
+  // Clone is now in the LIVE DOM — browser computes real flex widths
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r => setTimeout(r, 300));
+
+  // ── FREEZE computed dimensions on every element inside summary cards ──
+  // This is the critical step: once we read getComputedStyle from the live
+  // clone, flex:1 has already resolved to a real pixel width. We stamp it
+  // as an explicit inline style so html2canvas never needs to re-solve flex.
+  clone.querySelectorAll(
+    '.summary-list-card, .summary-list-card *'
+  ).forEach(el => {
+    const cs = window.getComputedStyle(el);
+    const w  = parseFloat(cs.width);
+    const h  = parseFloat(cs.height);
+
+    if (isFinite(w) && w > 0)  el.style.width  = w + 'px';
+    if (isFinite(h) && h > 0)  el.style.height = h + 'px';
+    if (isFinite(h) && h > 0)  el.style.minHeight = h + 'px';
+
+    // Freeze all visual styles so html2canvas doesn't recompute from CSS vars
+    el.style.color           = cs.color;
+    el.style.fontSize        = cs.fontSize;
+    el.style.fontWeight      = cs.fontWeight;
+    el.style.fontFamily      = cs.fontFamily;
+    el.style.lineHeight      = cs.lineHeight;
+    el.style.backgroundColor = cs.backgroundColor;
+    el.style.borderTopColor  = cs.borderTopColor;
+    el.style.borderBottomColor = cs.borderBottomColor;
+    el.style.borderLeftColor = cs.borderLeftColor;
+    el.style.borderRightColor = cs.borderRightColor;
+    el.style.padding         = cs.padding;
+    el.style.display         = cs.display;
+
+    // Remove ALL clipping — with explicit px widths set above,
+    // nothing will actually overflow anyway
+    el.style.overflow        = 'visible';
+    el.style.overflowX       = 'visible';
+    el.style.overflowY       = 'visible';
+    el.style.maxHeight       = 'none';
+    el.style.textOverflow    = 'clip';
+    el.style.whiteSpace      = 'normal';
+  });
 
   return {
     stage: container,
     wrapper: { remove: () => container.remove() },
   };
 }
-
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
   return html2canvas(el, {
