@@ -1175,54 +1175,91 @@ if(!isTextClipper&&!isSummaryChild&&(ov==='hidden'||ovY==='auto'||ovY==='scroll'
            the inner stage div).
    ═══════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage(){
-  const PAD=40;
-
-  // Step 1: expand all so nothing is hidden
+  // Expand everything first
   expandAll();
-  await new Promise(r=>setTimeout(r,200));
+  await new Promise(r=>setTimeout(r,300));
 
-  // Step 2: deep-clone the live rendered tree
-  const liveTree=document.getElementById('org-tree');
-  const cloned=liveTree.cloneNode(true);
-
-  // Step 3: strip interactive-only controls from the clone
-  cloned.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(b=>b.remove());
-  cloned.querySelectorAll('li.collapsed').forEach(li=>{
-    li.classList.remove('collapsed');
-    const u=li.querySelector(':scope > ul');if(u)u.style.display='';
-    li.querySelector('.node-card')?.classList.remove('collapsed-node');
+  const content = document.getElementById('chart-canvas-content');
+  
+  // Temporarily override transform and make sure everything is visible
+  const prevTransform = content.style.transform;
+  content.style.transform = 'scale(1)';
+  content.style.transformOrigin = 'top left';
+  
+  // Force summary cards to be fully visible
+  content.querySelectorAll('.summary-list-card').forEach(card=>{
+    card.style.overflow = 'visible';
+    card.style.maxHeight = 'none';
   });
-  cloned.querySelectorAll('ul').forEach(ul=>{ul.style.display='';});
+  content.querySelectorAll('.summary-list-card *').forEach(el=>{
+    el.style.overflow = 'visible';
+    el.style.maxHeight = 'none';
+  });
 
-  // FIX 1 ── position:absolute wrapper (not position:fixed)
-  const wrapper=document.createElement('div');
-  wrapper.style.cssText='position:absolute;top:-99999px;left:0;width:100%;overflow:visible;pointer-events:none;z-index:9998';
-  const stage=document.createElement('div');
-  stage.style.cssText=`background:#f8fafc;padding:${PAD}px;display:inline-block;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;overflow:visible`;
-  stage.appendChild(cloned);
-  wrapper.appendChild(stage);
-  document.body.appendChild(wrapper);
+  // Hide interactive controls so they don't appear in export
+  const hideEls = content.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn');
+  hideEls.forEach(el=>el.style.display='none');
 
-  // Allow one full paint cycle + font load
-  await new Promise(r=>setTimeout(r,400));
-  if(document.fonts?.ready)await document.fonts.ready;
   await new Promise(r=>setTimeout(r,150));
-
-  // FIX 2 ── force summary list cards open before inlineStyles freezes styles
-  stage.querySelectorAll('.summary-list-card').forEach(card=>{
-    card.style.overflow='visible';
-    card.style.maxHeight='none';
-  });
-  stage.querySelectorAll('.summary-list-card *').forEach(el=>{
-    el.style.overflow='visible';
-    el.style.maxHeight='none';
-  });
-
-  inlineStyles(stage);
+  if(document.fonts?.ready) await document.fonts.ready;
   await new Promise(r=>setTimeout(r,100));
 
-  // FIX 3 ── return both so callers can remove the wrapper
-  return {stage, wrapper};
+  // Return a "stage" object that references the live element
+  return {
+    stage: content,
+    wrapper: null,
+    _prevTransform: prevTransform,
+    _hideEls: hideEls
+  };
+}
+
+async function renderToCanvas(stageObj){
+  const stage = stageObj.stage || stageObj;
+  const W = Math.ceil(stage.scrollWidth);
+  const H = Math.ceil(stage.scrollHeight);
+  
+  const canvas = await html2canvas(stage, {
+    backgroundColor: '#f8fafc',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    allowTaint: true,
+    foreignObjectRendering: false,
+    width: W,
+    height: H,
+    scrollX: -window.scrollX,
+    scrollY: -window.scrollY,
+    x: 0,
+    y: 0,
+    onclone: (clonedDoc) => {
+      // In the clone, force all summary card children fully visible
+      clonedDoc.querySelectorAll('.summary-list-card').forEach(card=>{
+        card.style.overflow='visible';
+        card.style.maxHeight='none';
+        card.style.display='inline-block';
+      });
+      clonedDoc.querySelectorAll('.summary-list-card *').forEach(el=>{
+        el.style.overflow='visible';
+        el.style.maxHeight='none';
+      });
+      // Restore hidden controls to not appear
+      clonedDoc.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>{
+        el.style.display='none';
+      });
+    }
+  });
+
+  // Restore live DOM
+  if(stageObj._prevTransform !== undefined){
+    stage.style.transform = stageObj._prevTransform;
+  }
+  if(stageObj._hideEls){
+    stageObj._hideEls.forEach(el=>el.style.display='');
+  }
+  // Restore zoom display
+  applyZoom(S.zoom);
+
+  return canvas;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
