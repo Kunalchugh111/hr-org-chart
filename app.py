@@ -1342,6 +1342,3 @@ document.getElementById('reassign-modal').addEventListener('click',function(e){i
 
 components.html(APP_HTML, height=900, scrolling=False)
 
-
-You are out of free messages until 4:10 PM
-Keep working
