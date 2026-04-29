@@ -1234,9 +1234,6 @@ async function buildRenderStage() {
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 500));
 
-  el.style.textOverflow = 'ellipsis';
-  });
-
   return { stage: container, wrapper: container };
 }
 
