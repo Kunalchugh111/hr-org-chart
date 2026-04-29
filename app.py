@@ -1196,7 +1196,7 @@ async function buildRenderStage() {
   container.style.cssText = [
     'position:fixed',
     'top:0',
-    'left:0',
+    'left:-99999px',
     'background:#f8fafc',
     'padding:48px 64px 80px 64px',
     'display:inline-block',
@@ -1234,7 +1234,10 @@ async function buildRenderStage() {
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 500));
 
-  return { wrapper: container, stage: container };
+  el.style.textOverflow = 'ellipsis';
+  });
+
+  return { stage: container, wrapper: container };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -1242,6 +1245,9 @@ async function buildRenderStage() {
    ═══════════════════════════════════════════════════════════════════════════ */
 async function renderToCanvas(stageObj) {
   const el = stageObj.stage;
+  const w = el.scrollWidth || el.offsetWidth;
+  const h = el.scrollHeight || el.offsetHeight;
+
   return html2canvas(el, {
     backgroundColor: '#f8fafc',
     scale: 2,
@@ -1249,21 +1255,16 @@ async function renderToCanvas(stageObj) {
     logging: false,
     allowTaint: true,
     foreignObjectRendering: false,
+    width: Math.ceil(w),
+    height: Math.ceil(h),
+    windowWidth: Math.ceil(w) + 200,
+    windowHeight: Math.ceil(h) + 200,
     scrollX: 0,
     scrollY: 0,
-    onclone: (clonedDoc, clonedEl) => {
-      /* Ensure every summary-list row and its text children are fully visible */
-      clonedEl.querySelectorAll('.summary-list-card').forEach(card => {
-        card.style.overflow = 'visible';
-        card.querySelectorAll('div').forEach(d => {
-          if (d.style.display === 'none') return; // keep intentionally hidden (fallback avatars)
-          d.style.overflow = 'visible';
-        });
-      });
-    },
+    x: 0,
+    y: 0,
   });
 }
-
 async function exportPNG(){
   const overlay=makeOverlay('Rendering org chart…','Capturing full chart at 2× resolution');document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;
