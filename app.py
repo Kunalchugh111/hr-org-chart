@@ -176,7 +176,7 @@ body{display:flex;flex-direction:column}
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
-.summary-list-card{display:inline-block;min-width:200px;max-width:280px;background:var(--bg);border:1.5px solid var(--border);border-top:3px solid #7c3aed;border-radius:var(--r-lg);box-shadow:var(--shadow-sm);font-family:'Plus Jakarta Sans',sans-serif;cursor:default}
+.summary-list-card{display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
@@ -925,72 +925,66 @@ function mkNodeLI(node,depth){
   return li;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX: mkLeafSummaryLI rebuilt with innerHTML (not DOM API) so html2canvas
+//      renders it correctly in PNG/PPTX exports. Key changes:
+//  1. All content via innerHTML string — no createElement/appendChild for content
+//  2. flex gap removed → margin-right on avatar instead (html2canvas 1.4.1 gap bug)
+//  3. px sizes instead of rem/em for reliable off-screen rendering
+//  4. overflow:hidden on card → prevents height collapse in capture stage
+// ─────────────────────────────────────────────────────────────────────────────
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
-  const FONT="'Plus Jakarta Sans',sans-serif";
-  const card=document.createElement('div');
-  card.className='summary-list-card';
-  card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'+FONT+';overflow:visible;vertical-align:top';
-  const header=document.createElement('div');
-  header.style.cssText='padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;font-family:'+FONT;
-  const titleSpan=document.createElement('span');
-  titleSpan.style.cssText='font-size:0.68rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;font-family:'+FONT;
-  titleSpan.textContent='ICs ('+count+')';
-  const countBadge=document.createElement('span');
-  countBadge.style.cssText='font-size:0.68rem;font-weight:800;background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;font-family:'+FONT;
-  countBadge.textContent=String(count);
-  header.appendChild(titleSpan);header.appendChild(countBadge);card.appendChild(header);
-  const body=document.createElement('div');
-  body.style.cssText='padding:4px 0;overflow:visible;font-family:'+FONT;
-  card.appendChild(body);
+
+  let rowsHtml='';
   leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
     const isLast=idx===leafNodes.length-1;
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 12px;font-family:'+FONT+';border-bottom:'+(isLast?'none':'1px solid #e2e8f0')+';background:#ffffff';
-    row.title=n.name;
-    const fallback=document.createElement('div');
-    fallback.style.cssText='display:flex;align-items:center;justify-content:center;width:26px;height:26px;min-width:26px;border-radius:8px;font-size:0.6rem;font-weight:800;font-family:'+FONT+';background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;flex-shrink:0';
-    fallback.textContent=initials;
-    if(photoUrl){
-      const img=document.createElement('img');
-      img.style.cssText='width:26px;height:26px;min-width:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;flex-shrink:0;display:block';
-      img.src=photoUrl;img.crossOrigin='anonymous';
-      img.onerror=function(){this.style.display='none';fallback.style.display='flex';};
-      row.appendChild(img);row.appendChild(fallback);fallback.style.display='none';
-    } else {
-      row.appendChild(fallback);
-    }
+
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
     const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
-    const textWrap=document.createElement('div');
-    textWrap.style.cssText='flex:1;min-width:0;overflow:hidden;font-family:'+FONT;
-    const nameLine=document.createElement('div');
-    nameLine.style.cssText='font-size:0.75rem;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'+FONT+';max-width:210px';
-    nameLine.textContent=primaryVal;
-    textWrap.appendChild(nameLine);
-    if(showNameSub){
-      const subLine=document.createElement('div');
-      subLine.style.cssText='font-size:0.65rem;color:#475569;font-weight:600;font-family:'+FONT+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px';
-      subLine.textContent=nameVal;
-      textWrap.appendChild(subLine);
+
+    const rowStyle='display:table;width:100%;padding:6px 12px;background:#ffffff;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+    const avatarBase='display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;margin-right:8px;flex-shrink:0;';
+
+    let avatarHtml;
+    if(photoUrl){
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;margin-right:8px;">';
+    } else {
+      avatarHtml='<div style="'+avatarBase+'background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
     }
-    if(val2){
-      const val2Line=document.createElement('div');
-      val2Line.style.cssText='font-size:0.68rem;color:#94a3b8;font-family:'+FONT+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px';
-      val2Line.textContent=val2;
-      textWrap.appendChild(val2Line);
-    }
-    row.appendChild(textWrap);
-    body.appendChild(row);
+
+    let subLines='';
+    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;">'+esc(val2)+'</div>';}
+
+    rowsHtml+=
+      '<div style="'+rowStyle+'">'+
+        '<div style="display:inline-block;vertical-align:middle;">'+avatarHtml+'</div>'+
+        '<div style="display:inline-block;vertical-align:middle;max-width:178px;overflow:hidden;">'+
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;">'+esc(primaryVal)+'</div>'+
+          subLines+
+        '</div>'+
+      '</div>';
   });
+
+  const card=document.createElement('div');
+  card.className='summary-list-card';
+  card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
+  card.innerHTML=
+    '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:table;width:100%;box-sizing:border-box;">'+
+      '<span style="display:table-cell;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs&nbsp;('+count+')</span>'+
+      '<span style="display:table-cell;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;">'+count+'</span></span>'+
+    '</div>'+
+    '<div style="background:#ffffff;">'+rowsHtml+'</div>';
+
   li.appendChild(card);
   return li;
 }
@@ -1089,8 +1083,11 @@ async function buildRenderStage(){
     if(ul)ul.style.removeProperty('display');
     const card=li.querySelector('.node-card');
     if(card)card.classList.remove('collapsed-node');
+    const b=li.querySelector('.collapse-btn');
+    if(b){b.innerHTML='▾';b.style.color='';}
   });
-  clone.querySelectorAll('.node-card').forEach(c=>{
+  // Fix: include summary-list-card in cleanup
+  clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{
     c.style.removeProperty('opacity');
     c.style.removeProperty('transform');
   });
@@ -1344,3 +1341,7 @@ document.getElementById('reassign-modal').addEventListener('click',function(e){i
 </html>'''
 
 components.html(APP_HTML, height=900, scrolling=False)
+
+
+You are out of free messages until 4:10 PM
+Keep working
