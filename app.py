@@ -937,6 +937,12 @@ function mkNodeLI(node,depth){
 // FIXED mkLeafSummaryLI — replace the entire function in your .py file
 // Fix: display:table-cell with explicit px widths so html2canvas renders text
 // ─────────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// FINAL FIX: mkLeafSummaryLI
+// Uses real <table><tr><td> elements — html2canvas renders these
+// perfectly. CSS display:table-cell with overflow:hidden clips to 0.
+// Replace the ENTIRE mkLeafSummaryLI function with this.
+// ═══════════════════════════════════════════════════════════════════
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
@@ -955,44 +961,41 @@ function mkLeafSummaryLI(leafNodes,ac){
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
-    // KEY FIX 1: table-layout:fixed so cells get explicit widths
-    const rowStyle='display:table;table-layout:fixed;width:100%;padding:6px 12px;background:#ffffff;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
-
-    // KEY FIX 2: no margin-right (padding-right on the cell handles spacing)
-    const avatarBase='display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;flex-shrink:0;';
+    const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';
 
     let avatarHtml;
     if(photoUrl){
-      // KEY FIX 3: no margin-right on img either
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;display:block;">';
     } else {
-      avatarHtml='<div style="'+avatarBase+'background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;display:block;">'+esc(initials)+'</div>';
     }
 
-    let subLines='';
-    // KEY FIX 4: explicit width not max-width
-    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:160px;">'+esc(nameVal)+'</div>';}
-    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:160px;">'+esc(val2)+'</div>';}
+    let textHtml='<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;">'+esc(primaryVal)+'</div>';
+    if(showNameSub){textHtml+='<div style="font-size:9px;color:#475569;font-weight:600;white-space:nowrap;">'+esc(nameVal)+'</div>';}
+    if(val2){textHtml+='<div style="font-size:9px;color:#94a3b8;white-space:nowrap;">'+esc(val2)+'</div>';}
 
-    // KEY FIX 5: table-cell layout — avatar cell fixed 34px, text cell fills rest
+    // Real <table> so html2canvas lays out cells reliably
     rowsHtml+=
-      '<div style="'+rowStyle+'">'+
-        '<div style="display:table-cell;width:34px;vertical-align:middle;padding-right:8px;">'+avatarHtml+'</div>'+
-        '<div style="display:table-cell;vertical-align:middle;overflow:hidden;">'+
-          '<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:160px;">'+esc(primaryVal)+'</div>'+
-          subLines+
-        '</div>'+
-      '</div>';
+      '<table style="width:100%;border-collapse:collapse;background:#ffffff;'+rowBorder+'">'+
+        '<tr>'+
+          '<td style="width:34px;padding:5px 8px 5px 12px;vertical-align:middle;">'+avatarHtml+'</td>'+
+          '<td style="padding:5px 12px 5px 0;vertical-align:middle;max-width:170px;">'+textHtml+'</td>'+
+        '</tr>'+
+      '</table>';
   });
 
   const card=document.createElement('div');
   card.className='summary-list-card';
   card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
+
+  // Real <table> for header too
   card.innerHTML=
-    '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:table;table-layout:fixed;width:100%;box-sizing:border-box;">'+
-      '<span style="display:table-cell;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs&nbsp;('+count+')</span>'+
-      '<span style="display:table-cell;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;display:inline-block;">'+count+'</span></span>'+
-    '</div>'+
+    '<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;">'+
+      '<tr>'+
+        '<td style="padding:7px 12px;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs ('+count+')</td>'+
+        '<td style="padding:7px 12px;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;display:inline-block;">'+count+'</span></td>'+
+      '</tr>'+
+    '</table>'+
     '<div style="background:#ffffff;">'+rowsHtml+'</div>';
 
   li.appendChild(card);
