@@ -926,58 +926,76 @@ function mkNodeLI(node,depth){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DEFINITIVE FIX: mkLeafSummaryLI uses float+clearfix layout.
-// html2canvas 1.4.1 fails on display:flex gap AND display:table-cell text.
-// float:left + margin-left + clear:both is the ONLY reliably rendered layout.
-// ─────────────────────────────────────────────────────────────────────────────
+// FIX: mkLeafSummaryLI rebuilt with innerHTML (not DOM API) so html2canvas
+//      renders it correctly in PNG/PPTX exports. Key changes:
+//  1. All content via innerHTML string — no createElement/appendChild for content
+//  2. flex gap removed → margin-right on avatar instead (html2canvas 1.4.1 gap bug)
+//  3. px sizes instead of rem/em for reliable off-screen rendering
+//  4. overflow:hidden on card → prevents height collapse in capture stage
+// Replace ONLY the mkLeafSummaryLI function in your .py file.
+// Find: function mkLeafSummaryLI(leafNodes,ac){
+// Replace to the closing } before function toggleCollapse
+
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
+
   let rowsHtml='';
   leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
     const isLast=idx===leafNodes.length-1;
+
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
     const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
+
+    // display:table;table-layout:fixed — works for avatar rendering
+    const rowStyle='display:table;table-layout:fixed;width:100%;padding:6px 12px;background:#ffffff;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+
+    // Avatar: inline-block — this rendered correctly in the previous version
+    const avatarBase='display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;flex-shrink:0;';
+
     let avatarHtml;
     if(photoUrl){
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="float:left;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="float:left;width:26px;height:26px;border-radius:8px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;font-size:9px;font-weight:800;text-align:center;line-height:26px;font-family:Plus Jakarta Sans,sans-serif;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="'+avatarBase+'background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
     }
+
     let subLines='';
-    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;font-family:Plus Jakarta Sans,sans-serif;">'+esc(nameVal)+'</div>';}
-    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;font-family:Plus Jakarta Sans,sans-serif;">'+esc(val2)+'</div>';}
+    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;white-space:nowrap;">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;white-space:nowrap;">'+esc(val2)+'</div>';}
+
     rowsHtml+=
-      '<div style="padding:5px 10px;background:#ffffff;'+(isLast?'':'border-bottom:1px solid #e2e8f0;')+'overflow:hidden;">'+
-        avatarHtml+
-        '<div style="margin-left:32px;">'+
-          '<div style="font-size:11px;font-weight:700;color:#0f172a;font-family:Plus Jakarta Sans,sans-serif;">'+esc(primaryVal)+'</div>'+
+      '<div style="'+rowStyle+'">'+
+        // Avatar cell — kept exactly as doc3 (it worked)
+        '<div style="display:table-cell;width:34px;vertical-align:middle;padding-right:8px;">'+avatarHtml+'</div>'+
+        // Text cell — THE FIX: width:160px explicit + NO overflow:hidden on the cell
+        '<div style="display:table-cell;width:160px;vertical-align:middle;">'+
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;">'+esc(primaryVal)+'</div>'+
           subLines+
         '</div>'+
-        '<div style="clear:both;"></div>'+
       '</div>';
   });
+
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:Plus Jakarta Sans,sans-serif;';
+  card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
   card.innerHTML=
-    '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;overflow:hidden;">'+
-      '<span style="float:left;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;font-family:Plus Jakarta Sans,sans-serif;">ICs ('+count+')</span>'+
-      '<span style="float:right;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;font-size:10px;font-weight:800;display:inline-block;">'+count+'</span></span>'+
-      '<div style="clear:both;"></div>'+
+    '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:table;table-layout:fixed;width:100%;box-sizing:border-box;">'+
+      '<span style="display:table-cell;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs&nbsp;('+count+')</span>'+
+      '<span style="display:table-cell;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;display:inline-block;">'+count+'</span></span>'+
     '</div>'+
     '<div style="background:#ffffff;">'+rowsHtml+'</div>';
+
   li.appendChild(card);
   return li;
 }
-
 function toggleCollapse(li,btn){
   li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');
   const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display=c?'none':'';
@@ -1075,6 +1093,7 @@ async function buildRenderStage(){
     const b=li.querySelector('.collapse-btn');
     if(b){b.innerHTML='▾';b.style.color='';}
   });
+  // Fix: include summary-list-card in cleanup
   clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{
     c.style.removeProperty('opacity');
     c.style.removeProperty('transform');
