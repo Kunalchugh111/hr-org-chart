@@ -943,6 +943,10 @@ function mkNodeLI(node,depth){
 // perfectly. CSS display:table-cell with overflow:hidden clips to 0.
 // Replace the ENTIRE mkLeafSummaryLI function with this.
 // ═══════════════════════════════════════════════════════════════════
+// Replace ONLY the mkLeafSummaryLI function in your .py file.
+// Find: function mkLeafSummaryLI(leafNodes,ac){
+// Replace to the closing } before function toggleCollapse
+
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
@@ -961,41 +965,43 @@ function mkLeafSummaryLI(leafNodes,ac){
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
-    const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';
+    // display:table;table-layout:fixed — works for avatar rendering
+    const rowStyle='display:table;table-layout:fixed;width:100%;padding:6px 12px;background:#ffffff;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+
+    // Avatar: inline-block — this rendered correctly in the previous version
+    const avatarBase='display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;flex-shrink:0;';
 
     let avatarHtml;
     if(photoUrl){
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;display:block;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;display:block;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="'+avatarBase+'background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
     }
 
-    let textHtml='<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;">'+esc(primaryVal)+'</div>';
-    if(showNameSub){textHtml+='<div style="font-size:9px;color:#475569;font-weight:600;white-space:nowrap;">'+esc(nameVal)+'</div>';}
-    if(val2){textHtml+='<div style="font-size:9px;color:#94a3b8;white-space:nowrap;">'+esc(val2)+'</div>';}
+    let subLines='';
+    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;white-space:nowrap;">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;white-space:nowrap;">'+esc(val2)+'</div>';}
 
-    // Real <table> so html2canvas lays out cells reliably
     rowsHtml+=
-      '<table style="width:100%;border-collapse:collapse;background:#ffffff;'+rowBorder+'">'+
-        '<tr>'+
-          '<td style="width:34px;padding:5px 8px 5px 12px;vertical-align:middle;">'+avatarHtml+'</td>'+
-          '<td style="padding:5px 12px 5px 0;vertical-align:middle;max-width:170px;">'+textHtml+'</td>'+
-        '</tr>'+
-      '</table>';
+      '<div style="'+rowStyle+'">'+
+        // Avatar cell — kept exactly as doc3 (it worked)
+        '<div style="display:table-cell;width:34px;vertical-align:middle;padding-right:8px;">'+avatarHtml+'</div>'+
+        // Text cell — THE FIX: width:160px explicit + NO overflow:hidden on the cell
+        '<div style="display:table-cell;width:160px;vertical-align:middle;">'+
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;">'+esc(primaryVal)+'</div>'+
+          subLines+
+        '</div>'+
+      '</div>';
   });
 
   const card=document.createElement('div');
   card.className='summary-list-card';
   card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
-
-  // Real <table> for header too
   card.innerHTML=
-    '<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;">'+
-      '<tr>'+
-        '<td style="padding:7px 12px;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs ('+count+')</td>'+
-        '<td style="padding:7px 12px;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;display:inline-block;">'+count+'</span></td>'+
-      '</tr>'+
-    '</table>'+
+    '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:table;table-layout:fixed;width:100%;box-sizing:border-box;">'+
+      '<span style="display:table-cell;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs&nbsp;('+count+')</span>'+
+      '<span style="display:table-cell;text-align:right;font-size:10px;font-weight:800;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:1px 8px;display:inline-block;">'+count+'</span></span>'+
+    '</div>'+
     '<div style="background:#ffffff;">'+rowsHtml+'</div>';
 
   li.appendChild(card);
