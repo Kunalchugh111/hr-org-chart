@@ -932,24 +932,9 @@ function mkNodeLI(node,depth){
 //  2. flex gap removed → margin-right on avatar instead (html2canvas 1.4.1 gap bug)
 //  3. px sizes instead of rem/em for reliable off-screen rendering
 //  4. overflow:hidden on card → prevents height collapse in capture stage
-// ─────────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────────
-// FIXED mkLeafSummaryLI — replace the entire function in your .py file
-// Fix: display:table-cell with explicit px widths so html2canvas renders text
-// ─────────────────────────────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-// FINAL FIX: mkLeafSummaryLI
-// Uses real <table><tr><td> elements — html2canvas renders these
-// perfectly. CSS display:table-cell with overflow:hidden clips to 0.
-// Replace the ENTIRE mkLeafSummaryLI function with this.
-// ═══════════════════════════════════════════════════════════════════
 // Replace ONLY the mkLeafSummaryLI function in your .py file.
 // Find: function mkLeafSummaryLI(leafNodes,ac){
 // Replace to the closing } before function toggleCollapse
-
-// REPLACE the entire mkLeafSummaryLI function with this.
-// Root cause: html2canvas 1.4.1 drops text-only content in display:table-cell
-// when the cell has no background. Float layout always works correctly.
 
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
@@ -969,32 +954,38 @@ function mkLeafSummaryLI(leafNodes,ac){
     const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
     const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
 
+    // display:table;table-layout:fixed — works for avatar rendering
+    const rowStyle='display:table;table-layout:fixed;width:100%;padding:6px 12px;background:#ffffff;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+
+    // Avatar: inline-block — this rendered correctly in the previous version
+    const avatarBase='display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;flex-shrink:0;';
+
     let avatarHtml;
     if(photoUrl){
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;display:block;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:inline-block;vertical-align:middle;width:26px;height:26px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="width:26px;height:26px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:26px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;display:block;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="'+avatarBase+'background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
     }
 
     let subLines='';
-    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;line-height:13px;">'+esc(nameVal)+'</div>';}
-    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;line-height:13px;">'+esc(val2)+'</div>';}
+    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;white-space:nowrap;">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;white-space:nowrap;">'+esc(val2)+'</div>';}
 
-    // FLOAT LAYOUT — html2canvas renders floats correctly, unlike table-cell text
     rowsHtml+=
-      '<div style="background:#ffffff;padding:5px 0;box-sizing:border-box;'+(isLast?'':'border-bottom:1px solid #e2e8f0;')+'">'+
-        '<div style="float:left;width:26px;margin-left:12px;margin-right:10px;margin-top:1px;">'+avatarHtml+'</div>'+
-        '<div style="float:left;width:150px;">'+
-          '<div style="font-size:11px;font-weight:700;color:#0f172a;line-height:14px;background:#ffffff;">'+esc(primaryVal)+'</div>'+
+      '<div style="'+rowStyle+'">'+
+        // Avatar cell — kept exactly as doc3 (it worked)
+        '<div style="display:table-cell;width:34px;vertical-align:middle;padding-right:8px;">'+avatarHtml+'</div>'+
+        // Text cell — THE FIX: width:160px explicit + NO overflow:hidden on the cell
+        '<div style="display:table-cell;width:160px;vertical-align:middle;">'+
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;">'+esc(primaryVal)+'</div>'+
           subLines+
         '</div>'+
-        '<div style="clear:both;height:0;font-size:0;"></div>'+
       '</div>';
   });
 
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.style.cssText='display:inline-block;width:212px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
+  card.style.cssText='display:inline-block;min-width:200px;max-width:280px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);';
   card.innerHTML=
     '<div style="padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:table;table-layout:fixed;width:100%;box-sizing:border-box;">'+
       '<span style="display:table-cell;font-size:10px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs&nbsp;('+count+')</span>'+
@@ -1005,7 +996,6 @@ function mkLeafSummaryLI(leafNodes,ac){
   li.appendChild(card);
   return li;
 }
-
 function toggleCollapse(li,btn){
   li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');
   const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display=c?'none':'';
