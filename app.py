@@ -351,7 +351,6 @@ body{display:flex;flex-direction:column}
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div><div class="tb-sep"></div>
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()"><div class="mgr-mode-dot"></div>Manager View</div>
       <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none"><span class="summary-fields-label">Show</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart()"><option value="">Field 1...</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart()"><option value="">Field 2...</option></select></div><div class="tb-sep"></div>
-      <!-- FIX #5: Added webkitdirectory attribute for folder picking fallback -->
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple webkitdirectory/>
       <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">📸 <span id="photo-btn-label">Load Photos</span><span class="photo-count" id="photo-count" style="display:none">0</span></div><div class="tb-sep"></div>
       <div style="flex:1"></div>
@@ -372,21 +371,9 @@ body{display:flex;flex-direction:column}
 <script>
 /* ═══════════════════════════════════════════════════════════════════════
  * OrgDesign Pro — Fixed version
- * Fixes applied:
- *   #1  esc() escapes single quotes (prevents broken onclick handlers)
- *   #2  onDragEnd clears S.draggingField (prevents stale drag state)
- *   #3  renderChart uses S.childMap[''] for root detection (fixes subtree export)
- *   #4  exportSubtree saves/restores S.skipDepth (fixes camera icon export)
- *   #5  webkitdirectory on photo input (enables folder picking fallback)
- *   #6  buildRenderStage saves/restores collapsed state
- *   #7  confirmColumnMap validates no duplicate column mappings
- *   #8  Filter chips use event delegation (no inline onclick escaping issues)
- *   #9  Cycle detection in calc functions + accurate visible count + CSV newlines
- *   #10 autoDetect uses priority matching (exact > startsWith > includes)
  * ═══════════════════════════════════════════════════════════════════════ */
 const S={rawRows:[],columns:[],colSamples:{},colMap:{empId:'',empName:'',managerId:''},cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},cardAccent:'#4f46e5',empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},filterCols:[],activeFilters:{},managerOverrides:{},removedIds:new Set(),viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},zoom:1,highlighted:null,draggingField:null,reassignTarget:null,reassignPick:null,skipDepth:0,photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',managerMode:false,summaryField1:'',summaryField2:''};
 
-/* FIX #1: esc() now escapes single quotes */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
@@ -394,7 +381,6 @@ function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.
 function handleFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}else if(['xlsx','xls'].includes(ext)){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));};reader.readAsArrayBuffer(file);}else{alert('Please upload a CSV or Excel file.');}}
 function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);buildMapScreen();goTo('map');}
 
-/* FIX #10: Priority-based auto-detect */
 function autoDetect(cols){const lc=cols.map(c=>c.toLowerCase().trim());function find(exact,partial){for(const p of exact){const i=lc.findIndex(c=>c===p);if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.startsWith(p)||c.endsWith(p));if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.includes(p));if(i>=0)return cols[i];}return '';}return{empId:find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','employee_id','emp_id'],['employee code','emp code','employee id','emp id','empcode','empid','staff id']),empName:find(['employee name','emp name','full name','person name','staff name','employee_name','emp_name','full_name'],['employee name','emp name','full name','person name','staff name']),managerId:find(['l1 manager code','l1 manager','manager code','manager id','reports to','supervisor','mgr code','mgrid','manager_code','manager_id'],['manager code','manager id','l1 manager','reports to','supervisor','mgr code'])};}
 
 async function openPhotoFolder(){if('showDirectoryPicker' in window){try{const d=await window.showDirectoryPicker({mode:'read'});await loadFromDirectoryHandle(d);}catch(e){if(e.name!=='AbortError')document.getElementById('photo-folder-input').click();}}else{document.getElementById('photo-folder-input').click();}}
@@ -404,7 +390,6 @@ function updatePhotoUI(){const count=Object.keys(S.photoMap).length;document.get
 function getPhotoUrl(node){if(!Object.keys(S.photoMap).length)return '';const id=node.id.toLowerCase().trim();if(S.photoMap[id])return S.photoMap[id];const nk=node.name.toLowerCase().trim().replace(/\s+/g,'_');if(S.photoMap[nk])return S.photoMap[nk];const nk2=node.name.toLowerCase().trim().replace(/\s+/g,'');if(S.photoMap[nk2])return S.photoMap[nk2];return '';}
 function buildMapScreen(){document.getElementById('col-count').textContent=S.columns.length;document.getElementById('detected-columns').innerHTML=S.columns.map(c=>'<div class="col-chip">'+esc(c)+(S.colSamples[c].length?'<span class="chip-sample">'+esc(S.colSamples[c].join(', '))+'</span>':'')+'</div>').join('');const blank='<option value="">— select —</option>';const opts=blank+S.columns.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');['empId','empName','managerId'].forEach(k=>{const sel=document.getElementById('map-'+k);if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';});const wrap=document.getElementById('data-preview-wrap');const preview=S.rawRows.slice(0,3);if(!preview.length){wrap.innerHTML='';return;}let html='<table class="data-preview-table"><thead><tr>'+S.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';preview.forEach(row=>{html+='<tr>'+S.columns.map(c=>'<td>'+esc(String(row[c]||'').substring(0,22))+'</td>').join('')+'</tr>';});wrap.innerHTML=html+'</tbody></table>';}
 
-/* FIX #7: Validate column mappings aren't duplicated */
 function confirmColumnMap(){S.colMap.empId=document.getElementById('map-empId').value;S.colMap.empName=document.getElementById('map-empName').value;S.colMap.managerId=document.getElementById('map-managerId').value;if(!S.colMap.empId||!S.colMap.empName){alert('Please map Employee ID and Employee Name.');return;}if(S.colMap.empId===S.colMap.empName){alert('Employee ID and Employee Name must be different columns.');return;}if(S.colMap.managerId&&S.colMap.managerId===S.colMap.empId){alert('Manager ID and Employee ID must be different columns.');return;}buildCardScreen();goTo('card');}
 
 const AUTO_FIELDS=[{id:'__auto_reports__',icon:'📊',label:'Direct Reports',desc:'Count of direct reports'},{id:'__auto_teamsize__',icon:'👥',label:'Total Team Size',desc:'All descendants count'}];
@@ -414,7 +399,6 @@ function populateEmpTypeValues(col){const vals=[...new Set(S.rawRows.map(r=>Stri
 function buildEmpTypeMap(){S.empTypeMap={};['active','vacant','resigned'].forEach(key=>{const v=S.empTypeLabels[key];if(v)S.empTypeMap[v]=S.empTypeColors[key];});}
 function getNodeBorderColor(node){if(S.empTypeCol&&S.empTypeMap){const val=String(node[S.empTypeCol]||'').trim();if(S.empTypeMap[val])return S.empTypeMap[val];}return S.cardAccent;}
 function onDragStart(e){S.draggingField=e.currentTarget.dataset.field;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
-/* FIX #2: Clear draggingField on drag end */
 function onDragEnd(e){e.currentTarget.classList.remove('dragging');S.draggingField=null;}
 function onZoneDragOver(e){e.preventDefault();e.currentTarget.classList.add('drop-target');}
 function onZoneDragLeave(e){e.currentTarget.classList.remove('drop-target');}
@@ -431,7 +415,6 @@ function setPhotoPlacement(p){S.photoPlacement=p;document.querySelectorAll('[dat
 function getPhotoRadius(){if(S.photoShape==='circle')return'50%';if(S.photoShape==='rounded')return'12px';return'4px';}
 function confirmCardDesign(){buildEmpTypeMap();buildFilterScreen();goTo('filter');}
 
-/* FIX #8: Filter chips use event delegation */
 function buildFilterScreen(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));const filterable=S.columns.filter(c=>!core.has(c));const cc=document.getElementById('filter-chip-picker');cc.innerHTML=filterable.map(col=>'<div class="filter-chip '+(S.filterCols.includes(col)?'selected':'')+'" data-col="'+esc(col)+'">'+esc(col)+'</div>').join('');cc.onclick=function(e){const chip=e.target.closest('.filter-chip');if(!chip)return;const col=chip.dataset.col;if(col)toggleFilterCol(col);};renderFilterPreview();}
 function toggleFilterCol(col){if(S.filterCols.includes(col))S.filterCols=S.filterCols.filter(c=>c!==col);else if(S.filterCols.length<3)S.filterCols.push(col);else{S.filterCols.shift();S.filterCols.push(col);}document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('selected',S.filterCols.includes(c.dataset.col)));renderFilterPreview();}
 function renderFilterPreview(){document.getElementById('filter-counter').textContent=S.filterCols.length+' of 3 filters selected';const area=document.getElementById('filter-preview-area');if(!S.filterCols.length){area.innerHTML='<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>';return;}area.innerHTML='<div class="filter-preview-box">'+S.filterCols.map((col,i)=>{const isLast=i===S.filterCols.length-1;const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);return '<div class="fpr-row"><span class="fpr-col">'+esc(col)+(isLast?' <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>':'')+'</span><div class="fpr-vals">'+vals.map(v=>'<span class="fv-pill">'+esc(v)+'</span>').join('')+(vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':'')+'</div></div>';}).join('')+'</div>';}
@@ -440,23 +423,106 @@ function populateSummaryFields(){const core=new Set([S.colMap.empId,S.colMap.emp
 function toggleManagerMode(){S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();}
 function isManager(nodeId){return(S.childMap[nodeId]||[]).length>0;}
 
-/* FIX #9: Cycle detection in recursive calc functions */
 function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});}
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
-/* FIX #8: Filter bar uses event delegation */
 function buildFilterBar(){const bar=document.getElementById('filter-bar');if(!S.filterCols.length){bar.style.display='none';return;}bar.style.display='flex';const allVals={};S.filterCols.forEach(col=>{allVals[col]=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();});bar.innerHTML='<span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);flex-shrink:0">Filters</span>'+S.filterCols.map(col=>'<div class="filter-dropdown-wrap"><span class="filter-dropdown-label">'+esc(col)+'</span><select class="filter-dropdown" data-filter-col="'+esc(col)+'"><option value="">All '+esc(col)+'</option>'+allVals[col].map(v=>'<option value="'+esc(v)+'"'+(S.activeFilters[col]===v?' selected':'')+'>'+esc(v)+'</option>').join('')+'</select></div>').join('')+(Object.values(S.activeFilters).some(v=>v)?'<button class="btn btn-ghost btn-sm" onclick="clearAllFilters()" style="margin-left:auto">Clear All</button>':'');bar.querySelectorAll('.filter-dropdown').forEach(sel=>{sel.addEventListener('change',function(){applyFilter(this.dataset.filterCol,this.value);});});}
 function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function setSkipDepth(n){S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
-/* FIX #3: Root detection uses S.childMap[''] — canonical source of roots */
 function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');card.style.borderTopColor=ac;const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);const b1=getSlotVal(node,'b1');const subtitle=h2;const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';const pInline='width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';';const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const photoUrl=getPhotoUrl(node);let photoHtml='';if(photoUrl){photoHtml='<img class="ncard-photo" src="'+esc(photoUrl)+'" crossorigin="anonymous" style="'+pInline+'border:3px solid '+acMid+';box-shadow:0 8px 24px '+ac+'66" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="ncard-photo-fallback" style="display:none;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}else if(Object.keys(S.photoMap).length>0){photoHtml='<div class="ncard-photo-fallback" style="display:flex;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}const b1row=b1?'<div class="ncard-body-b1">'+esc(b1)+'</div>':'';const textBlock='<div class="ncard-text-wrap"><div class="ncard-name">'+esc(node.name)+'</div>'+(subtitle?'<div class="ncard-sub">'+esc(subtitle)+'</div>':'')+b1row+'</div>';let bodyHtml;const pl=S.photoPlacement;if(!photoHtml||pl==='none'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column">'+textBlock+'</div>';}else if(pl==='top'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">'+photoHtml+'</div>'+textBlock+'</div>';}else if(pl==='left'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}else{bodyHtml='<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}card.innerHTML='<div class="ncard-header" style="background:'+acLight+';border-bottom-color:'+ac+'33"><span class="ncard-slot'+(h1?' has-val':'')+'" title="'+esc(h1)+'">'+(esc(h1)||'—')+'</span><span class="ncard-slot'+(h2?' has-val':'')+'" title="'+esc(h2)+'">'+(esc(h2)||'—')+'</span><span class="ncard-slot'+(h3?' has-val':'')+'" title="'+esc(h3)+'">'+(esc(h3)||'—')+'</span></div><div class="ncard-body">'+bodyHtml+'</div><div class="ncard-footer" style="background:'+acLight+';border-top-color:'+ac+'33"><span class="ncard-slot'+(f1?' has-val':'')+'" title="'+esc(f1)+'">'+(esc(f1)||'—')+'</span><span class="ncard-slot'+(f2?' has-val':'')+'" title="'+esc(f2)+'">'+(esc(f2)||'—')+'</span><span class="ncard-slot'+(f3?' has-val':'')+'" title="'+esc(f3)+'">'+(esc(f3)||node.id.substring(0,14))+'</span></div><div class="ncard-export-btn" onclick="exportSubtree(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:30px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">📸</div><div class="ncard-edit-btn" onclick="openReassignModal(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">✎</div>';card.querySelectorAll('.ncard-edit-btn,.ncard-export-btn').forEach(b=>{card.addEventListener('mouseenter',()=>b.style.opacity='1');card.addEventListener('mouseleave',()=>b.style.opacity='0');});if(kids.length){const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';cb.addEventListener('click',e=>{e.stopPropagation();toggleCollapse(li,cb);});card.appendChild(cb);}li.appendChild(card);if(kids.length){if(S.managerMode){const managerKids=kids.filter(k=>isManager(k.id));const leafKids=kids.filter(k=>!isManager(k.id));const ul=document.createElement('ul');managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));if(leafKids.length>0){ul.appendChild(mkLeafSummaryLI(leafKids,ac));}li.appendChild(ul);}else{const ul=document.createElement('ul');kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));li.appendChild(ul);}}return li;}
-function mkLeafSummaryLI(leafNodes,ac){const li=document.createElement('li');const f1=S.summaryField1,f2=S.summaryField2;const count=leafNodes.length;const AV_SIZE=26;const FF="font-family:'Plus Jakarta Sans',sans-serif;";let rowsHtml='';leafNodes.forEach((n,idx)=>{const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const borderC=getNodeBorderColor(n);const photoUrl=getPhotoUrl(n);const isLast=idx===leafNodes.length-1;const nameVal=n.name.substring(0,24);const f1IsName=(f1==='__name__');const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';let avatarHtml;if(photoUrl){avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';}else{avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;'+FF+'">'+esc(initials)+'</div>';}let subLines='';if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;'+FF+'">'+esc(nameVal)+'</div>';}if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;'+FF+'">'+esc(val2)+'</div>';}const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';rowsHtml+='<tr style="background:#ffffff;'+rowBorder+'"><td style="padding:6px 8px 6px 12px;vertical-align:middle;">'+avatarHtml+'</td><td style="padding:6px 12px 6px 0;vertical-align:middle;text-align:left;"><div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+FF+'">'+esc(primaryVal)+'</div>'+subLines+'</td></tr>';});const headerHtml='<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;'+FF+'"><tbody><tr><td style="padding:7px 12px;vertical-align:middle;text-align:left;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;'+FF+'">ICs ('+count+')</td><td style="padding:7px 12px 7px 0;vertical-align:middle;text-align:right;width:1px;white-space:nowrap;"><span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;'+FF+'">'+count+'</span></td></tr></tbody></table>';const bodyHtml='<table style="width:100%;border-collapse:collapse;table-layout:fixed;background:#ffffff;'+FF+'"><colgroup><col style="width:46px;"><col></colgroup><tbody>'+rowsHtml+'</tbody></table>';const card=document.createElement('div');card.className='summary-list-card';card.innerHTML=headerHtml+bodyHtml;li.appendChild(card);return li;}
+
+/* ════════════════════════════════════════════════════════════════════
+ * FIXED: mkLeafSummaryLI - generous explicit row heights, padded text
+ * containers, no tight line-heights that html2canvas rounds down.
+ * Uses explicit pixel heights for rows + display:flex centering instead
+ * of line-height tricks. Removes text-overflow:ellipsis from text spans
+ * (which interacts badly with tight heights) — uses block display with
+ * proper padding so descenders/ascenders never clip.
+ * ════════════════════════════════════════════════════════════════════ */
+function mkLeafSummaryLI(leafNodes,ac){
+  const li=document.createElement('li');
+  const f1=S.summaryField1,f2=S.summaryField2;
+  const count=leafNodes.length;
+  const AV_SIZE=26;
+  const FF="font-family:'Plus Jakarta Sans',Arial,sans-serif;";
+
+  let rowsHtml='';
+  leafNodes.forEach((n,idx)=>{
+    const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+    const borderC=getNodeBorderColor(n);
+    const photoUrl=getPhotoUrl(n);
+    const isLast=idx===leafNodes.length-1;
+    const nameVal=n.name.substring(0,24);
+    const f1IsName=(f1==='__name__');
+    const primaryVal=f1?(f1IsName?nameVal:(String(n[f1]||'').trim()||nameVal).substring(0,24)):nameVal;
+    const showNameSub=f1&&!f1IsName&&primaryVal!==nameVal;
+    const val2=f2?(f2==='__name__'?n.name.substring(0,22):String(n[f2]||'').substring(0,22)):'';
+
+    let avatarHtml;
+    if(photoUrl){
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;box-sizing:border-box;">';
+    }else{
+      // FIX: Use flex centering with explicit dimensions instead of line-height
+      avatarHtml='<div style="display:flex;align-items:center;justify-content:center;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:10px;font-weight:800;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;box-sizing:border-box;'+FF+'"><span style="display:block;line-height:1;">'+esc(initials)+'</span></div>';
+    }
+
+    // FIX: Wrap text in spans with explicit padding so ascenders/descenders never clip.
+    // Use display:block with padding instead of line-height, and avoid text-overflow:ellipsis
+    // (which html2canvas misrenders). Use overflow:hidden + white-space:nowrap only.
+    let subLines='';
+    if(showNameSub){
+      subLines+='<div style="font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;padding:2px 0 1px 0;'+FF+'">'+esc(nameVal)+'</div>';
+    }
+    if(val2){
+      subLines+='<div style="font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;padding:2px 0 1px 0;'+FF+'">'+esc(val2)+'</div>';
+    }
+
+    // FIX: Explicit row height + flex centering + generous vertical padding.
+    // No line-height shenanigans. Each text element has top+bottom padding so
+    // letters like "g", "y", "p" (descenders) and "I", "T" (ascenders) all fit.
+    const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';
+    rowsHtml+='<tr style="background:#ffffff;'+rowBorder+'">'+
+      '<td style="padding:8px 8px 8px 12px;vertical-align:middle;width:42px;">'+avatarHtml+'</td>'+
+      '<td style="padding:8px 12px 8px 0;vertical-align:middle;text-align:left;">'+
+        '<div style="font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;padding:2px 0 2px 0;'+FF+'">'+esc(primaryVal)+'</div>'+
+        subLines+
+      '</td>'+
+    '</tr>';
+  });
+
+  // FIX: Header — use flex centering with explicit padding for "ICs (N)" and the count badge.
+  // The badge itself uses flex centering instead of line-height.
+  const headerHtml=
+    '<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;'+FF+'">'+
+      '<tbody><tr>'+
+        '<td style="padding:10px 12px 10px 12px;vertical-align:middle;text-align:left;'+FF+'">'+
+          '<span style="display:inline-block;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;padding:2px 0;'+FF+'">ICs ('+count+')</span>'+
+        '</td>'+
+        '<td style="padding:10px 12px 10px 0;vertical-align:middle;text-align:right;width:1px;white-space:nowrap;">'+
+          '<span style="display:inline-flex;align-items:center;justify-content:center;background:#7c3aed;color:#ffffff;border-radius:999px;padding:3px 10px;font-size:10px;font-weight:800;min-height:18px;box-sizing:border-box;'+FF+'">'+count+'</span>'+
+        '</td>'+
+      '</tr></tbody>'+
+    '</table>';
+
+  const bodyHtml=
+    '<table style="width:100%;border-collapse:collapse;table-layout:fixed;background:#ffffff;'+FF+'">'+
+      '<colgroup><col style="width:46px;"><col></colgroup>'+
+      '<tbody>'+rowsHtml+'</tbody>'+
+    '</table>';
+
+  const card=document.createElement('div');
+  card.className='summary-list-card';
+  card.innerHTML=headerHtml+bodyHtml;
+  li.appendChild(card);
+  return li;
+}
+
 function toggleCollapse(li,btn){li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');const childUl=li.querySelector(':scope > ul');if(childUl)childUl.style.display=c?'none':'';btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';li.querySelector('.node-card').classList.toggle('collapsed-node',c);setTimeout(()=>updateStats(),60);}
 function expandAll(){document.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const u=li.querySelector(':scope > ul');if(u)u.style.display='';const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}});setTimeout(()=>updateStats(),60);}
 function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.parentElement||!li.parentElement.parentElement||!li.parentElement.parentElement.closest('li'))return;if(li.querySelector(':scope > ul')){li.classList.add('collapsed');const u=li.querySelector(':scope > ul');if(u)u.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';};}});setTimeout(()=>updateStats(),60);}
@@ -472,21 +538,88 @@ function initPan(){const wrap=cwrap();if(!wrap)return;wrap.onmousedown=e=>{if(e.
 function initSearch(){const input=document.getElementById('chart-search');const box=document.getElementById('chart-search-results');if(!input)return;function positionBox(){const r=input.getBoundingClientRect();box.style.top=(r.bottom+4)+'px';box.style.left=r.left+'px';box.style.width=Math.max(270,r.width)+'px';}input.addEventListener('input',function(){const q=this.value.trim().toLowerCase();if(!q){box.classList.remove('visible');return;}const hits=S.viewData.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)).slice(0,10);box.innerHTML=hits.length?hits.map(n=>'<div class="sr-item" onclick="highlightNode(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
 function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
-/* FIX #9: CSV escaping strips newlines */
 function csvEsc(v){return'"'+String(v||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ')+'"';}
 function buildCSVContent(){const cols=[S.colMap.empId,S.colMap.empName,S.colMap.managerId,...S.columns.filter(c=>c!==S.colMap.empId&&c!==S.colMap.empName&&c!==S.colMap.managerId)].filter(Boolean);return cols.map(csvEsc).join(',')+'\n'+S.viewData.map(n=>cols.map(c=>csvEsc(n[c]||'')).join(',')).join('\n');}
 function downloadCSV(){triggerDownload(new Blob([buildCSVContent()],{type:'text/csv;charset=utf-8;'}),'orgchart_export.csv');}
 function makeOverlay(title,sub){const o=document.createElement('div');o.className='export-overlay';o.innerHTML='<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">'+title+'</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">'+sub+'</div>';return o;}
 
-/* FIX #6: Save/restore collapsed state across exports */
 function _saveCollapsedState(){const ids=[];document.querySelectorAll('li.collapsed').forEach(li=>{if(li.dataset.id)ids.push(li.dataset.id);});return ids;}
 function _restoreCollapsedState(ids){if(!ids||!ids.length)return;const s=new Set(ids);document.querySelectorAll('li[data-id]').forEach(li=>{if(s.has(li.dataset.id)){const ul=li.querySelector(':scope > ul');if(ul){li.classList.add('collapsed');ul.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}}}});setTimeout(()=>updateStats(),60);}
 
-async function buildRenderStage(){const savedCollapsed=_saveCollapsedState();expandAll();await new Promise(r=>setTimeout(r,400));if(document.fonts&&document.fonts.ready)await document.fonts.ready;await new Promise(r=>setTimeout(r,200));const orgTree=document.getElementById('org-tree');const liveSummaryCards=orgTree.querySelectorAll('.summary-list-card');const cardSnapshots=[];for(const liveCard of liveSummaryCards){try{const wrap=document.getElementById('chart-canvas-wrap');if(wrap){const cr=liveCard.getBoundingClientRect();const wr=wrap.getBoundingClientRect();if(cr.bottom>wr.bottom||cr.top<wr.top||cr.right>wr.right||cr.left<wr.left){liveCard.scrollIntoView({block:'center',inline:'center'});await new Promise(r=>setTimeout(r,100));}}const rect=liveCard.getBoundingClientRect();const cvs=await html2canvas(liveCard,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(rect.width),height:Math.ceil(rect.height)});cardSnapshots.push({dataUrl:cvs.toDataURL('image/png'),w:Math.ceil(rect.width),h:Math.ceil(rect.height)});}catch(e){console.warn('Pre-render failed for summary card:',e);cardSnapshots.push(null);}}const container=document.createElement('div');container.className='export-stage-root';container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';const clone=orgTree.cloneNode(true);clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());clone.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const ul=li.querySelector(':scope > ul');if(ul)ul.style.removeProperty('display');const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');});clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{c.style.removeProperty('opacity');c.style.removeProperty('transform');});const clonedCards=clone.querySelectorAll('.summary-list-card');clonedCards.forEach((card,i)=>{if(cardSnapshots[i]){const img=document.createElement('img');img.src=cardSnapshots[i].dataUrl;img.style.cssText='display:inline-block;vertical-align:top;width:'+cardSnapshots[i].w+'px;height:'+cardSnapshots[i].h+'px;';card.parentNode.replaceChild(img,card);}});container.appendChild(clone);document.body.appendChild(container);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));await new Promise(r=>setTimeout(r,300));_restoreCollapsedState(savedCollapsed);return{stage:container,wrapper:container};}
+async function buildRenderStage(){
+  const savedCollapsed=_saveCollapsedState();
+  expandAll();
+  await new Promise(r=>setTimeout(r,400));
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,200));
+
+  const orgTree=document.getElementById('org-tree');
+  const liveSummaryCards=orgTree.querySelectorAll('.summary-list-card');
+  const cardSnapshots=[];
+
+  for(const liveCard of liveSummaryCards){
+    try{
+      const wrap=document.getElementById('chart-canvas-wrap');
+      if(wrap){
+        const cr=liveCard.getBoundingClientRect();
+        const wr=wrap.getBoundingClientRect();
+        if(cr.bottom>wr.bottom||cr.top<wr.top||cr.right>wr.right||cr.left<wr.left){
+          liveCard.scrollIntoView({block:'center',inline:'center'});
+          await new Promise(r=>setTimeout(r,100));
+        }
+      }
+      const rect=liveCard.getBoundingClientRect();
+      // FIX: Add a small padding buffer when capturing the summary card so
+      // html2canvas doesn't clip text at the edges. We capture w+2px / h+2px
+      // and then the result fits comfortably.
+      const cvs=await html2canvas(liveCard,{
+        backgroundColor:'#ffffff',
+        scale:2,
+        useCORS:true,
+        logging:false,
+        allowTaint:true,
+        foreignObjectRendering:false,
+        width:Math.ceil(rect.width),
+        height:Math.ceil(rect.height),
+        windowWidth:Math.ceil(rect.width)+40,
+        windowHeight:Math.ceil(rect.height)+40
+      });
+      cardSnapshots.push({dataUrl:cvs.toDataURL('image/png'),w:Math.ceil(rect.width),h:Math.ceil(rect.height)});
+    }catch(e){
+      console.warn('Pre-render failed for summary card:',e);
+      cardSnapshots.push(null);
+    }
+  }
+
+  const container=document.createElement('div');
+  container.className='export-stage-root';
+  container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+  const clone=orgTree.cloneNode(true);
+  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
+  clone.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const ul=li.querySelector(':scope > ul');if(ul)ul.style.removeProperty('display');const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');});
+  clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{c.style.removeProperty('opacity');c.style.removeProperty('transform');});
+
+  const clonedCards=clone.querySelectorAll('.summary-list-card');
+  clonedCards.forEach((card,i)=>{
+    if(cardSnapshots[i]){
+      const img=document.createElement('img');
+      img.src=cardSnapshots[i].dataUrl;
+      img.style.cssText='display:inline-block;vertical-align:top;width:'+cardSnapshots[i].w+'px;height:'+cardSnapshots[i].h+'px;';
+      card.parentNode.replaceChild(img,card);
+    }
+  });
+
+  container.appendChild(clone);
+  document.body.appendChild(container);
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  await new Promise(r=>setTimeout(r,300));
+  _restoreCollapsedState(savedCollapsed);
+  return{stage:container,wrapper:container};
+}
+
 async function renderToCanvas(stageObj){const el=stageObj.stage;const w=el.scrollWidth||el.offsetWidth;const h=el.scrollHeight||el.offsetHeight;return html2canvas(el,{backgroundColor:'#f8fafc',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});}
 async function exportPNG(){const overlay=makeOverlay('Rendering org chart...','Capturing full chart at 2x resolution');document.body.appendChild(overlay);const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'orgchart_'+(fp?fp+'_':'')+mode+stamp+'.png');res();},'image/png'));}catch(e){alert('PNG export failed: '+e.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}}
 
-/* FIX #3 + #4: exportSubtree saves/restores skipDepth */
 async function exportSubtree(e,nodeId){e.stopPropagation();const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;const includeIds=new Set([nodeId]);function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}collectDesc(nodeId);const overlay=makeOverlay('Exporting '+node.name+'\'s team ('+includeIds.size+')...','');document.body.appendChild(overlay);const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;const savedSkipDepth=S.skipDepth;const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);const prevOverride=S.managerOverrides[nodeId];S.viewData=savedViewData.filter(n=>includeIds.has(n.id));S.managerOverrides[nodeId]='';S.skipDepth=0;S.childMap={};S.viewData.forEach(n=>{const mgr=(n.id===nodeId)?'':n.manager;if(!S.childMap[mgr])S.childMap[mgr]=[];S.childMap[mgr].push(n);});S.descCount={};S.nodeHeight={};S.nodeDepth={};function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}cD(nodeId);cH(nodeId);cDep(nodeId,0);const savedZoom=S.zoom;applyZoom(1);renderChart();await new Promise(r=>setTimeout(r,400));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'team_'+safeName+'_'+stamp+'.png');res();},'image/png'));}catch(ex){alert('Subtree export failed: '+ex.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;S.skipDepth=savedSkipDepth;renderChart();}}
 
 const SW=12192000,SH=6858000;
