@@ -1114,18 +1114,47 @@ async function buildRenderStage(){
   if(document.fonts&&document.fonts.ready)await document.fonts.ready;
   await new Promise(r=>setTimeout(r,200));
   const orgTree=document.getElementById('org-tree');
+
+  // ── PRE-RENDER: capture each live summary card as a PNG image ──
+  // The live cards render perfectly on screen. html2canvas fails to render
+  // them inside the cloned export tree (for reasons that resisted 6 fix
+  // attempts). Solution: snapshot each live card individually while it's
+  // on screen, then replace the clone's cards with <img> tags.
+  const liveSummaryCards=orgTree.querySelectorAll('.summary-list-card');
+  const cardSnapshots=[];
+  for(const liveCard of liveSummaryCards){
+    try{
+      // Temporarily ensure the card is scrolled into view and unclipped
+      const wrap=document.getElementById('chart-canvas-wrap');
+      if(wrap){
+        const cr=liveCard.getBoundingClientRect();
+        const wr=wrap.getBoundingClientRect();
+        if(cr.bottom>wr.bottom||cr.top<wr.top||cr.right>wr.right||cr.left<wr.left){
+          liveCard.scrollIntoView({block:'center',inline:'center'});
+          await new Promise(r=>setTimeout(r,100));
+        }
+      }
+      const rect=liveCard.getBoundingClientRect();
+      const cvs=await html2canvas(liveCard,{
+        backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,
+        allowTaint:true,foreignObjectRendering:false,
+        width:Math.ceil(rect.width),height:Math.ceil(rect.height)
+      });
+      cardSnapshots.push({
+        dataUrl:cvs.toDataURL('image/png'),
+        w:Math.ceil(rect.width),
+        h:Math.ceil(rect.height)
+      });
+    }catch(e){
+      console.warn('Pre-render failed for summary card:',e);
+      cardSnapshots.push(null);
+    }
+  }
+
+  // ── BUILD CLONE ──
   const container=document.createElement('div');
   container.className='export-stage-root';
-  // DEBUG: open browser DevTools console and run `window.__orgDebugStage = true`
-  // then trigger an export. The stage will render visibly in the top-left of
-  // the page (covered by the export overlay, but you can drag it or move the
-  // overlay aside) so we can see exactly what html2canvas is capturing.
-  // Also dumps the cloned summary-list-card outerHTML to console.
-  if(window.__orgDebugStage){
-    container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:10001;pointer-events:auto;overflow:visible;outline:4px solid #dc2626;outline-offset:-2px;';
-  } else {
-    container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
-  }
+  container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
   const clone=orgTree.cloneNode(true);
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
   clone.querySelectorAll('li.collapsed').forEach(li=>{
@@ -1141,32 +1170,22 @@ async function buildRenderStage(){
     c.style.removeProperty('opacity');
     c.style.removeProperty('transform');
   });
+
+  // ── SUBSTITUTE: replace cloned summary cards with pre-rendered images ──
+  const clonedCards=clone.querySelectorAll('.summary-list-card');
+  clonedCards.forEach((card,i)=>{
+    if(cardSnapshots[i]){
+      const img=document.createElement('img');
+      img.src=cardSnapshots[i].dataUrl;
+      img.style.cssText='display:inline-block;vertical-align:top;width:'+cardSnapshots[i].w+'px;height:'+cardSnapshots[i].h+'px;';
+      card.parentNode.replaceChild(img,card);
+    }
+  });
+
   container.appendChild(clone);
   document.body.appendChild(container);
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  await new Promise(r=>setTimeout(r,500));
-  if(window.__orgDebugStage){
-    const slc=container.querySelector('.summary-list-card');
-    console.group('🔍 OrgChart Export Debug');
-    console.log('Stage container:',container);
-    console.log('Stage rect:',container.getBoundingClientRect());
-    if(slc){
-      console.log('First .summary-list-card found ✓');
-      console.log('  outerHTML:',slc.outerHTML);
-      console.log('  rect:',slc.getBoundingClientRect());
-      console.log('  computed display:',getComputedStyle(slc).display);
-      console.log('  computed width:',getComputedStyle(slc).width);
-      console.log('  computed height:',getComputedStyle(slc).height);
-      const innerTable=slc.querySelector('table');
-      if(innerTable){
-        console.log('  inner <table> found, rect:',innerTable.getBoundingClientRect());
-        console.log('  inner <table> rows:',innerTable.querySelectorAll('tr').length);
-      } else { console.warn('  ⚠ no <table> inside .summary-list-card'); }
-    } else { console.warn('⚠ no .summary-list-card in stage'); }
-    console.groupEnd();
-    console.log('⏸ Holding stage visible for 5s — inspect via DevTools, then export will continue.');
-    await new Promise(r=>setTimeout(r,5000));
-  }
+  await new Promise(r=>setTimeout(r,300));
   return {stage:container,wrapper:container};
 }
 
