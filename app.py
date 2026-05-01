@@ -177,16 +177,6 @@ body{display:flex;flex-direction:column}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
 .summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left}
-.slc-header{padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:flex;align-items:center;gap:8px}
-.slc-header-label{flex:1;min-width:0;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif}
-.slc-header-pill{flex-shrink:0;background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;font-family:'Plus Jakarta Sans',sans-serif}
-.slc-row{padding:6px 12px;background:#ffffff;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e8f0}
-.slc-row:last-child{border-bottom:none}
-.slc-avatar-wrap{flex-shrink:0;width:26px;height:26px}
-.slc-text-wrap{flex:1;min-width:0;text-align:left}
-.slc-name{font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Plus Jakarta Sans',sans-serif}
-.slc-sub{font-size:9px;font-weight:600;color:#475569;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-family:'Plus Jakarta Sans',sans-serif}
-.slc-sub-muted{font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-family:'Plus Jakarta Sans',sans-serif}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
@@ -936,47 +926,48 @@ function mkNodeLI(node,depth){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FIXED v3: mkLeafSummaryLI now uses CSS-class-based layout, mirroring the
-// proven .node-card pattern that exports cleanly (.ncard-header + .ncard-slot
-// with display:flex from the stylesheet, not from inline styles).
+// FIXED v4: Use native HTML <table>/<tbody>/<tr>/<td> elements.
 //
-// History:
-//  - v0 (display:table on divs)         : worked live, blank text in export
-//  - v1 (inline-block + pixel widths)   : broke live AND export (border-box bit)
-//  - v2 (inline display:flex + flex:1 1 0): fixed live, but export only showed
-//    the right-side pill — label and rows still vanished.
-//  - v3 (THIS): lift everything into CSS classes (.slc-header, .slc-row, etc.)
-//    and use `flex:1` (not `flex:1 1 0`).
+// Previous attempts all relied on CSS layout (display:table on divs, flexbox,
+// inline-block) — and html2canvas v1.4.1's CSS layout engine has known issues
+// resolving these patterns when the export stage is rendered off-screen at
+// position:fixed;left:-99999px. The manager card happens to land on patterns
+// that survive; the summary card kept hitting patterns that don't.
 //
-// The two specific reasons v2's export still failed:
-//   (1) `flex:1 1 0` expands to flex-basis:0 (unitless length), while
-//       `flex:1` expands to flex-basis:0% (percentage). html2canvas v1.4.1
-//       handles the percentage form reliably; the length form sometimes
-//       collapses the flex item to width 0 when the stage is rendered
-//       off-screen at position:fixed;left:-99999px. That is exactly why the
-//       "ICs (19)" label (flex-grow item) vanished while the "19" pill
-//       (flex:0 0 auto, content-sized) survived.
-//   (2) html2canvas's clone-and-rasterize pipeline resolves CSS-class layout
-//       (display:flex from the stylesheet) more reliably than inline-style
-//       layout for nested off-screen elements. The working .ncard-header /
-//       .ncard-body-inner are class-based; my v2 was 100% inline.
+// Real <table> elements bypass that engine entirely. They go through
+// html2canvas's native table-render path — the same code that has rendered
+// HTML tables reliably for ~15 years across every browser/canvas-lib stack.
 //
-// v3 matches the .ncard-* approach exactly:
-//   - .slc-header / .slc-row carry display:flex from the stylesheet
-//   - .slc-header-label / .slc-text-wrap use flex:1 (no `1 0` form)
-//   - inline styles are reserved for instance colors only (avatar border)
+// Layout strategy:
+//  - Outer container: <div class="summary-list-card"> (unchanged, width:240px)
+//  - Header: <table> with 2 cells (label + count pill) — natural row layout
+//  - Body: <table style="table-layout:fixed"> with <colgroup>:
+//      col 1 = 46px (avatar + 12+8 padding)
+//      col 2 = remaining width (text)
+//    `table-layout:fixed` means column widths are taken from <col> elements
+//    and applied uniformly to every row. Zero ambiguity, zero CSS layout
+//    computation needed.
+//  - All styling via inline `style=""` on td (font, padding, alignment) so
+//    nothing depends on stylesheet inheritance through nested rendering.
+//
+// If THIS still doesn't render in PNG/PPTX, the bug is not in the card markup —
+// it's in the export pipeline itself (cloning / off-screen positioning /
+// font-loading). The DEBUG TOGGLE added in this version makes that diagnosable
+// without further guessing — see __orgDebugStage in buildRenderStage.
 // ─────────────────────────────────────────────────────────────────────────────
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
   const AV_SIZE=26;
+  const FF="font-family:'Plus Jakarta Sans',sans-serif;";
 
   let rowsHtml='';
-  leafNodes.forEach(n=>{
+  leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
+    const isLast=idx===leafNodes.length-1;
 
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
@@ -988,31 +979,53 @@ function mkLeafSummaryLI(leafNodes,ac){
     if(photoUrl){
       avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;font-family:\'Plus Jakarta Sans\',sans-serif;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;'+FF+'">'+esc(initials)+'</div>';
     }
 
     let subLines='';
-    if(showNameSub){subLines+='<div class="slc-sub">'+esc(nameVal)+'</div>';}
-    if(val2){subLines+='<div class="slc-sub-muted">'+esc(val2)+'</div>';}
+    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;'+FF+'">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;'+FF+'">'+esc(val2)+'</div>';}
 
+    const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';
     rowsHtml+=
-      '<div class="slc-row">'+
-        '<div class="slc-avatar-wrap">'+avatarHtml+'</div>'+
-        '<div class="slc-text-wrap">'+
-          '<div class="slc-name">'+esc(primaryVal)+'</div>'+
+      '<tr style="background:#ffffff;'+rowBorder+'">'+
+        '<td style="padding:6px 8px 6px 12px;vertical-align:middle;">'+avatarHtml+'</td>'+
+        '<td style="padding:6px 12px 6px 0;vertical-align:middle;text-align:left;">'+
+          '<div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'+FF+'">'+esc(primaryVal)+'</div>'+
           subLines+
-        '</div>'+
-      '</div>';
+        '</td>'+
+      '</tr>';
   });
+
+  // HEADER: simple 2-cell table. Label cell gets remaining space because the
+  // pill cell uses width:1px+white-space:nowrap (shrink-to-fit trick).
+  const headerHtml=
+    '<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;'+FF+'">'+
+      '<tbody>'+
+        '<tr>'+
+          '<td style="padding:7px 12px;vertical-align:middle;text-align:left;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;'+FF+'">ICs ('+count+')</td>'+
+          '<td style="padding:7px 12px 7px 0;vertical-align:middle;text-align:right;width:1px;white-space:nowrap;">'+
+            '<span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;'+FF+'">'+count+'</span>'+
+          '</td>'+
+        '</tr>'+
+      '</tbody>'+
+    '</table>';
+
+  // BODY: table-layout:fixed + <colgroup> = column widths fixed before any row
+  // is rendered. Column 1 = 46px (12 left padding + 26 avatar + 8 right padding).
+  // Column 2 = remaining width (text).
+  const bodyHtml=
+    '<table style="width:100%;border-collapse:collapse;table-layout:fixed;background:#ffffff;'+FF+'">'+
+      '<colgroup>'+
+        '<col style="width:46px;">'+
+        '<col>'+
+      '</colgroup>'+
+      '<tbody>'+rowsHtml+'</tbody>'+
+    '</table>';
 
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.innerHTML=
-    '<div class="slc-header">'+
-      '<span class="slc-header-label">ICs ('+count+')</span>'+
-      '<span class="slc-header-pill">'+count+'</span>'+
-    '</div>'+
-    rowsHtml;
+  card.innerHTML=headerHtml+bodyHtml;
 
   li.appendChild(card);
   return li;
@@ -1103,7 +1116,16 @@ async function buildRenderStage(){
   const orgTree=document.getElementById('org-tree');
   const container=document.createElement('div');
   container.className='export-stage-root';
-  container.style.cssText='position:fixed;top:0;left:-99999px;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+  // DEBUG: open browser DevTools console and run `window.__orgDebugStage = true`
+  // then trigger an export. The stage will render visibly in the top-left of
+  // the page (covered by the export overlay, but you can drag it or move the
+  // overlay aside) so we can see exactly what html2canvas is capturing.
+  // Also dumps the cloned summary-list-card outerHTML to console.
+  if(window.__orgDebugStage){
+    container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:10001;pointer-events:auto;overflow:visible;outline:4px solid #dc2626;outline-offset:-2px;';
+  } else {
+    container.style.cssText='position:fixed;top:0;left:-99999px;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+  }
   const clone=orgTree.cloneNode(true);
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
   clone.querySelectorAll('li.collapsed').forEach(li=>{
@@ -1123,6 +1145,28 @@ async function buildRenderStage(){
   document.body.appendChild(container);
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
   await new Promise(r=>setTimeout(r,500));
+  if(window.__orgDebugStage){
+    const slc=container.querySelector('.summary-list-card');
+    console.group('🔍 OrgChart Export Debug');
+    console.log('Stage container:',container);
+    console.log('Stage rect:',container.getBoundingClientRect());
+    if(slc){
+      console.log('First .summary-list-card found ✓');
+      console.log('  outerHTML:',slc.outerHTML);
+      console.log('  rect:',slc.getBoundingClientRect());
+      console.log('  computed display:',getComputedStyle(slc).display);
+      console.log('  computed width:',getComputedStyle(slc).width);
+      console.log('  computed height:',getComputedStyle(slc).height);
+      const innerTable=slc.querySelector('table');
+      if(innerTable){
+        console.log('  inner <table> found, rect:',innerTable.getBoundingClientRect());
+        console.log('  inner <table> rows:',innerTable.querySelectorAll('tr').length);
+      } else { console.warn('  ⚠ no <table> inside .summary-list-card'); }
+    } else { console.warn('⚠ no .summary-list-card in stage'); }
+    console.groupEnd();
+    console.log('⏸ Holding stage visible for 5s — inspect via DevTools, then export will continue.');
+    await new Promise(r=>setTimeout(r,5000));
+  }
   return {stage:container,wrapper:container};
 }
 
