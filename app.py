@@ -260,8 +260,7 @@ body{display:flex;flex-direction:column}
 .preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
 .export-stage-root .org-tree li,
 .export-stage-root .org-tree ul,
-.export-stage-root .node-card,
-.export-stage-root .summary-list-card{overflow:visible!important}
+.export-stage-root .node-card{overflow:visible!important}
 </style>
 </head>
 <body>
