@@ -260,7 +260,8 @@ body{display:flex;flex-direction:column}
 .preview-b1-zone{margin:4px 0 0 0;padding-top:6px;border-top:1px dashed var(--border2)}
 .export-stage-root .org-tree li,
 .export-stage-root .org-tree ul,
-.export-stage-root .node-card{overflow:visible!important}
+.export-stage-root .node-card,
+.export-stage-root .summary-list-card{overflow:visible!important}
 </style>
 </head>
 <body>
@@ -1123,7 +1124,7 @@ async function buildRenderStage(){
   if(window.__orgDebugStage){
     container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:10001;pointer-events:auto;overflow:visible;outline:4px solid #dc2626;outline-offset:-2px;';
   } else {
-    container.style.cssText='position:fixed;top:0;left:-99999px;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+    container.style.cssText='position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
   }
   const clone=orgTree.cloneNode(true);
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
