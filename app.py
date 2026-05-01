@@ -176,7 +176,7 @@ body{display:flex;flex-direction:column}
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
-.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top}
+.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
@@ -926,35 +926,43 @@ function mkNodeLI(node,depth){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FIXED: mkLeafSummaryLI rebuilt with pure inline-block + fixed pixel widths.
-// Removes all `display:table` / `display:table-cell` usage that was breaking
-// html2canvas off-screen rendering for PNG/PPTX exports.
+// FIXED v2: mkLeafSummaryLI uses flexbox — the same proven layout pattern that
+// the working .node-card uses (see mkNodeLI's .ncard-body-inner with
+// flex-direction:row + flex:1;min-width:0). That pattern renders correctly in
+// both live view and html2canvas exports.
 //
-// Why the old version went blank in exports:
-//  - Card had min-width:200px / max-width:280px on an inline-block parent
-//  - Rows used display:table;width:100% inside that parent
-//  - text cell had display:table-cell;width:160px (NO explicit height)
-//  - Avatars had explicit width/height so they always rendered
-//  - But when html2canvas rendered the off-screen `position:fixed;left:-99999px`
-//    stage, the table layout failed to compute and the text cells collapsed → blank.
+// History of this bug:
+//  - v0 (original): used display:table / display:table-cell. Worked on screen,
+//    but html2canvas could not resolve the table layout when the export stage
+//    was off-screen at position:fixed;left:-99999px → text cells collapsed → blank export.
+//  - v1 (first fix): switched to inline-block with explicit pixel widths. This
+//    BROKE the live view too. Reason: line 48 has a global `*{box-sizing:border-box}`
+//    rule. With border-box, the card's 1.5px border ate into width:240px →
+//    content area was 237px not 240px → row content area was 213px not 216px →
+//    inline-blocks (26+8+182=216) overflowed by 3px and wrapped to two lines.
+//    On export they vanished entirely because html2canvas cannot resolve
+//    wrapping inline-blocks off-screen.
+//  - v2 (this version): use display:flex like the existing .node-card does.
+//    Flex with `flex:0 0 <size>` on the avatar and `flex:1 1 0;min-width:0` on
+//    the text block is mathematically robust regardless of border-box, padding,
+//    or sub-pixel rounding. The text block fills remaining space — no width
+//    math required. This pattern is already used elsewhere in this file and
+//    exports cleanly through html2canvas 1.4.1.
 //
-// Fix:
-//  - Card has fixed width:240px (no min/max ambiguity)
-//  - Rows are pure inline-block siblings with explicit pixel widths
-//  - Text container has explicit width:182px so it never collapses
-//  - Inner divs have explicit line-height + font-size so they have real height
-//  - font-size:0 on row container kills inline-block whitespace gaps
+// Why each piece matters:
+//  - margin-right (not gap): html2canvas 1.4.1 has spotty support for CSS gap;
+//    margin is universally honored.
+//  - flex:0 0 26px on avatar: never grows, never shrinks, exactly 26px.
+//  - flex:1 1 0;min-width:0 on text: required so ellipsis works inside flex.
+//  - white-space:nowrap + overflow:hidden + text-overflow:ellipsis on text divs.
+//  - explicit font-size + line-height on every text div so heights are real.
 // ─────────────────────────────────────────────────────────────────────────────
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
 
-  const CARD_W=240;
-  const PAD_H=12;
   const AV_SIZE=26;
-  const AV_GAP=8;
-  const TEXT_W=CARD_W - PAD_H*2 - AV_SIZE - AV_GAP; // 240 - 24 - 26 - 8 = 182
 
   let rowsHtml='';
   leafNodes.forEach((n,idx)=>{
@@ -971,39 +979,37 @@ function mkLeafSummaryLI(leafNodes,ac){
 
     let avatarHtml;
     if(photoUrl){
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;box-sizing:border-box;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;box-sizing:border-box;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
     }
 
     let subLines='';
     if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">'+esc(nameVal)+'</div>';}
     if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">'+esc(val2)+'</div>';}
 
-    const rowStyle='padding:6px '+PAD_H+'px;background:#ffffff;font-size:0;line-height:0;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+    const rowStyle='display:flex;flex-direction:row;align-items:center;padding:6px 12px;background:#ffffff;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
 
     rowsHtml+=
       '<div style="'+rowStyle+'">'+
-        '<div style="display:inline-block;vertical-align:middle;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;margin-right:'+AV_GAP+'px;">'+avatarHtml+'</div>'+
-        '<div style="display:inline-block;vertical-align:middle;width:'+TEXT_W+'px;line-height:normal;">'+
+        '<div style="flex:0 0 '+AV_SIZE+'px;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;margin-right:8px;">'+avatarHtml+'</div>'+
+        '<div style="flex:1 1 0;min-width:0;text-align:left;">'+
           '<div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(primaryVal)+'</div>'+
           subLines+
         '</div>'+
       '</div>';
   });
 
-  const headerLeftW=CARD_W - PAD_H*2 - 50;
   const headerHtml=
-    '<div style="padding:7px '+PAD_H+'px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;font-size:0;line-height:0;">'+
-      '<div style="display:inline-block;vertical-align:middle;width:'+headerLeftW+'px;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;">ICs ('+count+')</div>'+
-      '<div style="display:inline-block;vertical-align:middle;width:50px;text-align:right;">'+
+    '<div style="display:flex;flex-direction:row;align-items:center;padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;">'+
+      '<div style="flex:1 1 0;min-width:0;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;text-align:left;">ICs ('+count+')</div>'+
+      '<div style="flex:0 0 auto;margin-left:8px;">'+
         '<span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;">'+count+'</span>'+
       '</div>'+
     '</div>';
 
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.style.cssText='display:inline-block;width:'+CARD_W+'px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;overflow:hidden;vertical-align:top;box-shadow:0 1px 4px rgba(0,0,0,0.07);text-align:left;';
   card.innerHTML=headerHtml+'<div style="background:#ffffff;">'+rowsHtml+'</div>';
 
   li.appendChild(card);
