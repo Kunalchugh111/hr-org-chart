@@ -177,6 +177,16 @@ body{display:flex;flex-direction:column}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
 .summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left}
+.slc-header{padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;display:flex;align-items:center;gap:8px}
+.slc-header-label{flex:1;min-width:0;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif}
+.slc-header-pill{flex-shrink:0;background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;font-family:'Plus Jakarta Sans',sans-serif}
+.slc-row{padding:6px 12px;background:#ffffff;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e8f0}
+.slc-row:last-child{border-bottom:none}
+.slc-avatar-wrap{flex-shrink:0;width:26px;height:26px}
+.slc-text-wrap{flex:1;min-width:0;text-align:left}
+.slc-name{font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Plus Jakarta Sans',sans-serif}
+.slc-sub{font-size:9px;font-weight:600;color:#475569;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-family:'Plus Jakarta Sans',sans-serif}
+.slc-sub-muted{font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-family:'Plus Jakarta Sans',sans-serif}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
@@ -926,50 +936,47 @@ function mkNodeLI(node,depth){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FIXED v2: mkLeafSummaryLI uses flexbox — the same proven layout pattern that
-// the working .node-card uses (see mkNodeLI's .ncard-body-inner with
-// flex-direction:row + flex:1;min-width:0). That pattern renders correctly in
-// both live view and html2canvas exports.
+// FIXED v3: mkLeafSummaryLI now uses CSS-class-based layout, mirroring the
+// proven .node-card pattern that exports cleanly (.ncard-header + .ncard-slot
+// with display:flex from the stylesheet, not from inline styles).
 //
-// History of this bug:
-//  - v0 (original): used display:table / display:table-cell. Worked on screen,
-//    but html2canvas could not resolve the table layout when the export stage
-//    was off-screen at position:fixed;left:-99999px → text cells collapsed → blank export.
-//  - v1 (first fix): switched to inline-block with explicit pixel widths. This
-//    BROKE the live view too. Reason: line 48 has a global `*{box-sizing:border-box}`
-//    rule. With border-box, the card's 1.5px border ate into width:240px →
-//    content area was 237px not 240px → row content area was 213px not 216px →
-//    inline-blocks (26+8+182=216) overflowed by 3px and wrapped to two lines.
-//    On export they vanished entirely because html2canvas cannot resolve
-//    wrapping inline-blocks off-screen.
-//  - v2 (this version): use display:flex like the existing .node-card does.
-//    Flex with `flex:0 0 <size>` on the avatar and `flex:1 1 0;min-width:0` on
-//    the text block is mathematically robust regardless of border-box, padding,
-//    or sub-pixel rounding. The text block fills remaining space — no width
-//    math required. This pattern is already used elsewhere in this file and
-//    exports cleanly through html2canvas 1.4.1.
+// History:
+//  - v0 (display:table on divs)         : worked live, blank text in export
+//  - v1 (inline-block + pixel widths)   : broke live AND export (border-box bit)
+//  - v2 (inline display:flex + flex:1 1 0): fixed live, but export only showed
+//    the right-side pill — label and rows still vanished.
+//  - v3 (THIS): lift everything into CSS classes (.slc-header, .slc-row, etc.)
+//    and use `flex:1` (not `flex:1 1 0`).
 //
-// Why each piece matters:
-//  - margin-right (not gap): html2canvas 1.4.1 has spotty support for CSS gap;
-//    margin is universally honored.
-//  - flex:0 0 26px on avatar: never grows, never shrinks, exactly 26px.
-//  - flex:1 1 0;min-width:0 on text: required so ellipsis works inside flex.
-//  - white-space:nowrap + overflow:hidden + text-overflow:ellipsis on text divs.
-//  - explicit font-size + line-height on every text div so heights are real.
+// The two specific reasons v2's export still failed:
+//   (1) `flex:1 1 0` expands to flex-basis:0 (unitless length), while
+//       `flex:1` expands to flex-basis:0% (percentage). html2canvas v1.4.1
+//       handles the percentage form reliably; the length form sometimes
+//       collapses the flex item to width 0 when the stage is rendered
+//       off-screen at position:fixed;left:-99999px. That is exactly why the
+//       "ICs (19)" label (flex-grow item) vanished while the "19" pill
+//       (flex:0 0 auto, content-sized) survived.
+//   (2) html2canvas's clone-and-rasterize pipeline resolves CSS-class layout
+//       (display:flex from the stylesheet) more reliably than inline-style
+//       layout for nested off-screen elements. The working .ncard-header /
+//       .ncard-body-inner are class-based; my v2 was 100% inline.
+//
+// v3 matches the .ncard-* approach exactly:
+//   - .slc-header / .slc-row carry display:flex from the stylesheet
+//   - .slc-header-label / .slc-text-wrap use flex:1 (no `1 0` form)
+//   - inline styles are reserved for instance colors only (avatar border)
 // ─────────────────────────────────────────────────────────────────────────────
 function mkLeafSummaryLI(leafNodes,ac){
   const li=document.createElement('li');
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
-
   const AV_SIZE=26;
 
   let rowsHtml='';
-  leafNodes.forEach((n,idx)=>{
+  leafNodes.forEach(n=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
     const borderC=getNodeBorderColor(n);
     const photoUrl=getPhotoUrl(n);
-    const isLast=idx===leafNodes.length-1;
 
     const nameVal=n.name.substring(0,24);
     const f1IsName=(f1==='__name__');
@@ -981,36 +988,31 @@ function mkLeafSummaryLI(leafNodes,ac){
     if(photoUrl){
       avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;">';
     } else {
-      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;">'+esc(initials)+'</div>';
+      avatarHtml='<div style="width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:9px;font-weight:800;text-align:center;line-height:'+(AV_SIZE-4)+'px;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;font-family:\'Plus Jakarta Sans\',sans-serif;">'+esc(initials)+'</div>';
     }
 
     let subLines='';
-    if(showNameSub){subLines+='<div style="font-size:9px;color:#475569;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">'+esc(nameVal)+'</div>';}
-    if(val2){subLines+='<div style="font-size:9px;color:#94a3b8;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">'+esc(val2)+'</div>';}
-
-    const rowStyle='display:flex;flex-direction:row;align-items:center;padding:6px 12px;background:#ffffff;'+(isLast?'':'border-bottom:1px solid #e2e8f0;');
+    if(showNameSub){subLines+='<div class="slc-sub">'+esc(nameVal)+'</div>';}
+    if(val2){subLines+='<div class="slc-sub-muted">'+esc(val2)+'</div>';}
 
     rowsHtml+=
-      '<div style="'+rowStyle+'">'+
-        '<div style="flex:0 0 '+AV_SIZE+'px;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;margin-right:8px;">'+avatarHtml+'</div>'+
-        '<div style="flex:1 1 0;min-width:0;text-align:left;">'+
-          '<div style="font-size:11px;font-weight:700;color:#0f172a;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(primaryVal)+'</div>'+
+      '<div class="slc-row">'+
+        '<div class="slc-avatar-wrap">'+avatarHtml+'</div>'+
+        '<div class="slc-text-wrap">'+
+          '<div class="slc-name">'+esc(primaryVal)+'</div>'+
           subLines+
         '</div>'+
       '</div>';
   });
 
-  const headerHtml=
-    '<div style="display:flex;flex-direction:row;align-items:center;padding:7px 12px;background:#f5f3ff;border-bottom:1px solid #e9d5ff;">'+
-      '<div style="flex:1 1 0;min-width:0;font-size:10px;line-height:1.4;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;text-align:left;">ICs ('+count+')</div>'+
-      '<div style="flex:0 0 auto;margin-left:8px;">'+
-        '<span style="background:#7c3aed;color:#ffffff;border-radius:999px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block;line-height:1.2;">'+count+'</span>'+
-      '</div>'+
-    '</div>';
-
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.innerHTML=headerHtml+'<div style="background:#ffffff;">'+rowsHtml+'</div>';
+  card.innerHTML=
+    '<div class="slc-header">'+
+      '<span class="slc-header-label">ICs ('+count+')</span>'+
+      '<span class="slc-header-pill">'+count+'</span>'+
+    '</div>'+
+    rowsHtml;
 
   li.appendChild(card);
   return li;
