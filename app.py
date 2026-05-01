@@ -450,8 +450,23 @@ function mkLeafSummaryLI(leafNodes,ac){
   const f1=S.summaryField1,f2=S.summaryField2;
   const count=leafNodes.length;
   const AV_SIZE=26;
-  const FF="font-family:'Plus Jakarta Sans',Arial,sans-serif;";
+  // Use system font stack first — guaranteed to render with consistent metrics in html2canvas
+  const FF="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Plus Jakarta Sans',Roboto,Helvetica,Arial,sans-serif;";
 
+  // ── HEADER ────────────────────────────────────────────────────────────
+  // Pure flexbox div, NO table. Generous min-height, line-height 1.5 on text,
+  // line-height 1 only on the flex-centered badge. font-feature-settings
+  // disables ligatures so html2canvas doesn't misposition glyphs.
+  const headerHtml=
+    '<div style="display:flex;align-items:center;background:#f5f3ff;border-bottom:1px solid #e9d5ff;padding:8px 12px;min-height:38px;box-sizing:border-box;'+FF+'">'+
+      '<div style="flex:1;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;line-height:1.5;font-feature-settings:\'liga\' 0;">ICs ('+count+')</div>'+
+      '<div style="display:flex;align-items:center;justify-content:center;background:#7c3aed;color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;min-width:22px;height:20px;line-height:1;box-sizing:border-box;flex-shrink:0;">'+count+'</div>'+
+    '</div>';
+
+  // ── ROWS ──────────────────────────────────────────────────────────────
+  // Each row is a flex container with explicit min-height: 44px.
+  // Text uses line-height: 1.5 — that gives plenty of room above and below
+  // glyphs so ascenders/descenders cannot clip even if html2canvas rounds.
   let rowsHtml='';
   leafNodes.forEach((n,idx)=>{
     const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
@@ -466,59 +481,31 @@ function mkLeafSummaryLI(leafNodes,ac){
 
     let avatarHtml;
     if(photoUrl){
-      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;box-sizing:border-box;">';
+      avatarHtml='<img src="'+esc(photoUrl)+'" crossorigin="anonymous" style="display:block;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid '+borderC+'55;box-sizing:border-box;flex-shrink:0;">';
     }else{
-      // FIX: Use flex centering with explicit dimensions instead of line-height
-      avatarHtml='<div style="display:flex;align-items:center;justify-content:center;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:10px;font-weight:800;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;box-sizing:border-box;'+FF+'"><span style="display:block;line-height:1;">'+esc(initials)+'</span></div>';
+      // Avatar uses flex centering with line-height: 1 (safe inside flex container with fixed height)
+      avatarHtml='<div style="display:flex;align-items:center;justify-content:center;width:'+AV_SIZE+'px;height:'+AV_SIZE+'px;border-radius:8px;font-size:11px;font-weight:800;line-height:1;background:'+borderC+'18;color:'+borderC+';border:2px solid '+borderC+'44;box-sizing:border-box;flex-shrink:0;'+FF+'">'+esc(initials)+'</div>';
     }
 
-    // FIX: Wrap text in spans with explicit padding so ascenders/descenders never clip.
-    // Use display:block with padding instead of line-height, and avoid text-overflow:ellipsis
-    // (which html2canvas misrenders). Use overflow:hidden + white-space:nowrap only.
-    let subLines='';
+    let textLines='<div style="font-size:12px;font-weight:700;color:#0f172a;line-height:1.5;white-space:nowrap;overflow:hidden;font-feature-settings:\'liga\' 0;'+FF+'">'+esc(primaryVal)+'</div>';
     if(showNameSub){
-      subLines+='<div style="font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;padding:2px 0 1px 0;'+FF+'">'+esc(nameVal)+'</div>';
+      textLines+='<div style="font-size:10px;color:#475569;font-weight:600;line-height:1.5;white-space:nowrap;overflow:hidden;font-feature-settings:\'liga\' 0;'+FF+'">'+esc(nameVal)+'</div>';
     }
     if(val2){
-      subLines+='<div style="font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;padding:2px 0 1px 0;'+FF+'">'+esc(val2)+'</div>';
+      textLines+='<div style="font-size:10px;color:#94a3b8;line-height:1.5;white-space:nowrap;overflow:hidden;font-feature-settings:\'liga\' 0;'+FF+'">'+esc(val2)+'</div>';
     }
 
-    // FIX: Explicit row height + flex centering + generous vertical padding.
-    // No line-height shenanigans. Each text element has top+bottom padding so
-    // letters like "g", "y", "p" (descenders) and "I", "T" (ascenders) all fit.
     const rowBorder=isLast?'':'border-bottom:1px solid #e2e8f0;';
-    rowsHtml+='<tr style="background:#ffffff;'+rowBorder+'">'+
-      '<td style="padding:8px 8px 8px 12px;vertical-align:middle;width:42px;">'+avatarHtml+'</td>'+
-      '<td style="padding:8px 12px 8px 0;vertical-align:middle;text-align:left;">'+
-        '<div style="font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;padding:2px 0 2px 0;'+FF+'">'+esc(primaryVal)+'</div>'+
-        subLines+
-      '</td>'+
-    '</tr>';
+    rowsHtml+=
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;min-height:44px;background:#ffffff;box-sizing:border-box;'+rowBorder+FF+'">'+
+        avatarHtml+
+        '<div style="flex:1;min-width:0;">'+textLines+'</div>'+
+      '</div>';
   });
-
-  // FIX: Header — use flex centering with explicit padding for "ICs (N)" and the count badge.
-  // The badge itself uses flex centering instead of line-height.
-  const headerHtml=
-    '<table style="width:100%;border-collapse:collapse;background:#f5f3ff;border-bottom:1px solid #e9d5ff;'+FF+'">'+
-      '<tbody><tr>'+
-        '<td style="padding:10px 12px 10px 12px;vertical-align:middle;text-align:left;'+FF+'">'+
-          '<span style="display:inline-block;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;padding:2px 0;'+FF+'">ICs ('+count+')</span>'+
-        '</td>'+
-        '<td style="padding:10px 12px 10px 0;vertical-align:middle;text-align:right;width:1px;white-space:nowrap;">'+
-          '<span style="display:inline-flex;align-items:center;justify-content:center;background:#7c3aed;color:#ffffff;border-radius:999px;padding:3px 10px;font-size:10px;font-weight:800;min-height:18px;box-sizing:border-box;'+FF+'">'+count+'</span>'+
-        '</td>'+
-      '</tr></tbody>'+
-    '</table>';
-
-  const bodyHtml=
-    '<table style="width:100%;border-collapse:collapse;table-layout:fixed;background:#ffffff;'+FF+'">'+
-      '<colgroup><col style="width:46px;"><col></colgroup>'+
-      '<tbody>'+rowsHtml+'</tbody>'+
-    '</table>';
 
   const card=document.createElement('div');
   card.className='summary-list-card';
-  card.innerHTML=headerHtml+bodyHtml;
+  card.innerHTML=headerHtml+rowsHtml;
   li.appendChild(card);
   return li;
 }
