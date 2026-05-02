@@ -262,6 +262,17 @@ body{display:flex;flex-direction:column}
 .export-stage-root .org-tree ul,
 .export-stage-root .node-card,
 .export-stage-root .summary-list-card{overflow:visible!important}
+/* ── Chart background controls ── */
+.bg-control-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px;flex-shrink:0}
+.bg-control-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
+.bg-color-input{width:24px;height:22px;border-radius:5px;border:1.5px solid var(--border2);cursor:pointer;padding:0;background:none;flex-shrink:0}
+.bg-color-input:disabled{opacity:0.4;cursor:not-allowed}
+.bg-transparent-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;font-size:0.7rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;user-select:none;line-height:1.2;font-family:'Plus Jakarta Sans',sans-serif}
+.bg-transparent-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.bg-transparent-btn.active{background:#fef3c7;border-color:#d97706;color:#92400e;box-shadow:0 0 0 2px #fde68a}
+.bg-transparent-btn.active:hover{background:#fde68a}
+/* checkerboard pattern shown on live canvas when transparent toggle is on */
+.chart-canvas-wrap.transparent-preview{background-color:#ffffff!important;background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%)!important;background-size:20px 20px!important;background-position:0 0,0 10px,10px -10px,-10px 0!important}
 </style>
 </head>
 <body>
@@ -354,6 +365,11 @@ body{display:flex;flex-direction:column}
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple webkitdirectory/>
       <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">📸 <span id="photo-btn-label">Load Photos</span><span class="photo-count" id="photo-count" style="display:none">0</span></div><div class="tb-sep"></div>
       <div style="flex:1"></div>
+      <div class="bg-control-wrap" title="Chart background color and transparency">
+        <span class="bg-control-label">BG</span>
+        <input type="color" class="bg-color-input" id="bg-color-input" value="#f1f5f9" oninput="setChartBg(this.value)" title="Chart background color"/>
+        <button class="bg-transparent-btn" id="bg-transparent-btn" onclick="toggleTransparent()" title="Transparent background — perfect for lifting the chart into your own PowerPoint slide">⊘ None</button>
+      </div><div class="tb-sep"></div>
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">CSV</button><button class="btn btn-ghost btn-sm" onclick="exportPNG()">PNG</button><button class="btn btn-ghost btn-sm" onclick="exportPPTX()">PPTX</button><button class="btn btn-sm btn-export-all" onclick="exportAll()">Export All</button>
     </div>
     <div class="stats-bar"><div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div><div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;roots</div><div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible</div><div class="stat-item" id="stat-photos" style="display:none;color:var(--success)">📸 <strong id="stat-photos-val">0</strong> photos</div><div class="stat-item" id="stat-mgr-mode" style="display:none;color:#7c3aed">👔 <strong id="stat-mgr-val">—</strong></div><div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">Filtered</div></div>
@@ -372,12 +388,12 @@ body{display:flex;flex-direction:column}
 /* ═══════════════════════════════════════════════════════════════════════
  * OrgDesign Pro — Snapshot fix applied
  * ═══════════════════════════════════════════════════════════════════════ */
-const S={rawRows:[],columns:[],colSamples:{},colMap:{empId:'',empName:'',managerId:''},cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},cardAccent:'#4f46e5',empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},filterCols:[],activeFilters:{},managerOverrides:{},removedIds:new Set(),viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},zoom:1,highlighted:null,draggingField:null,reassignTarget:null,reassignPick:null,skipDepth:0,photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',managerMode:false,summaryField1:'',summaryField2:''};
+const S={rawRows:[],columns:[],colSamples:{},colMap:{empId:'',empName:'',managerId:''},cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},cardAccent:'#4f46e5',empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},filterCols:[],activeFilters:{},managerOverrides:{},removedIds:new Set(),viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},zoom:1,highlighted:null,draggingField:null,reassignTarget:null,reassignPick:null,skipDepth:0,photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',managerMode:false,summaryField1:'',summaryField2:'',chartBgColor:'#f1f5f9',transparentExport:false};
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);}}
 function handleFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}else if(['xlsx','xls'].includes(ext)){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));};reader.readAsArrayBuffer(file);}else{alert('Please upload a CSV or Excel file.');}}
 function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);buildMapScreen();goTo('map');}
 
@@ -431,6 +447,38 @@ function buildFilterBar(){const bar=document.getElementById('filter-bar');if(!S.
 function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function setSkipDepth(n){S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
+
+/* ── Chart background controls ──────────────────────────────────────────
+ * setChartBg: change the live canvas color. Disabled visually when
+ * transparent toggle is on.
+ * toggleTransparent: flip transparent state. Live canvas shows a
+ * checkerboard preview when on, so user can see exactly what the
+ * exported PNG will look like dropped onto a colored slide.
+ * applyChartBg: single source of truth — reads S and updates DOM.
+ * ─────────────────────────────────────────────────────────────────────── */
+function setChartBg(color){
+  S.chartBgColor=color;
+  if(!S.transparentExport)applyChartBg();
+}
+function toggleTransparent(){
+  S.transparentExport=!S.transparentExport;
+  const btn=document.getElementById('bg-transparent-btn');
+  const inp=document.getElementById('bg-color-input');
+  if(btn)btn.classList.toggle('active',S.transparentExport);
+  if(inp)inp.disabled=S.transparentExport;
+  applyChartBg();
+}
+function applyChartBg(){
+  const wrap=document.getElementById('chart-canvas-wrap');
+  if(!wrap)return;
+  if(S.transparentExport){
+    wrap.classList.add('transparent-preview');
+    wrap.style.background='';
+  }else{
+    wrap.classList.remove('transparent-preview');
+    wrap.style.background=S.chartBgColor;
+  }
+}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
 function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);}
@@ -587,7 +635,11 @@ async function buildRenderStage() {
 
   const container = document.createElement('div');
   container.className = 'export-stage-root';
-  container.style.cssText = 'position:fixed;top:0;left:0;background:#f8fafc;padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+  // Background respects the user's choice. When transparent is on, the container
+  // is fully transparent so html2canvas's transparent capture mode produces a
+  // PNG with alpha channel — perfect for dropping into PowerPoint.
+  const stageBg = S.transparentExport ? 'transparent' : S.chartBgColor;
+  container.style.cssText = 'position:fixed;top:0;left:0;background:'+stageBg+';padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
 
   const clone = orgTree.cloneNode(true);
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el => el.remove());
@@ -615,7 +667,7 @@ async function buildRenderStage() {
   return { stage: container, wrapper: container };
 }
 
-async function renderToCanvas(stageObj){const el=stageObj.stage;const w=el.scrollWidth||el.offsetWidth;const h=el.scrollHeight||el.offsetHeight;return html2canvas(el,{backgroundColor:'#f8fafc',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});}
+async function renderToCanvas(stageObj){const el=stageObj.stage;const w=el.scrollWidth||el.offsetWidth;const h=el.scrollHeight||el.offsetHeight;const bg=S.transparentExport?null:S.chartBgColor;return html2canvas(el,{backgroundColor:bg,scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});}
 async function exportPNG(){const overlay=makeOverlay('Rendering org chart...','Capturing full chart at 2x resolution');document.body.appendChild(overlay);const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'orgchart_'+(fp?fp+'_':'')+mode+stamp+'.png');res();},'image/png'));}catch(e){alert('PNG export failed: '+e.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}}
 
 async function exportSubtree(e,nodeId){e.stopPropagation();const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;const includeIds=new Set([nodeId]);function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}collectDesc(nodeId);const overlay=makeOverlay('Exporting '+node.name+'\'s team ('+includeIds.size+')...','');document.body.appendChild(overlay);const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;const savedSkipDepth=S.skipDepth;const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);const prevOverride=S.managerOverrides[nodeId];S.viewData=savedViewData.filter(n=>includeIds.has(n.id));S.managerOverrides[nodeId]='';S.skipDepth=0;S.childMap={};S.viewData.forEach(n=>{const mgr=(n.id===nodeId)?'':n.manager;if(!S.childMap[mgr])S.childMap[mgr]=[];S.childMap[mgr].push(n);});S.descCount={};S.nodeHeight={};S.nodeDepth={};function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}cD(nodeId);cH(nodeId);cDep(nodeId,0);const savedZoom=S.zoom;applyZoom(1);renderChart();await new Promise(r=>setTimeout(r,400));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'team_'+safeName+'_'+stamp+'.png');res();},'image/png'));}catch(ex){alert('Subtree export failed: '+ex.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;S.skipDepth=savedSkipDepth;renderChart();}}
