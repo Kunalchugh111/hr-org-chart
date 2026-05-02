@@ -438,47 +438,54 @@ function renderChart(){const tree=document.getElementById('org-tree');tree.inner
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');card.style.borderTopColor=ac;const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);const b1=getSlotVal(node,'b1');const subtitle=h2;const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';const pInline='width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';';const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const photoUrl=getPhotoUrl(node);let photoHtml='';if(photoUrl){photoHtml='<img class="ncard-photo" src="'+esc(photoUrl)+'" crossorigin="anonymous" style="'+pInline+'border:3px solid '+acMid+';box-shadow:0 8px 24px '+ac+'66" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="ncard-photo-fallback" style="display:none;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}else if(Object.keys(S.photoMap).length>0){photoHtml='<div class="ncard-photo-fallback" style="display:flex;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}const b1row=b1?'<div class="ncard-body-b1">'+esc(b1)+'</div>':'';const textBlock='<div class="ncard-text-wrap"><div class="ncard-name">'+esc(node.name)+'</div>'+(subtitle?'<div class="ncard-sub">'+esc(subtitle)+'</div>':'')+b1row+'</div>';let bodyHtml;const pl=S.photoPlacement;if(!photoHtml||pl==='none'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column">'+textBlock+'</div>';}else if(pl==='top'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">'+photoHtml+'</div>'+textBlock+'</div>';}else if(pl==='left'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}else{bodyHtml='<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}card.innerHTML='<div class="ncard-header" style="background:'+acLight+';border-bottom-color:'+ac+'33"><span class="ncard-slot'+(h1?' has-val':'')+'" title="'+esc(h1)+'">'+(esc(h1)||'—')+'</span><span class="ncard-slot'+(h2?' has-val':'')+'" title="'+esc(h2)+'">'+(esc(h2)||'—')+'</span><span class="ncard-slot'+(h3?' has-val':'')+'" title="'+esc(h3)+'">'+(esc(h3)||'—')+'</span></div><div class="ncard-body">'+bodyHtml+'</div><div class="ncard-footer" style="background:'+acLight+';border-top-color:'+ac+'33"><span class="ncard-slot'+(f1?' has-val':'')+'" title="'+esc(f1)+'">'+(esc(f1)||'—')+'</span><span class="ncard-slot'+(f2?' has-val':'')+'" title="'+esc(f2)+'">'+(esc(f2)||'—')+'</span><span class="ncard-slot'+(f3?' has-val':'')+'" title="'+esc(f3)+'">'+(esc(f3)||node.id.substring(0,14))+'</span></div><div class="ncard-export-btn" onclick="exportSubtree(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:30px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">📸</div><div class="ncard-edit-btn" onclick="openReassignModal(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">✎</div>';card.querySelectorAll('.ncard-edit-btn,.ncard-export-btn').forEach(b=>{card.addEventListener('mouseenter',()=>b.style.opacity='1');card.addEventListener('mouseleave',()=>b.style.opacity='0');});if(kids.length){const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';cb.addEventListener('click',e=>{e.stopPropagation();toggleCollapse(li,cb);});card.appendChild(cb);}li.appendChild(card);if(kids.length){if(S.managerMode){const managerKids=kids.filter(k=>isManager(k.id));const leafKids=kids.filter(k=>!isManager(k.id));const ul=document.createElement('ul');managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));if(leafKids.length>0){ul.appendChild(mkLeafSummaryLI(leafKids,ac));}li.appendChild(ul);}else{const ul=document.createElement('ul');kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));li.appendChild(ul);}}return li;}
 
 /* ════════════════════════════════════════════════════════════════════════
- * mkLeafSummaryLI — REBUILT for html2canvas reliability
+ * mkLeafSummaryLI — REBUILT with absolute positioning
  * ────────────────────────────────────────────────────────────────────────
  * Why this rewrite:
- *   The previous version used flexbox with align-items:center inside fixed-
- *   height containers. html2canvas computes vertical alignment via font
- *   metrics rather than the actual flex algorithm, so glyphs got pushed
- *   above their containers and clipped at the top edge ("ICs" became "KS",
- *   avatar "N" lost its top, etc.).
+ *   Previous attempt #1 (flexbox + min-height) clipped tops of glyphs in
+ *   html2canvas exports because flex centering uses font baseline metrics
+ *   that html2canvas computes wrong.
+ *   Previous attempt #2 (HTML <table> + vertical-align:middle) caused
+ *   html2canvas to drop text content entirely from the rendered cells,
+ *   leaving the cards visually empty in PNG exports.
  *
- * The fix:
- *   Use HTML <table> for ALL alignment. Tables in html2canvas compute
- *   vertical-align:middle by measuring actual rendered cell content — the
- *   exact same way browsers do. No clipping, ever.
- *
- *   Every cell that needs centered text uses table-cell + vertical-align,
- *   never flex + align-items.
+ * The fix this time:
+ *   Pure block + absolute positioning. NO flex. NO tables. EVERYTHING
+ *   sized in explicit pixels. Single-character vertical centering uses
+ *   line-height == container-height. Multi-line text stacks naturally
+ *   in fixed-height divs. Avatars are absolutely positioned with manually
+ *   computed Y offsets. This is the single most reliable layout pattern
+ *   for html2canvas because there is no "computed alignment" anywhere —
+ *   every glyph position is derivable directly from CSS pixels.
  * ════════════════════════════════════════════════════════════════════════ */
 function mkLeafSummaryLI(leafNodes, ac) {
   const li = document.createElement('li');
   const f1 = S.summaryField1, f2 = S.summaryField2;
   const count = leafNodes.length;
-  const AV_SIZE = 28;
-  // Use system font stack first — html2canvas renders consistently with these
-  const FF = "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Plus Jakarta Sans',Roboto,Helvetica,Arial,sans-serif;";
 
-  // ── HEADER ─────────────────────────────────────────────────────────────
-  // Table-based: left cell holds "ICs (N)" label, right cell holds the badge.
-  // vertical-align:middle on the cells handles centering perfectly.
+  // Layout constants — all in pixels, no unitless or percentage values
+  const AV = 28;          // avatar size
+  const PAD_H = 14;       // horizontal padding inside row
+  const PAD_V = 8;        // vertical padding inside row
+  const TEXT_LH = 16;     // line-height for text rows (px)
+  const GAP = 10;         // gap between avatar and text
+  const HEADER_LBL_H = 22;// header label line-box height
+  const FF = "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
+
+  // ── HEADER ────────────────────────────────────────────────────────────
+  // Relative parent. Label uses line-height==height for perfect vertical
+  // centering of single-line text. Badge is absolutely positioned right.
   const headerHtml =
-    '<div style="background:#f5f3ff;border-bottom:1px solid #e9d5ff;padding:10px 14px;' + FF + '">' +
-      '<table style="width:100%;border-collapse:collapse;table-layout:auto;"><tr>' +
-        '<td style="font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;line-height:1.6;vertical-align:middle;padding:2px 0;">ICs (' + count + ')</td>' +
-        '<td style="vertical-align:middle;text-align:right;width:1px;white-space:nowrap;padding:2px 0;">' +
-          '<span style="display:inline-block;background:#7c3aed;color:#ffffff;border-radius:999px;padding:3px 10px;font-size:10px;font-weight:800;line-height:1.4;">' + count + '</span>' +
-        '</td>' +
-      '</tr></table>' +
+    '<div style="position:relative;background:#f5f3ff;border-bottom:1px solid #e9d5ff;padding:9px ' + PAD_H + 'px;' + FF + '">' +
+      '<div style="height:' + HEADER_LBL_H + 'px;line-height:' + HEADER_LBL_H + 'px;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;padding-right:42px;white-space:nowrap;overflow:hidden;' + FF + '">ICs (' + count + ')</div>' +
+      '<div style="position:absolute;top:8px;right:' + PAD_H + 'px;height:24px;line-height:24px;background:#7c3aed;color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
     '</div>';
 
-  // ── ROWS ───────────────────────────────────────────────────────────────
-  // Each row is a table with two cells: avatar (fixed width) + text (fluid).
-  // vertical-align:middle aligns avatar to text baseline mid naturally.
+  // ── ROWS ──────────────────────────────────────────────────────────────
+  // Each row is a position:relative box of EXPLICIT pixel height.
+  // - Avatar: position:absolute at left:14, top: computed to vertically center.
+  //   Single-char initial centered via line-height == (height - border).
+  // - Text container: margin-left to clear avatar area, padding-top to
+  //   vertically center the stacked lines within the row.
   let rowsHtml = '';
   leafNodes.forEach((n, idx) => {
     const initials = n.name.split(' ').map(w => w[0] || '').join('').substring(0, 2).toUpperCase();
@@ -491,35 +498,36 @@ function mkLeafSummaryLI(leafNodes, ac) {
     const showNameSub = f1 && !f1IsName && primaryVal !== nameVal;
     const val2 = f2 ? (f2 === '__name__' ? n.name.substring(0, 22) : String(n[f2] || '').substring(0, 22)) : '';
 
-    // Avatar — uses a nested table for reliable single-character centering
+    const numLines = 1 + (showNameSub ? 1 : 0) + (val2 ? 1 : 0);
+    const textTotalH = numLines * TEXT_LH;
+    const innerH = Math.max(AV, textTotalH);          // greater of avatar/text heights
+    const totalRowH = innerH + PAD_V * 2;
+    const avatarTopY = PAD_V + Math.max(0, Math.round((innerH - AV) / 2));
+    const textTopPad = PAD_V + Math.max(0, Math.round((innerH - textTotalH) / 2));
+    const textLeftMargin = PAD_H + AV + GAP;
+
     let avatarHtml;
     if (photoUrl) {
-      avatarHtml = '<img src="' + esc(photoUrl) + '" crossorigin="anonymous" style="display:block;width:' + AV_SIZE + 'px;height:' + AV_SIZE + 'px;border-radius:8px;object-fit:cover;object-position:center top;border:2px solid ' + borderC + '55;box-sizing:border-box;">';
+      avatarHtml = '<img src="' + esc(photoUrl) + '" crossorigin="anonymous" style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;object-fit:cover;object-position:center top;border:2px solid ' + borderC + '55;box-sizing:border-box;display:block;">';
     } else {
-      avatarHtml =
-        '<table style="width:' + AV_SIZE + 'px;height:' + AV_SIZE + 'px;border-collapse:collapse;background:' + borderC + '18;border:2px solid ' + borderC + '44;border-radius:8px;box-sizing:border-box;table-layout:fixed;">' +
-          '<tr><td style="text-align:center;vertical-align:middle;font-size:11px;font-weight:800;color:' + borderC + ';line-height:1.2;padding:0;' + FF + '">' + esc(initials) + '</td></tr>' +
-        '</table>';
+      // Single-character initials — line-height == (avatar height - 2*border) centers vertically
+      const innerLH = AV - 4;
+      avatarHtml = '<div style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;background:' + borderC + '1f;color:' + borderC + ';border:2px solid ' + borderC + '55;box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;line-height:' + innerLH + 'px;' + FF + '">' + esc(initials) + '</div>';
     }
 
-    // Text lines — block-level divs with line-height:1.6 and padding so
-    // descenders/ascenders have breathing room.
-    let textLines = '<div style="font-size:12px;font-weight:700;color:#0f172a;line-height:1.6;white-space:nowrap;overflow:hidden;padding:1px 0;' + FF + '">' + esc(primaryVal) + '</div>';
+    let textLines = '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(primaryVal) + '</div>';
     if (showNameSub) {
-      textLines += '<div style="font-size:10px;color:#475569;font-weight:600;line-height:1.6;white-space:nowrap;overflow:hidden;padding:1px 0;' + FF + '">' + esc(nameVal) + '</div>';
+      textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>';
     }
     if (val2) {
-      textLines += '<div style="font-size:10px;color:#94a3b8;line-height:1.6;white-space:nowrap;overflow:hidden;padding:1px 0;' + FF + '">' + esc(val2) + '</div>';
+      textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>';
     }
 
-    // Row container — table layout, no flex anywhere
     const rowBorder = isLast ? '' : 'border-bottom:1px solid #e2e8f0;';
     rowsHtml +=
-      '<div style="background:#ffffff;padding:8px 14px;' + rowBorder + '">' +
-        '<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr>' +
-          '<td style="width:' + AV_SIZE + 'px;vertical-align:middle;padding-right:10px;">' + avatarHtml + '</td>' +
-          '<td style="vertical-align:middle;overflow:hidden;">' + textLines + '</td>' +
-        '</tr></table>' +
+      '<div style="position:relative;background:#ffffff;height:' + totalRowH + 'px;' + rowBorder + 'box-sizing:border-box;">' +
+        avatarHtml +
+        '<div style="margin-left:' + textLeftMargin + 'px;padding-top:' + textTopPad + 'px;padding-right:' + PAD_H + 'px;">' + textLines + '</div>' +
       '</div>';
   });
 
