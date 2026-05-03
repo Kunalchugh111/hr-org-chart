@@ -1102,19 +1102,30 @@ footer.site-footer {
  * LAUNCH APP — navigate Streamlit parent to ?view=app
  * ═══════════════════════════════════════════════════════════════════════ */
 function launchApp() {
-  // Try to navigate the top window (parent of the Streamlit iframe).
-  // Fall back to current window if same-origin policy blocks it.
+  console.log('[Nodely] launchApp invoked');
+  // Streamlit's components.html() renders this page inside a srcdoc iframe.
+  // The most reliable way to navigate the parent is a programmatic anchor
+  // click with target="_top": browsers treat it as a user-initiated
+  // navigation and allow it even when direct window.top.location writes
+  // are blocked by cross-origin policy. Same-tab, no popup blocker.
   try {
-    if (window.top && window.top !== window.self) {
-      window.top.location.search = '?view=app';
-    } else {
-      window.location.search = '?view=app';
-    }
+    const a = document.createElement('a');
+    a.href = '?view=app';
+    a.target = '_top';
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 0);
+    console.log('[Nodely] target=_top anchor click dispatched');
+    return;
   } catch (e) {
-    // Cross-origin blocked — try postMessage to Streamlit, then fallback
-    try { window.parent.postMessage({ nodely: 'launch_app' }, '*'); } catch (_) {}
-    window.location.search = '?view=app';
+    console.warn('[Nodely] anchor click failed', e);
   }
+  // Fallback chain — different browsers/sandbox configs need different tricks
+  try { window.top.location.search = '?view=app'; return; } catch (_) {}
+  try { window.parent.postMessage({ nodely: 'launch_app' }, '*'); } catch (_) {}
+  try { window.location.href = '?view=app'; } catch (_) {}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -1168,46 +1179,22 @@ function showToast(message, ctaText, ctaAction, color) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
- * SMART SCROLL — handles anchor links inside Streamlit's iframe
- * Tries to scroll the parent window first (works for same-origin Streamlit
- * iframe where the parent has the actual scrollbar), falls back to the
- * iframe's internal scroll, then finally to native scrollIntoView.
+ * SMART SCROLL — scrolls within the iframe's own document.
+ * The iframe is sized smaller than its content (in app.py) so it scrolls
+ * internally, which means scrollIntoView "just works" — no parent-window
+ * access, no cross-origin issues.
  * ═══════════════════════════════════════════════════════════════════════ */
 function smoothScrollToId(id) {
   if (!id) return;
   const target = document.getElementById(id);
   if (!target) return;
-
-  // Approach 1: same-origin Streamlit iframe — scroll the parent window
-  try {
-    if (window.parent && window.parent !== window && window.frameElement) {
-      const iframeRect = window.frameElement.getBoundingClientRect();
-      const parentScroll = window.parent.pageYOffset
-                        || (window.parent.document && window.parent.document.documentElement.scrollTop)
-                        || 0;
-      const targetTop = iframeRect.top + parentScroll + target.offsetTop - 70;
-      window.parent.scrollTo({ top: targetTop, behavior: 'smooth' });
-      return;
-    }
-  } catch (e) { /* cross-origin — fall through */ }
-
-  // Approach 2: scroll within iframe document
-  try {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    return;
-  } catch (e) {}
-
-  // Approach 3: ancient browser fallback
-  window.location.hash = '#' + id;
+  // Account for the sticky nav (~64px) so headings aren't hidden under it
+  const navOffset = 70;
+  const top = target.getBoundingClientRect().top + window.scrollY - navOffset;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
 }
 
 function smoothScrollToTop() {
-  try {
-    if (window.parent && window.parent !== window) {
-      window.parent.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-  } catch (e) {}
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1563,17 +1550,19 @@ function burstConfetti(x, y) {
   }
 }
 
-// Wrap launchApp so EVERY click on a launch CTA fires confetti before navigating
+// Wrap launchApp so EVERY click on a launch CTA fires confetti before navigating.
+// The anchor-click navigation runs synchronously inside the click event, so
+// we get user-activation; the small setTimeout lets the confetti's first
+// frame paint before the page transitions.
 (function () {
   const _orig = window.launchApp;
   window.launchApp = function (e) {
     let x = window.innerWidth / 2;
     let y = window.innerHeight / 2;
-    // Use the actual click position when possible
     const ev = (typeof event !== 'undefined' && event) ? event : null;
     if (ev && ev.clientX) { x = ev.clientX; y = ev.clientY; }
     burstConfetti(x, y);
-    setTimeout(() => _orig(), 320);
+    setTimeout(_orig, 280);
   };
 })();
 
