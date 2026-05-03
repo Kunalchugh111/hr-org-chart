@@ -457,6 +457,238 @@ footer.site-footer {
   .steps-grid { grid-template-columns: repeat(2, 1fr); }
   .nav-links { display: none; }
 }
+
+/* ── Floating gradient orbs (drift + cursor parallax) ─────────────── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  opacity: 0.5;
+  will-change: transform;
+  z-index: 1;
+}
+.hero, .cta-footer { isolation: isolate; }
+.hero .hero-inner, .cta-footer .cta-inner { position: relative; z-index: 3; }
+.hero .hero-bg-canvas, .cta-footer .cta-bg-canvas { z-index: 2; }
+.hero .hero-bg-fade, .cta-footer .cta-bg-fade { z-index: 2; }
+
+/* ── 3D-tilt cards ──────────────────────────────────────────────────── */
+@media (hover: hover) {
+  .feature-card, .tier, .step-card {
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform 320ms cubic-bezier(0.22,1,0.36,1),
+                box-shadow 240ms ease;
+  }
+  .feature-card .feature-illust,
+  .feature-card h3,
+  .feature-card p,
+  .step-card .step-num,
+  .step-card h3,
+  .step-card p,
+  .tier-name, .tier-price, .tier-features,
+  .tier-cta-btn, .tier-tag, .tier-price-row {
+    transform: translateZ(20px);
+  }
+}
+
+/* ── Magnetic buttons (transform set in JS, easing handled here) ──── */
+.btn-primary, .btn-ghost, .tier-cta-btn {
+  will-change: transform;
+}
+
+/* ── Animated squiggle (draws in on load) ─────────────────────────── */
+.hero h1 .underlined svg path {
+  stroke-dasharray: 350;
+  stroke-dashoffset: 350;
+  animation: drawLine 1.2s cubic-bezier(0.22,1,0.36,1) 0.6s forwards;
+}
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ── Fade-in on scroll (sections lift up as they enter) ───────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Logo dots subtle pulse on nearby cursor ──────────────────────── */
+.logo svg circle {
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: transform 220ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.logo:hover svg circle:nth-child(1) { transform: translate(-1px, -1px) scale(1.2); }
+.logo:hover svg circle:nth-child(2) { transform: translate(1px, -1px) scale(1.2); }
+.logo:hover svg circle:nth-child(3) { transform: translate(1px, 1px) scale(1.2); }
+.logo:hover svg circle:nth-child(4) { transform: scale(1.15); }
+
+/* ── Boost mini-org-card hover effect ──────────────────────────────── */
+.mini-node:hover { z-index: 20; }
+
+/* ── Cursor spotlight removed ─────────────────────────────────────── */
+
+/* ── Confetti particles (one-shot on CTA click) ───────────────────── */
+.confetti-piece {
+  position: fixed;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 99998;
+  will-change: transform, opacity;
+  top: 0; left: 0;
+}
+
+/* ── Card hover spotlight (radial light follows cursor inside card) ─ */
+@media (hover: hover) {
+  .feature-card, .tier {
+    overflow: hidden;
+  }
+  .feature-card::after, .tier::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(79,70,229,0.15), transparent 50%);
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+  }
+  .feature-card:hover::after, .tier:hover::after { opacity: 1; }
+  .tier.popular::after {
+    background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255,107,157,0.2), transparent 50%);
+  }
+}
+
+/* ── Popular tier rainbow border ──────────────────────────────────── */
+.tier.popular {
+  position: relative;
+  z-index: 1;
+}
+.tier.popular::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  background: linear-gradient(135deg,
+    var(--accent), var(--pink), var(--yellow), var(--green),
+    var(--accent), var(--pink));
+  background-size: 300% 300%;
+  z-index: -1;
+  animation: rainbowSpin 6s linear infinite;
+  opacity: 0.85;
+}
+@keyframes rainbowSpin {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ── Animated step connector — traveling glowing dots ─────────────── */
+.steps-flow {
+  position: absolute;
+  top: 36px;
+  left: 12.5%;
+  width: 75%;
+  height: 12px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.flow-dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  top: 2px;
+  animation: flowAcross 4.5s linear infinite;
+}
+.flow-dot.fd-1 { background: var(--accent); box-shadow: 0 0 12px var(--accent); animation-delay: 0s; }
+.flow-dot.fd-2 { background: var(--pink);   box-shadow: 0 0 12px var(--pink);   animation-delay: 1.5s; }
+.flow-dot.fd-3 { background: var(--green);  box-shadow: 0 0 12px var(--green);  animation-delay: 3s; }
+@keyframes flowAcross {
+  0%   { left: -12px; opacity: 0; transform: scale(0.4); }
+  10%  { opacity: 1;  transform: scale(1); }
+  90%  { opacity: 1;  transform: scale(1); }
+  100% { left: 100%;  opacity: 0; transform: scale(0.4); }
+}
+
+/* ── Hero text subtle parallax (driven by JS via CSS vars) ────────── */
+.hero h1, .hero p.lead, .hero .pill-badge {
+  transition: transform 200ms cubic-bezier(0.22,1,0.36,1);
+  will-change: transform;
+}
+
+/* ── Click ripples (one-shot expanding circles on any click) ──────── */
+.click-ripple {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99997;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  top: 0; left: 0;
+  margin: -6px 0 0 -6px;
+  animation: rippleExpand 700ms cubic-bezier(0.22,1,0.36,1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes rippleExpand {
+  0%   { transform: scale(0.4);  opacity: 0.9; border-width: 3px; }
+  100% { transform: scale(8);    opacity: 0;   border-width: 1px; }
+}
+
+/* ── Sparkle particles (tiny twinkling stars in hero) ─────────────── */
+.sparkle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: twinkle 3s ease-in-out infinite;
+  z-index: 2;
+}
+.sparkle::before, .sparkle::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: inherit;
+  border-radius: 50%;
+  filter: blur(2px);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50%      { opacity: 1; transform: scale(1.4); }
+}
+
+/* ── Animated rainbow border around the chart frame ───────────────── */
+.chart-frame {
+  position: relative;
+  z-index: 1;
+}
+.chart-frame::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 22px;
+  background: linear-gradient(135deg,
+    var(--accent), var(--pink), var(--yellow), var(--green),
+    var(--accent), var(--pink));
+  background-size: 300% 300%;
+  z-index: -1;
+  animation: rainbowSpin 8s linear infinite;
+  opacity: 0.55;
+}
+
+/* ── Animated counter pill — emphasized on visible ─────────────────── */
+.pill-badge.counting strong {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
 </style>
 </head>
 <body>
@@ -499,7 +731,7 @@ footer.site-footer {
   <div class="hero-inner">
     <div class="pill-badge">
       <span class="pulse"></span>
-      Now connecting 200,000+ people in live org charts
+      Now connecting <strong data-count-to="200000">200,000</strong>+ people in live org charts
     </div>
     <h1>
       Org charts that<br/>
@@ -562,6 +794,11 @@ footer.site-footer {
       <svg class="steps-dots" viewBox="0 0 800 8" preserveAspectRatio="none">
         <line x1="0" y1="4" x2="800" y2="4" stroke="#ececf2" stroke-width="2" stroke-dasharray="4 6"/>
       </svg>
+      <div class="steps-flow">
+        <span class="flow-dot fd-1"></span>
+        <span class="flow-dot fd-2"></span>
+        <span class="flow-dot fd-3"></span>
+      </div>
       <div class="step-card">
         <div class="step-num" style="background:#ff6b9d1f;color:#ff6b9d;border:1px solid #ff6b9d33">01</div>
         <h3>Drop your roster</h3>
@@ -869,9 +1106,16 @@ function launchApp() {
  * ═══════════════════════════════════════════════════════════════════════ */
 function initNetworkBG(canvas, opts) {
   if (!canvas) return;
-  const density = (opts && opts.density) || 26;
-  const color = (opts && opts.color) || '#4f46e5';
-  const opacity = (opts && opts.opacity) || 0.45;
+  opts = opts || {};
+  const density   = opts.density   || 26;
+  const color     = opts.color     || '#4f46e5';
+  const opacity   = opts.opacity   || 0.45;
+  const range     = opts.range     || 230;        // max line distance
+  const speed     = opts.speed     || 0.85;       // velocity scale
+  const friction  = opts.friction  || 0.995;      // closer to 1 = more momentum
+  const minNodes  = opts.minNodes  || 18;
+  const lineWidth = opts.lineWidth || 1.2;
+  const glow      = opts.glow      !== false;     // glow on dots
 
   const ctx = canvas.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -885,13 +1129,13 @@ function initNetworkBG(canvas, opts) {
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
-    const count = Math.min(density, Math.max(8, Math.round((w * h) / 52000)));
+    const count = Math.min(density, Math.max(minNodes, Math.round((w * h) / 14000)));
     nodes = Array.from({ length: count }, function () {
       return {
         x: Math.random() * w, y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        r: 1.6 + Math.random() * 1.8,
+        vx: (Math.random() - 0.5) * speed * 2,
+        vy: (Math.random() - 0.5) * speed * 2,
+        r: 2 + Math.random() * 2.6,
       };
     });
   }
@@ -904,32 +1148,51 @@ function initNetworkBG(canvas, opts) {
   }
   function tick() {
     ctx.clearRect(0, 0, w, h);
+    // Update positions with mouse repulsion (lots of bounce)
     for (const n of nodes) {
       const dx = mouse.x - n.x, dy = mouse.y - n.y;
       const d2 = dx * dx + dy * dy;
-      if (d2 < 28000) { n.vx += dx * 0.0008; n.vy += dy * 0.0008; }
-      n.vx *= 0.985; n.vy *= 0.985;
+      // Mouse REPELS dots — they scatter away from cursor (more bouncy)
+      if (d2 < 50000 && d2 > 1) {
+        const force = (50000 - d2) / 50000;
+        n.vx -= dx * 0.0028 * force;
+        n.vy -= dy * 0.0028 * force;
+      }
+      n.vx *= friction; n.vy *= friction;
+      // Cap top speed so things don't go ballistic
+      const sp2 = n.vx * n.vx + n.vy * n.vy;
+      if (sp2 > 9) {
+        const k = 3 / Math.sqrt(sp2);
+        n.vx *= k; n.vy *= k;
+      }
       n.x += n.vx; n.y += n.vy;
-      if (n.x < 0 || n.x > w) n.vx *= -1;
-      if (n.y < 0 || n.y > h) n.vy *= -1;
+      // Hard wall bounce (clamp + reflect)
+      if (n.x < 0)      { n.x = 0;  n.vx = Math.abs(n.vx); }
+      else if (n.x > w) { n.x = w;  n.vx = -Math.abs(n.vx); }
+      if (n.y < 0)      { n.y = 0;  n.vy = Math.abs(n.vy); }
+      else if (n.y > h) { n.y = h;  n.vy = -Math.abs(n.vy); }
     }
+    // Draw lines (LOTS of them now)
+    ctx.lineWidth = lineWidth;
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i], b = nodes[j];
         const dx = a.x - b.x, dy = a.y - b.y;
         const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 160) {
-          ctx.strokeStyle = hexA(color, (1 - d / 160) * 0.4 * opacity);
-          ctx.lineWidth = 1;
+        if (d < range) {
+          ctx.strokeStyle = hexA(color, (1 - d / range) * 0.85 * opacity);
           ctx.beginPath();
           ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
         }
       }
     }
+    // Draw glowy dots
+    if (glow) ctx.shadowBlur = 8, ctx.shadowColor = color;
     for (const n of nodes) {
-      ctx.fillStyle = hexA(color, 0.85 * opacity);
+      ctx.fillStyle = hexA(color, opacity);
       ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
     }
+    if (glow) ctx.shadowBlur = 0;
     requestAnimationFrame(tick);
   }
   function onMove(e) {
@@ -945,8 +1208,326 @@ function initNetworkBG(canvas, opts) {
   window.addEventListener('mouseleave', onLeave);
 }
 
-initNetworkBG(document.getElementById('hero-bg'), { density: 26, color: '#4f46e5', opacity: 0.45 });
-initNetworkBG(document.getElementById('cta-bg'),  { density: 20, color: '#4f46e5', opacity: 0.4 });
+initNetworkBG(document.getElementById('hero-bg'), { density: 130, color: '#4f46e5', opacity: 0.95, range: 240, speed: 1.1 });
+initNetworkBG(document.getElementById('cta-bg'),  { density: 100, color: '#4f46e5', opacity: 0.85, range: 220, speed: 0.95 });
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * MAGNETIC BUTTONS — gentle pull toward cursor on proximity
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!matchMedia('(hover: hover)').matches) return;
+  const buttons = document.querySelectorAll('.btn-primary, .btn-ghost, .tier-cta-btn');
+  buttons.forEach(btn => {
+    let raf = 0;
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = (e.clientX - cx) * 0.3;
+      const dy = (e.clientY - cy) * 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        btn.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+      });
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * 3D CARD TILT — feature, pricing, step cards tilt with cursor
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!matchMedia('(hover: hover)').matches) return;
+  const cards = document.querySelectorAll('.feature-card, .tier, .step-card');
+  cards.forEach(card => {
+    let raf = 0;
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        card.style.transform =
+          'perspective(900px) rotateY(' + (x * 9) + 'deg) rotateX(' + (-y * 9) + 'deg) translateZ(6px)';
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * FLOATING GRADIENT ORBS — drift autonomously + cursor parallax
+ * ═══════════════════════════════════════════════════════════════════════ */
+function initFloatingOrbs(container, opts) {
+  if (!container) return;
+  opts = opts || {};
+  const orbConfig = [
+    { color: '#ff6b9d', size: 280, x: 8,  y: 18, depth: 0.45, phase: 0 },
+    { color: '#ffd166', size: 240, x: 80, y: 25, depth: 0.6,  phase: 1.5 },
+    { color: '#10b981', size: 280, x: 72, y: 72, depth: 0.5,  phase: 3 },
+    { color: '#4f46e5', size: 220, x: 18, y: 78, depth: 0.7,  phase: 4.5 },
+  ];
+  const sizeFactor = opts.sizeFactor || 1;
+
+  const orbs = orbConfig.map(o => {
+    const el = document.createElement('div');
+    el.className = 'orb';
+    const sz = Math.round(o.size * sizeFactor);
+    el.style.cssText =
+      'width:' + sz + 'px;height:' + sz + 'px;' +
+      'left:' + o.x + '%;top:' + o.y + '%;' +
+      'margin-left:' + (-sz / 2) + 'px;margin-top:' + (-sz / 2) + 'px;' +
+      'background: radial-gradient(circle, ' + o.color + 'aa, ' + o.color + '11 70%);';
+    container.insertBefore(el, container.firstChild);
+    return Object.assign({ el: el, tx: 0, ty: 0 }, o);
+  });
+
+  let mx = 0, my = 0;
+  container.addEventListener('mousemove', e => {
+    const r = container.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width - 0.5;
+    my = (e.clientY - r.top) / r.height - 0.5;
+  });
+  container.addEventListener('mouseleave', () => { mx = 0; my = 0; });
+
+  let t = 0;
+  function tick() {
+    t += 0.006;
+    orbs.forEach(o => {
+      // Slow autonomous drift (sine waves)
+      const ax = Math.sin(t + o.phase) * 28;
+      const ay = Math.cos(t * 0.85 + o.phase * 0.7) * 22;
+      // Parallax: orbs move opposite to cursor for depth
+      const px = -mx * 70 * o.depth;
+      const py = -my * 70 * o.depth;
+      // Smooth lerp
+      o.tx += (ax + px - o.tx) * 0.05;
+      o.ty += (ay + py - o.ty) * 0.05;
+      o.el.style.transform = 'translate3d(' + o.tx + 'px,' + o.ty + 'px,0)';
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+initFloatingOrbs(document.querySelector('.hero'));
+initFloatingOrbs(document.querySelector('.cta-footer'), { sizeFactor: 0.85 });
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * SCROLL REVEAL — sections lift up as they enter viewport
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  const targets = document.querySelectorAll('.section, .logo-strip, .cta-footer');
+  targets.forEach(t => t.classList.add('reveal'));
+
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach(t => t.classList.add('visible'));
+    return;
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  targets.forEach(t => io.observe(t));
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * CARD HOVER SPOTLIGHT — radial light follows cursor inside cards
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!matchMedia('(hover: hover)').matches) return;
+  document.querySelectorAll('.feature-card, .tier').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width)  * 100;
+      const y = ((e.clientY - r.top)  / r.height) * 100;
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * HERO PARALLAX — headline & lead drift opposite to cursor
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  if (!matchMedia('(hover: hover)').matches) return;
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const h1 = hero.querySelector('h1');
+  const lead = hero.querySelector('p.lead');
+  const pill = hero.querySelector('.pill-badge');
+  let mx = 0, my = 0;
+  hero.addEventListener('mousemove', e => {
+    const r = hero.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width - 0.5;
+    my = (e.clientY - r.top)  / r.height - 0.5;
+    if (h1)   h1.style.transform   = 'translate(' + (-mx * 12) + 'px,' + (-my * 8)  + 'px)';
+    if (lead) lead.style.transform = 'translate(' + (-mx * 18) + 'px,' + (-my * 12) + 'px)';
+    if (pill) pill.style.transform = 'translate(' + (-mx * 25) + 'px,' + (-my * 18) + 'px)';
+  });
+  hero.addEventListener('mouseleave', () => {
+    if (h1)   h1.style.transform = '';
+    if (lead) lead.style.transform = '';
+    if (pill) pill.style.transform = '';
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * CONFETTI BURST — fires on launchApp button clicks before navigation
+ * ═══════════════════════════════════════════════════════════════════════ */
+function burstConfetti(x, y) {
+  const colors = ['#4f46e5', '#ff6b9d', '#ffd166', '#10b981', '#7c3aed'];
+  const N = 48;
+  for (let i = 0; i < N; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.background = colors[i % colors.length];
+    if (Math.random() < 0.4) piece.style.borderRadius = '50%';
+    if (Math.random() < 0.3) {
+      const sz = 6 + Math.random() * 6;
+      piece.style.width = sz + 'px';
+      piece.style.height = sz + 'px';
+    }
+    document.body.appendChild(piece);
+
+    const angle = (i / N) * Math.PI * 2 + Math.random() * 0.6;
+    const speed = 6 + Math.random() * 7;
+    let vx = Math.cos(angle) * speed;
+    let vy = Math.sin(angle) * speed - 4; // slight upward kick
+    let px = x, py = y;
+    const rotV = (Math.random() - 0.5) * 25;
+    let rot = Math.random() * 360;
+    let t = 0;
+
+    function animate() {
+      t++;
+      vy += 0.32;       // gravity
+      vx *= 0.985;
+      px += vx;
+      py += vy;
+      rot += rotV;
+      const op = Math.max(0, 1 - t / 80);
+      piece.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + rot + 'deg)';
+      piece.style.opacity = op;
+      if (t < 80) requestAnimationFrame(animate);
+      else piece.remove();
+    }
+    requestAnimationFrame(animate);
+  }
+}
+
+// Wrap launchApp so EVERY click on a launch CTA fires confetti before navigating
+(function () {
+  const _orig = window.launchApp;
+  window.launchApp = function (e) {
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    // Use the actual click position when possible
+    const ev = (typeof event !== 'undefined' && event) ? event : null;
+    if (ev && ev.clientX) { x = ev.clientX; y = ev.clientY; }
+    burstConfetti(x, y);
+    setTimeout(() => _orig(), 320);
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * MINI-CHART AUTO-CYCLE — randomly highlight a person every few seconds
+ * (so the hover-trace effect is visible even when the user is just reading)
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  setInterval(() => {
+    const charts = [
+      document.getElementById('mini-org-hero'),
+      document.getElementById('mini-org-preview'),
+    ];
+    charts.forEach(chart => {
+      if (!chart) return;
+      // Skip if user is currently hovering this chart
+      if (chart.matches(':hover')) return;
+      const nodes = chart.querySelectorAll('.mini-node');
+      if (!nodes.length) return;
+      const target = nodes[Math.floor(Math.random() * nodes.length)];
+      target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+      setTimeout(() => {
+        target.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+      }, 1600);
+    });
+  }, 3500);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * CLICK RIPPLES — expanding ring fires from every click position
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  document.addEventListener('mousedown', e => {
+    const r = document.createElement('div');
+    r.className = 'click-ripple';
+    r.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
+    // Choose a brand color randomly for variety
+    const colors = ['#4f46e5', '#ff6b9d', '#ffd166', '#10b981'];
+    r.style.borderColor = colors[Math.floor(Math.random() * colors.length)];
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 720);
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * SPARKLES — twinkling brand-colored dots scattered across the hero
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const colors = ['#4f46e5', '#ff6b9d', '#ffd166', '#10b981'];
+  function spawn() {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    s.style.background = c;
+    s.style.boxShadow = '0 0 8px ' + c;
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.top  = (Math.random() * 100) + '%';
+    s.style.animationDelay = (Math.random() * 1.5) + 's';
+    s.style.animationDuration = (2 + Math.random() * 2) + 's';
+    hero.appendChild(s);
+    setTimeout(() => s.remove(), 4500);
+  }
+  // Spawn 14 sparkles initially, then continuously
+  for (let i = 0; i < 14; i++) setTimeout(spawn, i * 180);
+  setInterval(spawn, 600);
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * COUNTER ANIMATION — animate "200,000" up from 0 when hero loads
+ * ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  const els = document.querySelectorAll('[data-count-to]');
+  els.forEach(el => {
+    const target = parseInt(el.dataset.countTo, 10);
+    if (!target) return;
+    const pill = el.closest('.pill-badge');
+    if (pill) pill.classList.add('counting');
+    const dur = 1800;
+    const start = performance.now();
+    function fmt(n) { return Math.floor(n).toLocaleString('en-US'); }
+    function step(now) {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      el.textContent = fmt(target * eased);
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(target);
+    }
+    requestAnimationFrame(step);
+  });
+})();
 
 /* ═══════════════════════════════════════════════════════════════════════
  * MINI ORG CHART — SVG edges + absolutely-positioned cards
