@@ -670,6 +670,54 @@ footer.site-footer {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
+
+/* ── Logo (clickable in both nav and footer) ──────────────────────── */
+.logo { cursor: pointer; user-select: none; }
+
+/* ── Toast notification (replaces browser alerts) ─────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 12px 32px rgba(11,11,20,.18);
+  display: flex; align-items: center; gap: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; line-height: 1.4;
+  color: var(--ink);
+  max-width: 400px;
+  z-index: 99999;
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform 320ms cubic-bezier(0.22,1,0.36,1), opacity 320ms ease;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.toast-pink   { border-left-color: var(--pink);  }
+.toast.toast-yellow { border-left-color: var(--yellow); }
+.toast.toast-green  { border-left-color: var(--green); }
+.toast-msg { flex: 1; min-width: 0; }
+.toast-cta {
+  background: var(--accent); color: #fff;
+  border: none; padding: 7px 14px; border-radius: 999px;
+  font-weight: 600; font-size: 13px; cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: transform 200ms, background 200ms;
+}
+.toast-cta:hover { transform: scale(1.05); }
+.toast-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink-2); font-size: 18px; line-height: 1;
+  padding: 0 4px;
+  font-family: inherit;
+}
+.toast-close:hover { color: var(--ink); }
+@media (max-width: 520px) {
+  .toast { left: 16px; right: 16px; max-width: none; bottom: 16px; }
+}
 </style>
 </head>
 <body>
@@ -698,7 +746,7 @@ footer.site-footer {
       <a href="#docs">Docs</a>
     </nav>
     <div class="nav-spacer"></div>
-    <a href="#" class="nav-signin">Sign in</a>
+    <a href="#" class="nav-signin" onclick="event.preventDefault(); launchApp();">Sign in</a>
     <button class="btn-primary" onclick="launchApp()">Try the app <span class="arrow">→</span></button>
   </div>
 </header>
@@ -729,7 +777,7 @@ footer.site-footer {
     </p>
     <div class="hero-ctas">
       <button class="btn-primary btn-lg" onclick="launchApp()">Build your chart <span class="arrow">→</span></button>
-      <button class="btn-ghost btn-lg" onclick="alert('Tour video coming soon — for now, click Build your chart and try it live!')">Watch the 90s tour</button>
+      <button class="btn-ghost btn-lg" onclick="showToast('Tour video is in production. For now you can build a real chart in 90 seconds.', 'Try it live', launchApp, 'pink')">Watch the 90s tour</button>
     </div>
     <div class="hero-mini">No card. No setup. Drop a CSV and see your team in 30 seconds.</div>
 
@@ -990,7 +1038,7 @@ footer.site-footer {
         <div class="tier-price-row">
           <span class="tier-price">Talk</span>
         </div>
-        <button class="btn-ghost tier-cta-btn" onclick="alert('Contact sales coming soon. For now, hit Start trial above to try Team free.')">Contact sales</button>
+        <button class="btn-ghost tier-cta-btn" onclick="showToast('Sales chat opening soon. For Enterprise, hit Start trial above to try Team free.', 'Start trial', launchApp, 'green')">Contact sales</button>
         <div class="tier-divider"></div>
         <ul class="tier-features">
           <li><span class="tier-check" style="background:#10b98133;color:#10b981">✓</span>Everything in Team</li>
@@ -1017,7 +1065,7 @@ footer.site-footer {
     </h2>
     <div class="cta-inner-ctas">
       <button class="btn-primary btn-lg" onclick="launchApp()">Try Nodely free <span class="arrow">→</span></button>
-      <button class="btn-ghost btn-lg" onclick="alert('Demo booking coming soon — for now click Try Nodely free.')">Book a demo</button>
+      <button class="btn-ghost btn-lg" onclick="showToast('Demo booking opens soon. Build a chart yourself first — takes 90 seconds.', 'Try Nodely', launchApp, 'yellow')">Book a demo</button>
     </div>
   </div>
 </section>
@@ -1040,10 +1088,10 @@ footer.site-footer {
       Nodely
     </div>
     <div class="footer-links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">Security</a>
-      <a href="#">Status</a>
+      <a href="#" onclick="event.preventDefault(); showToast('Privacy policy publishing soon.', null, null, 'pink')">Privacy</a>
+      <a href="#" onclick="event.preventDefault(); showToast('Terms of service publishing soon.', null, null, 'pink')">Terms</a>
+      <a href="#" onclick="event.preventDefault(); showToast('Security overview publishing soon.', null, null, 'green')">Security</a>
+      <a href="#" onclick="event.preventDefault(); showToast('Status page launching soon — services are running.', null, null, 'green')">Status</a>
     </div>
     <div class="footer-copy">© 2026 Nodely Labs</div>
   </div>
@@ -1068,6 +1116,131 @@ function launchApp() {
     window.location.search = '?view=app';
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * TOAST NOTIFICATIONS — branded replacement for browser alerts
+ * Usage: showToast(message, ctaText?, ctaAction?, color?)
+ *   color: 'pink' | 'yellow' | 'green' | undefined (default indigo)
+ * ═══════════════════════════════════════════════════════════════════════ */
+function showToast(message, ctaText, ctaAction, color) {
+  // Dismiss any existing toast first
+  document.querySelectorAll('.toast').forEach(t => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 300);
+  });
+
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (color ? ' toast-' + color : '');
+
+  const msg = document.createElement('span');
+  msg.className = 'toast-msg';
+  msg.textContent = message;
+  toast.appendChild(msg);
+
+  if (ctaText && typeof ctaAction === 'function') {
+    const cta = document.createElement('button');
+    cta.className = 'toast-cta';
+    cta.textContent = ctaText;
+    cta.addEventListener('click', () => {
+      ctaAction();
+      dismiss();
+    });
+    toast.appendChild(cta);
+  }
+
+  const close = document.createElement('button');
+  close.className = 'toast-close';
+  close.setAttribute('aria-label', 'Dismiss');
+  close.innerHTML = '&times;';
+  close.addEventListener('click', dismiss);
+  toast.appendChild(close);
+
+  document.body.appendChild(toast);
+  // next frame — trigger transition
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+
+  const auto = setTimeout(dismiss, 5000);
+  function dismiss() {
+    clearTimeout(auto);
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 320);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * SMART SCROLL — handles anchor links inside Streamlit's iframe
+ * Tries to scroll the parent window first (works for same-origin Streamlit
+ * iframe where the parent has the actual scrollbar), falls back to the
+ * iframe's internal scroll, then finally to native scrollIntoView.
+ * ═══════════════════════════════════════════════════════════════════════ */
+function smoothScrollToId(id) {
+  if (!id) return;
+  const target = document.getElementById(id);
+  if (!target) return;
+
+  // Approach 1: same-origin Streamlit iframe — scroll the parent window
+  try {
+    if (window.parent && window.parent !== window && window.frameElement) {
+      const iframeRect = window.frameElement.getBoundingClientRect();
+      const parentScroll = window.parent.pageYOffset
+                        || (window.parent.document && window.parent.document.documentElement.scrollTop)
+                        || 0;
+      const targetTop = iframeRect.top + parentScroll + target.offsetTop - 70;
+      window.parent.scrollTo({ top: targetTop, behavior: 'smooth' });
+      return;
+    }
+  } catch (e) { /* cross-origin — fall through */ }
+
+  // Approach 2: scroll within iframe document
+  try {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  } catch (e) {}
+
+  // Approach 3: ancient browser fallback
+  window.location.hash = '#' + id;
+}
+
+function smoothScrollToTop() {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+  } catch (e) {}
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* Hijack ALL anchor-link clicks (nav + any future internal anchors) ── */
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('a[href^="#"]');
+  if (!a) return;
+  // Skip if there's an explicit onclick (e.g., footer "Coming soon" toasts)
+  if (a.hasAttribute('onclick')) return;
+  const href = a.getAttribute('href');
+  if (!href || href === '#') return;
+  e.preventDefault();
+  const id = href.slice(1);
+  // Special case: Docs anchor doesn't exist yet — show toast
+  if (id === 'docs') {
+    showToast('Docs site launching soon. For now, the live demo above is the best tour.', 'Open app', launchApp);
+    return;
+  }
+  smoothScrollToId(id);
+});
+
+/* Make all .logo elements (nav + footer) clickable → scroll to top ── */
+document.querySelectorAll('.logo').forEach(logo => {
+  logo.setAttribute('role', 'button');
+  logo.setAttribute('tabindex', '0');
+  logo.addEventListener('click', smoothScrollToTop);
+  logo.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      smoothScrollToTop();
+    }
+  });
+});
 
 /* ═══════════════════════════════════════════════════════════════════════
  * STICKY NAV — toggle .scrolled class
