@@ -543,28 +543,9 @@ footer.site-footer {
   top: 0; left: 0;
 }
 
-/* ── Card hover spotlight (radial light follows cursor inside card) ─ */
+/* ── Card hover spotlight removed (no purple glow following cursor) ─ */
 @media (hover: hover) {
-  .feature-card, .tier {
-    overflow: hidden;
-  }
-  .feature-card::after, .tier::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
-      rgba(79,70,229,0.15), transparent 50%);
-    opacity: 0;
-    transition: opacity 240ms ease;
-    pointer-events: none;
-    z-index: 0;
-    border-radius: inherit;
-  }
-  .feature-card:hover::after, .tier:hover::after { opacity: 1; }
-  .tier.popular::after {
-    background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
-      rgba(255,107,157,0.2), transparent 50%);
-  }
+  .feature-card, .tier { overflow: hidden; }
 }
 
 /* ── Popular tier rainbow border ──────────────────────────────────── */
@@ -1152,11 +1133,11 @@ function initNetworkBG(canvas, opts) {
     for (const n of nodes) {
       const dx = mouse.x - n.x, dy = mouse.y - n.y;
       const d2 = dx * dx + dy * dy;
-      // Mouse REPELS dots — they scatter away from cursor (more bouncy)
-      if (d2 < 50000 && d2 > 1) {
-        const force = (50000 - d2) / 50000;
-        n.vx -= dx * 0.0028 * force;
-        n.vy -= dy * 0.0028 * force;
+      // Mouse REPELS dots — they scatter away from cursor (subtle bounce)
+      if (d2 < 30000 && d2 > 1) {
+        const force = (30000 - d2) / 30000;
+        n.vx -= dx * 0.0014 * force;
+        n.vy -= dy * 0.0014 * force;
       }
       n.vx *= friction; n.vy *= friction;
       // Cap top speed so things don't go ballistic
@@ -1208,8 +1189,8 @@ function initNetworkBG(canvas, opts) {
   window.addEventListener('mouseleave', onLeave);
 }
 
-initNetworkBG(document.getElementById('hero-bg'), { density: 130, color: '#4f46e5', opacity: 0.95, range: 240, speed: 1.1 });
-initNetworkBG(document.getElementById('cta-bg'),  { density: 100, color: '#4f46e5', opacity: 0.85, range: 220, speed: 0.95 });
+initNetworkBG(document.getElementById('hero-bg'), { density: 55, color: '#4f46e5', opacity: 0.5,  range: 200, speed: 0.7, glow: false });
+initNetworkBG(document.getElementById('cta-bg'),  { density: 45, color: '#4f46e5', opacity: 0.45, range: 180, speed: 0.6, glow: false });
 
 /* ═══════════════════════════════════════════════════════════════════════
  * MAGNETIC BUTTONS — gentle pull toward cursor on proximity
@@ -1337,22 +1318,6 @@ initFloatingOrbs(document.querySelector('.cta-footer'), { sizeFactor: 0.85 });
     });
   }, { threshold: 0.12 });
   targets.forEach(t => io.observe(t));
-})();
-
-/* ═══════════════════════════════════════════════════════════════════════
- * CARD HOVER SPOTLIGHT — radial light follows cursor inside cards
- * ═══════════════════════════════════════════════════════════════════════ */
-(function () {
-  if (!matchMedia('(hover: hover)').matches) return;
-  document.querySelectorAll('.feature-card, .tier').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width)  * 100;
-      const y = ((e.clientY - r.top)  / r.height) * 100;
-      card.style.setProperty('--mx', x + '%');
-      card.style.setProperty('--my', y + '%');
-    });
-  });
 })();
 
 /* ═══════════════════════════════════════════════════════════════════════
