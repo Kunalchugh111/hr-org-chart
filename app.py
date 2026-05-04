@@ -151,7 +151,8 @@ body{display:flex;flex-direction:column}
 .btn-sm{padding:6px 13px;font-size:0.78rem;border-radius:8px}
 .btn-export-all{background:linear-gradient(135deg,#7c3aed,#0284c7)!important;color:#fff!important;border:none!important;box-shadow:0 4px 14px rgba(124,58,237,0.35)!important}
 .btn-export-all:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.45)!important}
-.chart-toolbar{flex-shrink:0;height:52px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
+/* ── TOOLBAR: wraps gracefully instead of overflowing ── */
+.chart-toolbar{flex-shrink:0;min-height:52px;height:auto;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;flex-wrap:wrap;padding:6px 12px;gap:6px;box-shadow:var(--shadow-xs);position:relative;z-index:20;overflow:visible}
 .stats-bar{flex-shrink:0;height:34px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:18px;font-size:0.73rem}
 .stat-item{display:flex;align-items:center;gap:6px;color:var(--text3);font-weight:600}
 .stat-item strong{color:var(--text);font-weight:800}
@@ -271,8 +272,9 @@ body{display:flex;flex-direction:column}
 .bg-transparent-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 .bg-transparent-btn.active{background:#fef3c7;border-color:#d97706;color:#92400e;box-shadow:0 0 0 2px #fde68a}
 .bg-transparent-btn.active:hover{background:#fde68a}
-/* checkerboard pattern shown on live canvas when transparent toggle is on */
 .chart-canvas-wrap.transparent-preview{background-color:#ffffff!important;background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%)!important;background-size:20px 20px!important;background-position:0 0,0 10px,10px -10px,-10px 0!important}
+/* ── Photo match-by pill ── */
+.photo-match-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:130px}
 </style>
 </head>
 <body>
@@ -301,7 +303,7 @@ body{display:flex;flex-direction:column}
       </div>
       <div class="info-cards">
         <div class="info-card"><div class="info-card-title">Required Columns</div><div class="info-card-row">Employee Code / ID</div><div class="info-card-row">Employee Name</div><div class="info-card-row">Manager Code / ID</div></div>
-        <div class="info-card"><div class="info-card-title">Photo Tip</div><div class="info-card-row">Name photos by Employee ID</div><div class="info-card-row">e.g. EMP001.jpg, E001.png</div><div class="info-card-row">Load folder from Chart toolbar</div></div>
+        <div class="info-card"><div class="info-card-title">Photo Tip</div><div class="info-card-row">Name photos by any column value</div><div class="info-card-row">e.g. EMP001.jpg for Emp ID column</div><div class="info-card-row">Pick match column in Chart toolbar</div></div>
       </div>
     </div>
   </div>
@@ -363,6 +365,13 @@ body{display:flex;flex-direction:column}
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()"><div class="mgr-mode-dot"></div>Manager View</div>
       <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none"><span class="summary-fields-label">Show</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart()"><option value="">Field 1...</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart()"><option value="">Field 2...</option></select></div><div class="tb-sep"></div>
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple webkitdirectory/>
+      <!-- Photo match-by column selector: picks which column value is compared to the photo filename (exact, case-insensitive, no extension) -->
+      <div class="bg-control-wrap" title="Pick which column's value must exactly match the photo filename (without extension)">
+        <span class="bg-control-label">📁 by</span>
+        <select id="photo-match-col" class="photo-match-select" onchange="S.photoMatchCol=this.value;if(S.viewData.length)renderChart()" title="Photo filenames must exactly match this column's value (case-insensitive, no extension)">
+          <option value="">loading…</option>
+        </select>
+      </div>
       <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">📸 <span id="photo-btn-label">Load Photos</span><span class="photo-count" id="photo-count" style="display:none">0</span></div><div class="tb-sep"></div>
       <div style="flex:1"></div>
       <div class="bg-control-wrap" title="Chart background color and transparency">
@@ -385,10 +394,7 @@ body{display:flex;flex-direction:column}
   </div>
 </div>
 <script>
-/* ═══════════════════════════════════════════════════════════════════════
- * OrgDesign Pro — Snapshot fix applied
- * ═══════════════════════════════════════════════════════════════════════ */
-const S={rawRows:[],columns:[],colSamples:{},colMap:{empId:'',empName:'',managerId:''},cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},cardAccent:'#4f46e5',empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},filterCols:[],activeFilters:{},managerOverrides:{},removedIds:new Set(),viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},zoom:1,highlighted:null,draggingField:null,reassignTarget:null,reassignPick:null,skipDepth:0,photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',managerMode:false,summaryField1:'',summaryField2:'',chartBgColor:'#f1f5f9',transparentExport:false};
+const S={rawRows:[],columns:[],colSamples:{},colMap:{empId:'',empName:'',managerId:''},cardSlots:{h1:'',h2:'',h3:'',b1:'',f1:'',f2:'',f3:''},cardAccent:'#4f46e5',empTypeCol:'',empTypeMap:{},empTypeLabels:{active:'',vacant:'',resigned:''},empTypeColors:{active:'#059669',vacant:'#dc2626',resigned:'#d97706'},filterCols:[],activeFilters:{},managerOverrides:{},removedIds:new Set(),viewData:[],childMap:{},descCount:{},nodeHeight:{},nodeDepth:{},zoom:1,highlighted:null,draggingField:null,reassignTarget:null,reassignPick:null,skipDepth:0,photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',photoMatchCol:'',managerMode:false,summaryField1:'',summaryField2:'',chartBgColor:'#f1f5f9',transparentExport:false};
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
@@ -403,7 +409,20 @@ async function openPhotoFolder(){if('showDirectoryPicker' in window){try{const d
 async function loadFromDirectoryHandle(dirHandle){S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];const newMap={};const IMG=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);for await(const[name,handle] of dirHandle.entries()){if(handle.kind==='file'){const ext=name.split('.').pop().toLowerCase();if(IMG.has(ext)){const f=await handle.getFile();const k=name.replace(/\.[^.]+$/,'').toLowerCase().trim();const u=URL.createObjectURL(f);newMap[k]=u;S.photoObjUrls.push(u);}}}S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();}
 function loadFromFileInput(files){S.photoObjUrls.forEach(u=>URL.revokeObjectURL(u));S.photoObjUrls=[];const newMap={};const IMG=new Set(['jpg','jpeg','png','gif','webp','bmp','avif']);Array.from(files).forEach(file=>{const ext=file.name.split('.').pop().toLowerCase();if(IMG.has(ext)){const k=file.name.replace(/\.[^.]+$/,'').toLowerCase().trim();const u=URL.createObjectURL(file);newMap[k]=u;S.photoObjUrls.push(u);}});S.photoMap=newMap;updatePhotoUI();if(S.viewData.length)renderChart();}
 function updatePhotoUI(){const count=Object.keys(S.photoMap).length;document.getElementById('photo-btn').classList.toggle('loaded',count>0);document.getElementById('photo-btn-label').textContent=count>0?'Photos':'Load Photos';const badge=document.getElementById('photo-count');badge.textContent=count;badge.style.display=count>0?'':'none';const stat=document.getElementById('stat-photos');if(stat){stat.style.display=count>0?'flex':'none';document.getElementById('stat-photos-val').textContent=count;}}
-function getPhotoUrl(node){if(!Object.keys(S.photoMap).length)return '';const id=node.id.toLowerCase().trim();if(S.photoMap[id])return S.photoMap[id];const nk=node.name.toLowerCase().trim().replace(/\s+/g,'_');if(S.photoMap[nk])return S.photoMap[nk];const nk2=node.name.toLowerCase().trim().replace(/\s+/g,'');if(S.photoMap[nk2])return S.photoMap[nk2];return '';}
+
+/* ── getPhotoUrl: exact match only ──────────────────────────────────────
+ * Uses S.photoMatchCol (set by the "📁 by" dropdown) to pick the column
+ * whose value is compared — case-insensitively, without extension — to
+ * the filename stem in S.photoMap. No fuzzy fallback: if the value isn't
+ * found, no photo is shown for that card.
+ * ─────────────────────────────────────────────────────────────────────── */
+function getPhotoUrl(node){
+  if(!Object.keys(S.photoMap).length)return '';
+  const col=S.photoMatchCol||S.colMap.empId;
+  const val=String(node[col]||'').toLowerCase().trim();
+  return val&&S.photoMap[val]?S.photoMap[val]:'';
+}
+
 function buildMapScreen(){document.getElementById('col-count').textContent=S.columns.length;document.getElementById('detected-columns').innerHTML=S.columns.map(c=>'<div class="col-chip">'+esc(c)+(S.colSamples[c].length?'<span class="chip-sample">'+esc(S.colSamples[c].join(', '))+'</span>':'')+'</div>').join('');const blank='<option value="">— select —</option>';const opts=blank+S.columns.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');['empId','empName','managerId'].forEach(k=>{const sel=document.getElementById('map-'+k);if(!sel)return;sel.innerHTML=opts;sel.value=S.colMap[k]||'';});const wrap=document.getElementById('data-preview-wrap');const preview=S.rawRows.slice(0,3);if(!preview.length){wrap.innerHTML='';return;}let html='<table class="data-preview-table"><thead><tr>'+S.columns.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>';preview.forEach(row=>{html+='<tr>'+S.columns.map(c=>'<td>'+esc(String(row[c]||'').substring(0,22))+'</td>').join('')+'</tr>';});wrap.innerHTML=html+'</tbody></table>';}
 
 function confirmColumnMap(){S.colMap.empId=document.getElementById('map-empId').value;S.colMap.empName=document.getElementById('map-empName').value;S.colMap.managerId=document.getElementById('map-managerId').value;if(!S.colMap.empId||!S.colMap.empName){alert('Please map Employee ID and Employee Name.');return;}if(S.colMap.empId===S.colMap.empName){alert('Employee ID and Employee Name must be different columns.');return;}if(S.colMap.managerId&&S.colMap.managerId===S.colMap.empId){alert('Manager ID and Employee ID must be different columns.');return;}buildCardScreen();goTo('card');}
@@ -435,7 +454,25 @@ function buildFilterScreen(){const core=new Set([S.colMap.empId,S.colMap.empName
 function toggleFilterCol(col){if(S.filterCols.includes(col))S.filterCols=S.filterCols.filter(c=>c!==col);else if(S.filterCols.length<3)S.filterCols.push(col);else{S.filterCols.shift();S.filterCols.push(col);}document.querySelectorAll('.filter-chip').forEach(c=>c.classList.toggle('selected',S.filterCols.includes(c.dataset.col)));renderFilterPreview();}
 function renderFilterPreview(){document.getElementById('filter-counter').textContent=S.filterCols.length+' of 3 filters selected';const area=document.getElementById('filter-preview-area');if(!S.filterCols.length){area.innerHTML='<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>';return;}area.innerHTML='<div class="filter-preview-box">'+S.filterCols.map((col,i)=>{const isLast=i===S.filterCols.length-1;const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);return '<div class="fpr-row"><span class="fpr-col">'+esc(col)+(isLast?' <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>':'')+'</span><div class="fpr-vals">'+vals.map(v=>'<span class="fv-pill">'+esc(v)+'</span>').join('')+(vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':'')+'</div></div>';}).join('')+'</div>';}
 function launchChart(){S.activeFilters={};S.skipDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
-function populateSummaryFields(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));const opts='<option value="">—</option><option value="__name__">Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');const s1=document.getElementById('summary-field1');const s2=document.getElementById('summary-field2');if(s1){s1.innerHTML=opts;if(S.summaryField1)s1.value=S.summaryField1;}if(s2){s2.innerHTML=opts;if(S.summaryField2)s2.value=S.summaryField2;}document.getElementById('depth-select').value=S.skipDepth;}
+
+/* ── populateSummaryFields: also populates the photo match-by selector ── */
+function populateSummaryFields(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId].filter(Boolean));const opts='<option value="">—</option><option value="__name__">Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');const s1=document.getElementById('summary-field1');const s2=document.getElementById('summary-field2');if(s1){s1.innerHTML=opts;if(S.summaryField1)s1.value=S.summaryField1;}if(s2){s2.innerHTML=opts;if(S.summaryField2)s2.value=S.summaryField2;}document.getElementById('depth-select').value=S.skipDepth;populatePhotoMatchCol();}
+
+/* ── populatePhotoMatchCol ───────────────────────────────────────────────
+ * Fills the "📁 by" dropdown with every column in the dataset.
+ * Defaults to the Employee ID column (the most common naming convention).
+ * The user can switch to any other column — e.g. "Photo File Name" or
+ * "Employee Code" — and photos will be looked up by that column's exact
+ * value (case-insensitive, extension stripped).
+ * ─────────────────────────────────────────────────────────────────────── */
+function populatePhotoMatchCol(){
+  const sel=document.getElementById('photo-match-col');
+  if(!sel)return;
+  sel.innerHTML=S.columns.map(c=>'<option value="'+esc(c)+'"'+(c===S.colMap.empId?' selected':'')+'>'+esc(c)+'</option>').join('');
+  if(!S.photoMatchCol)S.photoMatchCol=S.colMap.empId;
+  sel.value=S.photoMatchCol||S.colMap.empId;
+}
+
 function toggleManagerMode(){S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();}
 function isManager(nodeId){return(S.childMap[nodeId]||[]).length>0;}
 
@@ -448,92 +485,26 @@ function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.acti
 function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
 function setSkipDepth(n){S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
 
-/* ── Chart background controls ──────────────────────────────────────────
- * setChartBg: change the live canvas color. Disabled visually when
- * transparent toggle is on.
- * toggleTransparent: flip transparent state. Live canvas shows a
- * checkerboard preview when on, so user can see exactly what the
- * exported PNG will look like dropped onto a colored slide.
- * applyChartBg: single source of truth — reads S and updates DOM.
- * ─────────────────────────────────────────────────────────────────────── */
-function setChartBg(color){
-  S.chartBgColor=color;
-  if(!S.transparentExport)applyChartBg();
-}
-function toggleTransparent(){
-  S.transparentExport=!S.transparentExport;
-  const btn=document.getElementById('bg-transparent-btn');
-  const inp=document.getElementById('bg-color-input');
-  if(btn)btn.classList.toggle('active',S.transparentExport);
-  if(inp)inp.disabled=S.transparentExport;
-  applyChartBg();
-}
-function applyChartBg(){
-  const wrap=document.getElementById('chart-canvas-wrap');
-  if(!wrap)return;
-  if(S.transparentExport){
-    wrap.classList.add('transparent-preview');
-    wrap.style.background='';
-  }else{
-    wrap.classList.remove('transparent-preview');
-    wrap.style.background=S.chartBgColor;
-  }
-}
+function setChartBg(color){S.chartBgColor=color;if(!S.transparentExport)applyChartBg();}
+function toggleTransparent(){S.transparentExport=!S.transparentExport;const btn=document.getElementById('bg-transparent-btn');const inp=document.getElementById('bg-color-input');if(btn)btn.classList.toggle('active',S.transparentExport);if(inp)inp.disabled=S.transparentExport;applyChartBg();}
+function applyChartBg(){const wrap=document.getElementById('chart-canvas-wrap');if(!wrap)return;if(S.transparentExport){wrap.classList.add('transparent-preview');wrap.style.background='';}else{wrap.classList.remove('transparent-preview');wrap.style.background=S.chartBgColor;}}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
 function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');card.style.borderTopColor=ac;const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);const b1=getSlotVal(node,'b1');const subtitle=h2;const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';const pInline='width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';';const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const photoUrl=getPhotoUrl(node);let photoHtml='';if(photoUrl){photoHtml='<img class="ncard-photo" src="'+esc(photoUrl)+'" crossorigin="anonymous" style="'+pInline+'border:3px solid '+acMid+';box-shadow:0 8px 24px '+ac+'66" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="ncard-photo-fallback" style="display:none;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}else if(Object.keys(S.photoMap).length>0){photoHtml='<div class="ncard-photo-fallback" style="display:flex;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}const b1row=b1?'<div class="ncard-body-b1">'+esc(b1)+'</div>':'';const textBlock='<div class="ncard-text-wrap"><div class="ncard-name">'+esc(node.name)+'</div>'+(subtitle?'<div class="ncard-sub">'+esc(subtitle)+'</div>':'')+b1row+'</div>';let bodyHtml;const pl=S.photoPlacement;if(!photoHtml||pl==='none'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column">'+textBlock+'</div>';}else if(pl==='top'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">'+photoHtml+'</div>'+textBlock+'</div>';}else if(pl==='left'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}else{bodyHtml='<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}card.innerHTML='<div class="ncard-header" style="background:'+acLight+';border-bottom-color:'+ac+'33"><span class="ncard-slot'+(h1?' has-val':'')+'" title="'+esc(h1)+'">'+(esc(h1)||'—')+'</span><span class="ncard-slot'+(h2?' has-val':'')+'" title="'+esc(h2)+'">'+(esc(h2)||'—')+'</span><span class="ncard-slot'+(h3?' has-val':'')+'" title="'+esc(h3)+'">'+(esc(h3)||'—')+'</span></div><div class="ncard-body">'+bodyHtml+'</div><div class="ncard-footer" style="background:'+acLight+';border-top-color:'+ac+'33"><span class="ncard-slot'+(f1?' has-val':'')+'" title="'+esc(f1)+'">'+(esc(f1)||'—')+'</span><span class="ncard-slot'+(f2?' has-val':'')+'" title="'+esc(f2)+'">'+(esc(f2)||'—')+'</span><span class="ncard-slot'+(f3?' has-val':'')+'" title="'+esc(f3)+'">'+(esc(f3)||node.id.substring(0,14))+'</span></div><div class="ncard-export-btn" onclick="exportSubtree(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:30px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">📸</div><div class="ncard-edit-btn" onclick="openReassignModal(event,\''+esc(node.id)+'\')" style="position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:6px;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity 0.15s;z-index:8">✎</div>';card.querySelectorAll('.ncard-edit-btn,.ncard-export-btn').forEach(b=>{card.addEventListener('mouseenter',()=>b.style.opacity='1');card.addEventListener('mouseleave',()=>b.style.opacity='0');});if(kids.length){const cb=document.createElement('div');cb.className='collapse-btn';cb.innerHTML='▾';cb.title='Collapse / expand';cb.addEventListener('click',e=>{e.stopPropagation();toggleCollapse(li,cb);});card.appendChild(cb);}li.appendChild(card);if(kids.length){if(S.managerMode){const managerKids=kids.filter(k=>isManager(k.id));const leafKids=kids.filter(k=>!isManager(k.id));const ul=document.createElement('ul');managerKids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));if(leafKids.length>0){ul.appendChild(mkLeafSummaryLI(leafKids,ac));}li.appendChild(ul);}else{const ul=document.createElement('ul');kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));li.appendChild(ul);}}return li;}
 
-/* ════════════════════════════════════════════════════════════════════════
- * mkLeafSummaryLI — REBUILT with absolute positioning
- * ────────────────────────────────────────────────────────────────────────
- * Why this rewrite:
- *   Previous attempt #1 (flexbox + min-height) clipped tops of glyphs in
- *   html2canvas exports because flex centering uses font baseline metrics
- *   that html2canvas computes wrong.
- *   Previous attempt #2 (HTML <table> + vertical-align:middle) caused
- *   html2canvas to drop text content entirely from the rendered cells,
- *   leaving the cards visually empty in PNG exports.
- *
- * The fix this time:
- *   Pure block + absolute positioning. NO flex. NO tables. EVERYTHING
- *   sized in explicit pixels. Single-character vertical centering uses
- *   line-height == container-height. Multi-line text stacks naturally
- *   in fixed-height divs. Avatars are absolutely positioned with manually
- *   computed Y offsets. This is the single most reliable layout pattern
- *   for html2canvas because there is no "computed alignment" anywhere —
- *   every glyph position is derivable directly from CSS pixels.
- * ════════════════════════════════════════════════════════════════════════ */
 function mkLeafSummaryLI(leafNodes, ac) {
   const li = document.createElement('li');
   const f1 = S.summaryField1, f2 = S.summaryField2;
   const count = leafNodes.length;
-
-  // Layout constants — all in pixels, no unitless or percentage values
-  const AV = 28;          // avatar size
-  const PAD_H = 14;       // horizontal padding inside row
-  const PAD_V = 8;        // vertical padding inside row
-  const TEXT_LH = 16;     // line-height for text rows (px)
-  const GAP = 10;         // gap between avatar and text
-  const HEADER_LBL_H = 22;// header label line-box height
+  const AV = 28; const PAD_H = 14; const PAD_V = 8; const TEXT_LH = 16; const GAP = 10; const HEADER_LBL_H = 22;
   const FF = "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
-
-  // ── HEADER ────────────────────────────────────────────────────────────
-  // Relative parent. Label uses line-height==height for perfect vertical
-  // centering of single-line text. Badge is absolutely positioned right.
   const headerHtml =
     '<div style="position:relative;background:#f5f3ff;border-bottom:1px solid #e9d5ff;padding:9px ' + PAD_H + 'px;' + FF + '">' +
       '<div style="height:' + HEADER_LBL_H + 'px;line-height:' + HEADER_LBL_H + 'px;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;padding-right:42px;white-space:nowrap;overflow:hidden;' + FF + '">ICs (' + count + ')</div>' +
       '<div style="position:absolute;top:8px;right:' + PAD_H + 'px;height:24px;line-height:24px;background:#7c3aed;color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
     '</div>';
-
-  // ── ROWS ──────────────────────────────────────────────────────────────
-  // Each row is a position:relative box of EXPLICIT pixel height.
-  // - Avatar: position:absolute at left:14, top: computed to vertically center.
-  //   Single-char initial centered via line-height == (height - border).
-  // - Text container: margin-left to clear avatar area, padding-top to
-  //   vertically center the stacked lines within the row.
   let rowsHtml = '';
   leafNodes.forEach((n, idx) => {
     const initials = n.name.split(' ').map(w => w[0] || '').join('').substring(0, 2).toUpperCase();
@@ -545,40 +516,26 @@ function mkLeafSummaryLI(leafNodes, ac) {
     const primaryVal = f1 ? (f1IsName ? nameVal : (String(n[f1] || '').trim() || nameVal).substring(0, 24)) : nameVal;
     const showNameSub = f1 && !f1IsName && primaryVal !== nameVal;
     const val2 = f2 ? (f2 === '__name__' ? n.name.substring(0, 22) : String(n[f2] || '').substring(0, 22)) : '';
-
     const numLines = 1 + (showNameSub ? 1 : 0) + (val2 ? 1 : 0);
     const textTotalH = numLines * TEXT_LH;
-    const innerH = Math.max(AV, textTotalH);          // greater of avatar/text heights
+    const innerH = Math.max(AV, textTotalH);
     const totalRowH = innerH + PAD_V * 2;
     const avatarTopY = PAD_V + Math.max(0, Math.round((innerH - AV) / 2));
     const textTopPad = PAD_V + Math.max(0, Math.round((innerH - textTotalH) / 2));
     const textLeftMargin = PAD_H + AV + GAP;
-
     let avatarHtml;
     if (photoUrl) {
       avatarHtml = '<img src="' + esc(photoUrl) + '" crossorigin="anonymous" style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;object-fit:cover;object-position:center top;border:2px solid ' + borderC + '55;box-sizing:border-box;display:block;">';
     } else {
-      // Single-character initials — line-height == (avatar height - 2*border) centers vertically
       const innerLH = AV - 4;
       avatarHtml = '<div style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;background:' + borderC + '1f;color:' + borderC + ';border:2px solid ' + borderC + '55;box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;line-height:' + innerLH + 'px;' + FF + '">' + esc(initials) + '</div>';
     }
-
     let textLines = '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(primaryVal) + '</div>';
-    if (showNameSub) {
-      textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>';
-    }
-    if (val2) {
-      textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>';
-    }
-
+    if (showNameSub) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>'; }
+    if (val2) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>'; }
     const rowBorder = isLast ? '' : 'border-bottom:1px solid #e2e8f0;';
-    rowsHtml +=
-      '<div style="position:relative;background:#ffffff;height:' + totalRowH + 'px;' + rowBorder + 'box-sizing:border-box;">' +
-        avatarHtml +
-        '<div style="margin-left:' + textLeftMargin + 'px;padding-top:' + textTopPad + 'px;padding-right:' + PAD_H + 'px;">' + textLines + '</div>' +
-      '</div>';
+    rowsHtml += '<div style="position:relative;background:#ffffff;height:' + totalRowH + 'px;' + rowBorder + 'box-sizing:border-box;">' + avatarHtml + '<div style="margin-left:' + textLeftMargin + 'px;padding-top:' + textTopPad + 'px;padding-right:' + PAD_H + 'px;">' + textLines + '</div></div>';
   });
-
   const card = document.createElement('div');
   card.className = 'summary-list-card';
   card.innerHTML = headerHtml + rowsHtml;
@@ -609,38 +566,17 @@ function makeOverlay(title,sub){const o=document.createElement('div');o.classNam
 function _saveCollapsedState(){const ids=[];document.querySelectorAll('li.collapsed').forEach(li=>{if(li.dataset.id)ids.push(li.dataset.id);});return ids;}
 function _restoreCollapsedState(ids){if(!ids||!ids.length)return;const s=new Set(ids);document.querySelectorAll('li[data-id]').forEach(li=>{if(s.has(li.dataset.id)){const ul=li.querySelector(':scope > ul');if(ul){li.classList.add('collapsed');ul.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}}}});setTimeout(()=>updateStats(),60);}
 
-/* ════════════════════════════════════════════════════════════════════════
- * buildRenderStage — SIMPLIFIED
- * ────────────────────────────────────────────────────────────────────────
- * Previously: pre-rendered each summary card with html2canvas, then
- * composited the resulting <img>s into the main render. This double-pass
- * approach was the cause of the clipping in the screenshot — first pass
- * clipped the card at the bottom edge of its rect, second pass rendered
- * the clipped image as-is.
- *
- * Now: skip pre-rendering entirely. Build a clean clone of the org tree,
- * strip interactive UI (collapse buttons, edit/export buttons), expand
- * everything, hand it to html2canvas as ONE element. The summary cards
- * use table-based layout (see mkLeafSummaryLI) which html2canvas renders
- * faithfully, so no pre-render is needed.
- * ════════════════════════════════════════════════════════════════════════ */
 async function buildRenderStage() {
   const savedCollapsed = _saveCollapsedState();
   expandAll();
   await new Promise(r => setTimeout(r, 400));
   if (document.fonts && document.fonts.ready) await document.fonts.ready;
   await new Promise(r => setTimeout(r, 200));
-
   const orgTree = document.getElementById('org-tree');
-
   const container = document.createElement('div');
   container.className = 'export-stage-root';
-  // Background respects the user's choice. When transparent is on, the container
-  // is fully transparent so html2canvas's transparent capture mode produces a
-  // PNG with alpha channel — perfect for dropping into PowerPoint.
   const stageBg = S.transparentExport ? 'transparent' : S.chartBgColor;
   container.style.cssText = 'position:fixed;top:0;left:0;background:'+stageBg+';padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
-
   const clone = orgTree.cloneNode(true);
   clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el => el.remove());
   clone.querySelectorAll('li.collapsed').forEach(li => {
@@ -653,14 +589,10 @@ async function buildRenderStage() {
   clone.querySelectorAll('.node-card,.summary-list-card').forEach(c => {
     c.style.removeProperty('opacity');
     c.style.removeProperty('transform');
-    // Belt-and-suspenders: force overflow:visible inline on the card itself
-    // so html2canvas cannot clip at the card's rounded edge.
     c.style.setProperty('overflow', 'visible', 'important');
   });
-
   container.appendChild(clone);
   document.body.appendChild(container);
-  // Two RAFs + a settle delay to ensure layout has fully resolved
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   await new Promise(r => setTimeout(r, 300));
   _restoreCollapsedState(savedCollapsed);
