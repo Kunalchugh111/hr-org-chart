@@ -171,9 +171,23 @@ body{display:flex;flex-direction:column}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
 /* ── Children row chunking for max-6-per-row ── */
-.children-rows-wrap{display:flex;flex-direction:column;align-items:center}
+.children-rows-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;padding-top:24px}
+.children-rows-wrap::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px;margin-left:-1px;z-index:0}
 .children-row-ul{padding-top:24px;position:relative;list-style:none;display:flex;justify-content:center;flex-wrap:nowrap}
-.children-row-ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
+.children-row-ul::before{display:none}
+.children-row-ul.row-cont{padding-top:30px;border-top:1.5px dashed #cbd5e1;margin-top:6px;position:relative}
+.children-row-ul.row-cont::after{content:'\2937 continued';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 9px;font-size:0.6rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;border-radius:6px}
+/* Drag-to-reassign visual states */
+.node-card.drop-halo{box-shadow:0 0 0 4px rgba(34,197,94,0.45),0 0 30px rgba(34,197,94,0.35)!important;border-color:#16a34a!important}
+.node-card.drop-halo-bad{box-shadow:0 0 0 4px rgba(239,68,68,0.4),0 0 30px rgba(239,68,68,0.25)!important;border-color:#dc2626!important;cursor:not-allowed}
+.node-card.node-dragging{opacity:0.45;cursor:grabbing!important}
+#root-drop-zone{display:none;align-items:center;gap:6px;padding:5px 11px;background:#fef3c7;border:1.5px dashed #d97706;border-radius:8px;font-size:0.74rem;font-weight:700;color:#92400e;flex-shrink:0;transition:all 0.15s}
+#root-drop-zone.dragging-active{display:inline-flex}
+#root-drop-zone.over{background:#d97706;color:#fff;transform:scale(1.05)}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(8px);background:#0f172a;color:#fff;padding:10px 18px;border-radius:10px;font-size:0.82rem;font-weight:600;z-index:10000;box-shadow:0 12px 40px rgba(0,0,0,0.25);opacity:0;transition:opacity 0.18s,transform 0.18s;pointer-events:none;display:flex;align-items:center;gap:10px}
+.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .toast-action{background:rgba(255,255,255,0.18);border:none;color:#fff;font-size:0.74rem;font-weight:800;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;pointer-events:auto}
+.toast .toast-action:hover{background:rgba(255,255,255,0.28)}
 /* ── Node card: full 4-side border color ── */
 .node-card{display:inline-block;width:270px;background:var(--bg);border:2px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);z-index:10}
@@ -182,7 +196,7 @@ body{display:flex;flex-direction:column}
 .ncard-header{padding:6px 10px;background:var(--bg2);border-bottom:1px solid var(--border);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:4px}
 .ncard-footer{padding:6px 10px;border-top:1px solid var(--border);border-radius:0 0 12px 12px;background:var(--bg2);display:flex;align-items:center;gap:4px}
 .ncard-slot{font-size:0.64rem;font-weight:700;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:center}
-.ncard-slot.has-val{color:var(--accent)}
+.ncard-slot.has-val{color:var(--card-accent,var(--accent))}
 .ncard-body{padding:14px 14px 12px}
 .ncard-body-inner{display:flex;gap:10px}
 .ncard-body-b1{border-top:1px dashed var(--border2);margin-top:6px;padding-top:5px;text-align:center;font-size:0.72rem;color:var(--accent);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -322,7 +336,7 @@ body{display:flex;flex-direction:column}
         <div class="fields-section" style="margin-top:14px">
           <div class="fields-section-label" style="margin-bottom:8px">Photo Size &amp; Shape</div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Size (px)</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="range" id="photo-size-slider" min="40" max="160" step="10" value="80" style="flex:1;accent-color:var(--accent);cursor:pointer" oninput="S.photoSize=parseInt(this.value);document.getElementById('photo-size-val').textContent=this.value+'px';renderCardPreview();renderChart()"/><span id="photo-size-val" style="font-size:0.78rem;font-weight:700;color:var(--accent);min-width:36px">80px</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="range" id="photo-size-slider" min="40" max="160" step="10" value="80" style="flex:1;accent-color:var(--accent);cursor:pointer" oninput="S.photoSize=parseInt(this.value);document.getElementById('photo-size-val').textContent=this.value+'px';renderCardPreview();renderChart();persistState();" aria-label="Photo size in pixels"/><span id="photo-size-val" style="font-size:0.78rem;font-weight:700;color:var(--accent);min-width:36px">80px</span></div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Shape</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><div class="shape-btn selected" data-shape="circle" onclick="setPhotoShape('circle')">Circle</div><div class="shape-btn" data-shape="rounded" onclick="setPhotoShape('rounded')">Rounded</div><div class="shape-btn" data-shape="square" onclick="setPhotoShape('square')">Square</div></div>
           <div style="font-size:0.73rem;color:var(--text3);margin-bottom:7px">Placement</div>
@@ -356,18 +370,20 @@ body{display:flex;flex-direction:column}
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div><div class="tb-sep"></div>
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()"><div class="mgr-mode-dot"></div>Manager View</div>
-      <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none"><span class="summary-fields-label">Show</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart()"><option value="">Field 1...</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart()"><option value="">Field 2...</option></select></div><div class="tb-sep"></div>
+      <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none" title="Pick up to 3 fields to display on each IC summary row"><span class="summary-fields-label">IC fields</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 1"><option value="">Field 1…</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 2"><option value="">Field 2…</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field3" onchange="S.summaryField3=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 3"><option value="">Field 3…</option></select></div><div class="tb-sep"></div>
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple webkitdirectory/>
       <div class="bg-control-wrap" title="Pick which column value must match the photo filename (no extension)">
         <span class="bg-control-label">📁 by</span>
-        <select id="photo-match-col" class="photo-match-select" onchange="S.photoMatchCol=this.value;if(S.viewData.length)renderChart()"><option value="">loading…</option></select>
+        <select id="photo-match-col" class="photo-match-select" onchange="S.photoMatchCol=this.value;if(S.viewData.length)renderChart();persistState();" aria-label="Column used to match photo filenames"><option value="">loading…</option></select>
       </div>
       <div class="photo-btn" id="photo-btn" onclick="openPhotoFolder()">📸 <span id="photo-btn-label">Load Photos</span><span class="photo-count" id="photo-count" style="display:none">0</span></div>
       <!-- FRO legend indicator -->
       <div class="fro-legend" id="fro-legend" style="display:none"><span class="fro-legend-line"></span>FRO line</div>
       <div class="tb-sep"></div>
       <div style="flex:1"></div>
-      <div class="bg-control-wrap"><span class="bg-control-label">BG</span><input type="color" class="bg-color-input" id="bg-color-input" value="#f1f5f9" oninput="setChartBg(this.value)"/><button class="bg-transparent-btn" id="bg-transparent-btn" onclick="toggleTransparent()">⊘ None</button></div><div class="tb-sep"></div>
+      <div id="root-drop-zone" title="Drop a card here to make it a root (no manager)">⬆ Drop here to make root</div>
+      <button class="btn btn-ghost btn-sm" id="undo-btn" onclick="undo()" title="Undo last change (Ctrl/Cmd+Z)" disabled>↶ Undo</button><div class="tb-sep"></div>
+      <div class="bg-control-wrap" title="Background color of the chart canvas (PNG/PPTX export uses this)"><span class="bg-control-label">BG</span><input type="color" class="bg-color-input" id="bg-color-input" value="#f1f5f9" oninput="setChartBg(this.value)"/><button class="bg-transparent-btn" id="bg-transparent-btn" onclick="toggleTransparent()" title="Export with transparent background">⊘ None</button></div><div class="tb-sep"></div>
       <button class="btn btn-ghost btn-sm" onclick="downloadCSV()">CSV</button><button class="btn btn-ghost btn-sm" onclick="exportPNG()">PNG</button><button class="btn btn-ghost btn-sm" onclick="exportPPTX()">PPTX</button><button class="btn btn-sm btn-export-all" onclick="exportAll()">Export All</button>
     </div>
     <div class="stats-bar"><div class="stat-item"><div class="stat-dot"></div><strong id="stat-total">—</strong>&nbsp;employees</div><div class="stat-item"><strong id="stat-roots">—</strong>&nbsp;roots</div><div class="stat-item"><strong id="stat-vis">—</strong>&nbsp;visible</div><div class="stat-item" id="stat-photos" style="display:none;color:var(--success)">📸 <strong id="stat-photos-val">0</strong> photos</div><div class="stat-item" id="stat-mgr-mode" style="display:none;color:#7c3aed">👔 <strong id="stat-mgr-val">—</strong></div><div class="stat-item" id="stat-filtered" style="display:none;color:var(--warning)">Filtered</div></div>
@@ -438,18 +454,22 @@ const S={
   reassignTarget:null,reassignPick:null,
   skipDepth:0,
   photoMap:{},photoObjUrls:[],photoSize:80,photoShape:'circle',photoPlacement:'top',photoMatchCol:'',
-  managerMode:false,summaryField1:'',summaryField2:'',
+  managerMode:false,summaryField1:'',summaryField2:'',summaryField3:'',
   chartBgColor:'#f1f5f9',transparentExport:false,
   // Person View state
-  pvPersonId:null,pvDepth:999,pvZoom:1,pvMode:false
+  pvPersonId:null,pvDepth:999,pvZoom:1,pvMode:false,
+  // Drag-to-reassign + undo + persistence
+  draggingNodeId:null,undoStack:[],_persistTimer:null,_lastFileSig:''
 };
+const PERSIST_KEY='orgdesign_state_v2';
+const UNDO_MAX=40;
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);},160);}}
 function handleFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}else if(['xlsx','xls'].includes(ext)){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));};reader.readAsArrayBuffer(file);}else{alert('Please upload a CSV or Excel file.');}}
-function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);buildMapScreen();goTo('map');}
+function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);S.undoStack=[];const persisted=loadPersisted();if(persisted&&persisted.sig===fileSig()&&applyPersisted(persisted)){buildViewData();buildFilterBar();renderChart();goTo('chart');showToast('Restored your previous session — Ctrl+Z undoes any change');return;}buildMapScreen();goTo('map');}
 
 function autoDetect(cols){const lc=cols.map(c=>c.toLowerCase().trim());function find(exact,partial){for(const p of exact){const i=lc.findIndex(c=>c===p);if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.startsWith(p)||c.endsWith(p));if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.includes(p));if(i>=0)return cols[i];}return '';}return{
   empId:find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','employee_id','emp_id'],['employee code','emp code','employee id','emp id','empcode','empid','staff id']),
@@ -470,8 +490,8 @@ function confirmColumnMap(){S.colMap.empId=document.getElementById('map-empId').
 
 const AUTO_FIELDS=[{id:'__auto_reports__',icon:'📊',label:'Direct Reports',desc:'Count of direct reports'},{id:'__auto_teamsize__',icon:'👥',label:'Total Team Size',desc:'All descendants count'}];
 function buildCardScreen(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId,S.colMap.froId].filter(Boolean));const available=S.columns.filter(c=>!core.has(c));document.getElementById('card-fields-panel').innerHTML='<div class="fields-section"><div class="fields-section-label">Column Fields</div>'+(available.length?available.map(f=>'<div class="field-chip" draggable="true" data-field="'+esc(f)+'" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)"><span class="drag-icon">⠿</span>'+esc(f)+'</div>').join(''):'<div style="font-size:0.78rem;color:var(--text3);font-style:italic">No extra columns</div>')+'</div><div class="fields-section"><div class="fields-section-label">Auto-Calculated</div>'+AUTO_FIELDS.map(f=>'<div class="field-chip" draggable="true" data-field="'+f.id+'" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" title="'+f.desc+'"><span class="drag-icon">⠿</span>'+f.icon+' '+f.label+'</div>').join('')+'</div>';if(!S.cardSlots.f3)S.cardSlots.f3='__auto_reports__';const COLORS=['#4f46e5','#7c3aed','#db2777','#dc2626','#d97706','#059669','#0891b2','#0284c7','#374151','#0f172a'];document.getElementById('color-palette').innerHTML=COLORS.map(c=>'<div class="color-swatch'+(S.cardAccent===c?' selected':'')+'" style="background:'+c+'" onclick="setCardAccent(\''+c+'\')"></div>').join('');const empColSel=document.getElementById('emp-type-col');if(empColSel){empColSel.innerHTML='<option value="">Select column...</option>'+S.columns.filter(c=>!core.has(c)).map(c=>'<option value="'+esc(c)+'"'+(S.empTypeCol===c?' selected':'')+'>'+esc(c)+'</option>').join('');if(S.empTypeCol)populateEmpTypeValues(S.empTypeCol);}renderCardPreview();syncChipStates();}
-function onEmpTypeColChange(){S.empTypeCol=document.getElementById('emp-type-col').value;if(S.empTypeCol){populateEmpTypeValues(S.empTypeCol);}else{document.getElementById('emp-type-rows').style.display='none';}if(S.viewData.length)renderChart();}
-function populateEmpTypeValues(col){const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();const rows=document.getElementById('emp-type-rows');rows.style.display='';['active','vacant','resigned'].forEach(key=>{const sel=document.getElementById('emp-val-'+key);sel.innerHTML='<option value="">Value...</option>'+vals.map(v=>'<option value="'+esc(v)+'"'+(S.empTypeLabels[key]===v?' selected':'')+'>'+esc(v)+'</option>').join('');sel.onchange=()=>{S.empTypeLabels[key]=sel.value;buildEmpTypeMap();if(S.viewData.length)renderChart();};const colorInput=document.getElementById('emp-color-'+key);colorInput.value=S.empTypeColors[key];colorInput.oninput=()=>{S.empTypeColors[key]=colorInput.value;buildEmpTypeMap();if(S.viewData.length)renderChart();};});buildEmpTypeMap();}
+function onEmpTypeColChange(){S.empTypeCol=document.getElementById('emp-type-col').value;if(S.empTypeCol){populateEmpTypeValues(S.empTypeCol);}else{document.getElementById('emp-type-rows').style.display='none';}if(S.viewData.length)renderChart();persistState();}
+function populateEmpTypeValues(col){const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();const rows=document.getElementById('emp-type-rows');rows.style.display='';['active','vacant','resigned'].forEach(key=>{const sel=document.getElementById('emp-val-'+key);sel.innerHTML='<option value="">Value...</option>'+vals.map(v=>'<option value="'+esc(v)+'"'+(S.empTypeLabels[key]===v?' selected':'')+'>'+esc(v)+'</option>').join('');sel.onchange=()=>{S.empTypeLabels[key]=sel.value;buildEmpTypeMap();if(S.viewData.length)renderChart();persistState();};const colorInput=document.getElementById('emp-color-'+key);colorInput.value=S.empTypeColors[key];colorInput.oninput=()=>{S.empTypeColors[key]=colorInput.value;buildEmpTypeMap();if(S.viewData.length)renderChart();persistState();};});buildEmpTypeMap();}
 function buildEmpTypeMap(){S.empTypeMap={};['active','vacant','resigned'].forEach(key=>{const v=S.empTypeLabels[key];if(v)S.empTypeMap[v]=S.empTypeColors[key];});}
 function getNodeBorderColor(node){if(S.empTypeCol&&S.empTypeMap){const val=String(node[S.empTypeCol]||'').trim();if(S.empTypeMap[val])return S.empTypeMap[val];}return S.cardAccent;}
 function onDragStart(e){S.draggingField=e.currentTarget.dataset.field;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
@@ -485,9 +505,9 @@ function fieldLabel(id){if(!id)return '';const af=AUTO_FIELDS.find(f=>f.id===id)
 function fieldSampleVal(id){if(!id)return '';if(id==='__auto_reports__')return '12';if(id==='__auto_teamsize__')return '48';const row=S.rawRows.find(r=>r[id])||S.rawRows[0]||{};return String(row[id]||'Sample').substring(0,18);}
 function zoneHtml(zoneId,placeholder){const dA='ondragover="onZoneDragOver(event)" ondragleave="onZoneDragLeave(event)" ondrop="onZoneDrop(event,\''+zoneId+'\')"';const v=S.cardSlots[zoneId];if(v)return '<div class="card-zone filled" '+dA+'><span class="zone-field">'+esc(fieldLabel(v))+'</span><span class="zone-val">'+esc(fieldSampleVal(v))+'</span><span class="zone-remove" onclick="clearZone(\''+zoneId+'\')">✕</span></div>';return '<div class="card-zone" '+dA+'><span class="zone-ph">'+placeholder+'</span></div>';}
 function renderCardPreview(){const sampleRow=S.rawRows.find(r=>r[S.colMap.empName])||S.rawRows[0]||{};const sampleName=String(sampleRow[S.colMap.empName]||'Employee Name').substring(0,26);const ac=S.cardAccent;const ps=S.photoSize,pr=getPhotoRadius();const photoDiv='<div style="width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';background:linear-gradient(150deg,'+ac+'18,'+ac+'30);color:'+ac+';font-size:'+Math.round(ps*0.28)+'px;font-weight:800;display:flex;align-items:center;justify-content:center;border:3px solid '+ac+'55;flex-shrink:0">AB</div>';const b1ZoneHtml='<div class="preview-b1-zone">'+zoneHtml('b1','Body slot')+'</div>';const nameBlock='<div style="width:100%;text-align:center"><div style="font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:4px">🔒 '+esc(sampleName)+'</div>'+b1ZoneHtml+'</div>';let bodyHtml;const pl=S.photoPlacement;if(pl==='none'){bodyHtml='<div style="display:flex;flex-direction:column;gap:6px">'+nameBlock+'</div>';}else if(pl==='top'){bodyHtml='<div style="display:flex;flex-direction:column;align-items:center;gap:10px">'+photoDiv+nameBlock+'</div>';}else if(pl==='left'){bodyHtml='<div style="display:flex;flex-direction:row;align-items:flex-start;gap:10px">'+photoDiv+'<div style="flex:1;min-width:0">'+nameBlock+'</div></div>';}else{bodyHtml='<div style="display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px">'+photoDiv+'<div style="flex:1;min-width:0">'+nameBlock+'</div></div>';}document.getElementById('card-preview').innerHTML='<div class="preview-card" style="border-color:'+ac+'"><div class="preview-card-header">'+zoneHtml('h1','H1')+zoneHtml('h2','H2')+zoneHtml('h3','H3')+'</div><div class="preview-card-body">'+bodyHtml+'</div><div class="preview-card-footer">'+zoneHtml('f1','F1')+zoneHtml('f2','F2')+zoneHtml('f3','F3')+'</div></div>';}
-function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();}
-function setPhotoShape(shape){S.photoShape=shape;document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('selected',b.dataset.shape===shape));renderCardPreview();if(S.viewData.length)renderChart();}
-function setPhotoPlacement(p){S.photoPlacement=p;document.querySelectorAll('[data-placement]').forEach(b=>b.classList.toggle('selected',b.dataset.placement===p));renderCardPreview();if(S.viewData.length)renderChart();}
+function setCardAccent(color){S.cardAccent=color;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.toggle('selected',s.style.background===color));renderCardPreview();if(S.viewData.length)renderChart();persistState();}
+function setPhotoShape(shape){S.photoShape=shape;document.querySelectorAll('.shape-btn').forEach(b=>b.classList.toggle('selected',b.dataset.shape===shape));renderCardPreview();if(S.viewData.length)renderChart();persistState();}
+function setPhotoPlacement(p){S.photoPlacement=p;document.querySelectorAll('[data-placement]').forEach(b=>b.classList.toggle('selected',b.dataset.placement===p));renderCardPreview();if(S.viewData.length)renderChart();persistState();}
 function getPhotoRadius(){if(S.photoShape==='circle')return'50%';if(S.photoShape==='rounded')return'12px';return'4px';}
 function confirmCardDesign(){buildEmpTypeMap();buildFilterScreen();goTo('filter');}
 function buildFilterScreen(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId,S.colMap.froId].filter(Boolean));const filterable=S.columns.filter(c=>!core.has(c));const cc=document.getElementById('filter-chip-picker');cc.innerHTML=filterable.map(col=>'<div class="filter-chip '+(S.filterCols.includes(col)?'selected':'')+'" data-col="'+esc(col)+'">'+esc(col)+'</div>').join('');cc.onclick=function(e){const chip=e.target.closest('.filter-chip');if(!chip)return;const col=chip.dataset.col;if(col)toggleFilterCol(col);};renderFilterPreview();}
@@ -495,13 +515,13 @@ function toggleFilterCol(col){if(S.filterCols.includes(col))S.filterCols=S.filte
 function renderFilterPreview(){document.getElementById('filter-counter').textContent=S.filterCols.length+' of 3 filters selected';const area=document.getElementById('filter-preview-area');if(!S.filterCols.length){area.innerHTML='<div style="font-size:0.82rem;color:var(--text3);padding:12px 0">No filters — full chart will display.</div>';return;}area.innerHTML='<div class="filter-preview-box">'+S.filterCols.map((col,i)=>{const isLast=i===S.filterCols.length-1;const vals=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort().slice(0,10);return '<div class="fpr-row"><span class="fpr-col">'+esc(col)+(isLast?' <span style="background:var(--accent);color:#fff;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:700;margin-left:4px">Export All</span>':'')+'</span><div class="fpr-vals">'+vals.map(v=>'<span class="fv-pill">'+esc(v)+'</span>').join('')+(vals.length>=10?'<span style="font-size:0.7rem;color:var(--text3)">+ more</span>':'')+'</div></div>';}).join('')+'</div>';}
 function launchChart(){S.activeFilters={};S.skipDepth=0;buildViewData();buildFilterBar();renderChart();goTo('chart');}
 
-function populateSummaryFields(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId,S.colMap.froId].filter(Boolean));const opts='<option value="">—</option><option value="__name__">Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');const s1=document.getElementById('summary-field1');const s2=document.getElementById('summary-field2');if(s1){s1.innerHTML=opts;if(S.summaryField1)s1.value=S.summaryField1;}if(s2){s2.innerHTML=opts;if(S.summaryField2)s2.value=S.summaryField2;}document.getElementById('depth-select').value=S.skipDepth;populatePhotoMatchCol();}
+function populateSummaryFields(){const core=new Set([S.colMap.empId,S.colMap.empName,S.colMap.managerId,S.colMap.froId].filter(Boolean));const opts='<option value="">—</option><option value="__name__">Name</option>'+S.columns.filter(c=>!core.has(c)).map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');['summary-field1','summary-field2','summary-field3'].forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=opts;const v=[S.summaryField1,S.summaryField2,S.summaryField3][i];if(v)el.value=v;});document.getElementById('depth-select').value=S.skipDepth;populatePhotoMatchCol();}
 function populatePhotoMatchCol(){const sel=document.getElementById('photo-match-col');if(!sel)return;sel.innerHTML=S.columns.map(c=>'<option value="'+esc(c)+'"'+(c===S.colMap.empId?' selected':'')+'>'+esc(c)+'</option>').join('');if(!S.photoMatchCol)S.photoMatchCol=S.colMap.empId;sel.value=S.photoMatchCol||S.colMap.empId;
   // show FRO legend if FRO column is mapped
   const froLegend=document.getElementById('fro-legend');
   if(froLegend)froLegend.style.display=S.colMap.froId?'inline-flex':'none';
 }
-function toggleManagerMode(){S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();}
+function toggleManagerMode(){pushUndo();S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();persistState();}
 function isManager(nodeId){return(S.childMap[nodeId]||[]).length>0;}
 
 function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});}
@@ -509,11 +529,11 @@ function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
 function buildFilterBar(){const bar=document.getElementById('filter-bar');if(!S.filterCols.length){bar.style.display='none';return;}bar.style.display='flex';const allVals={};S.filterCols.forEach(col=>{allVals[col]=[...new Set(S.rawRows.map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='null'&&v!=='undefined'))].sort();});bar.innerHTML='<span style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);flex-shrink:0">Filters</span>'+S.filterCols.map(col=>'<div class="filter-dropdown-wrap"><span class="filter-dropdown-label">'+esc(col)+'</span><select class="filter-dropdown" data-filter-col="'+esc(col)+'"><option value="">All '+esc(col)+'</option>'+allVals[col].map(v=>'<option value="'+esc(v)+'"'+(S.activeFilters[col]===v?' selected':'')+'>'+esc(v)+'</option>').join('')+'</select></div>').join('')+(Object.values(S.activeFilters).some(v=>v)?'<button class="btn btn-ghost btn-sm" onclick="clearAllFilters()" style="margin-left:auto">Clear All</button>':'');bar.querySelectorAll('.filter-dropdown').forEach(sel=>{sel.addEventListener('change',function(){applyFilter(this.dataset.filterCol,this.value);});});}
-function applyFilter(col,val){if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
-function clearAllFilters(){S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();},0));}
-function setSkipDepth(n){S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();}
-function setChartBg(color){S.chartBgColor=color;if(!S.transparentExport)applyChartBg();}
-function toggleTransparent(){S.transparentExport=!S.transparentExport;const btn=document.getElementById('bg-transparent-btn');const inp=document.getElementById('bg-color-input');if(btn)btn.classList.toggle('active',S.transparentExport);if(inp)inp.disabled=S.transparentExport;applyChartBg();}
+function applyFilter(col,val){pushUndo();if(val)S.activeFilters[col]=val;else delete S.activeFilters[col];requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();persistState();},0));}
+function clearAllFilters(){pushUndo();S.activeFilters={};requestAnimationFrame(()=>setTimeout(()=>{buildViewData();renderChart();buildFilterBar();persistState();},0));}
+function setSkipDepth(n){pushUndo();S.skipDepth=n;const ds=document.getElementById('depth-select');if(ds)ds.value=n;renderChart();persistState();}
+function setChartBg(color){S.chartBgColor=color;if(!S.transparentExport)applyChartBg();persistState();}
+function toggleTransparent(){S.transparentExport=!S.transparentExport;const btn=document.getElementById('bg-transparent-btn');const inp=document.getElementById('bg-color-input');if(btn)btn.classList.toggle('active',S.transparentExport);if(inp)inp.disabled=S.transparentExport;applyChartBg();persistState();}
 function applyChartBg(){const wrap=document.getElementById('chart-canvas-wrap');if(!wrap)return;if(S.transparentExport){wrap.classList.add('transparent-preview');wrap.style.background='';}else{wrap.classList.remove('transparent-preview');wrap.style.background=S.chartBgColor;}}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
@@ -527,12 +547,14 @@ function mkKidsWrap(kids,depth){
   }
   const wrap=document.createElement('div');
   wrap.className='children-rows-wrap';
+  let chunkIdx=0;
   for(let i=0;i<kids.length;i+=MAX){
     const chunk=kids.slice(i,i+MAX);
     const ul=document.createElement('ul');
-    ul.className='children-row-ul';
+    ul.className='children-row-ul'+(chunkIdx>0?' row-cont':'');
     chunk.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
     wrap.appendChild(ul);
+    chunkIdx++;
   }
   return wrap;
 }
@@ -540,8 +562,20 @@ function mkKidsWrap(kids,depth){
 function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
-  // ── FULL 4-side border color ──
+  // ── FULL 4-side border color + per-card accent variable ──
   card.style.borderColor=ac;
+  card.style.setProperty('--card-accent',ac);
+  // ── Drag-to-reassign (disabled in Person View) ──
+  if(!S.pvMode){
+    card.draggable=true;
+    card.dataset.dragId=node.id;
+    card.setAttribute('aria-grabbed','false');
+    card.addEventListener('dragstart',onCardDragStart);
+    card.addEventListener('dragover',onCardDragOver);
+    card.addEventListener('dragleave',onCardDragLeave);
+    card.addEventListener('drop',onCardDrop);
+    card.addEventListener('dragend',onCardDragEnd);
+  }
   const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);const b1=getSlotVal(node,'b1');const subtitle=h2;const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';const pInline='width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';';const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const photoUrl=getPhotoUrl(node);let photoHtml='';if(photoUrl){photoHtml='<img class="ncard-photo" src="'+esc(photoUrl)+'" crossorigin="anonymous" style="'+pInline+'border:3px solid '+acMid+';box-shadow:0 8px 24px '+ac+'66" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="ncard-photo-fallback" style="display:none;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}else if(Object.keys(S.photoMap).length>0){photoHtml='<div class="ncard-photo-fallback" style="display:flex;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}
   const b1row=b1?'<div class="ncard-body-b1">'+esc(b1)+'</div>':'';const textBlock='<div class="ncard-text-wrap"><div class="ncard-name">'+esc(node.name)+'</div>'+(subtitle?'<div class="ncard-sub">'+esc(subtitle)+'</div>':'')+b1row+'</div>';let bodyHtml;const pl=S.photoPlacement;if(!photoHtml||pl==='none'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column">'+textBlock+'</div>';}else if(pl==='top'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">'+photoHtml+'</div>'+textBlock+'</div>';}else if(pl==='left'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}else{bodyHtml='<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}
   const pvBtns=S.pvMode?'':
@@ -571,7 +605,7 @@ function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li
 
 function mkLeafSummaryLI(leafNodes, ac) {
   const li = document.createElement('li');
-  const f1 = S.summaryField1, f2 = S.summaryField2;
+  const f1 = S.summaryField1, f2 = S.summaryField2, f3 = S.summaryField3;
   const count = leafNodes.length;
   const AV = 28; const PAD_H = 14; const PAD_V = 8; const TEXT_LH = 16; const GAP = 10; const HEADER_LBL_H = 22;
   const FF = "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
@@ -591,7 +625,8 @@ function mkLeafSummaryLI(leafNodes, ac) {
     const primaryVal = f1 ? (f1IsName ? nameVal : (String(n[f1] || '').trim() || nameVal).substring(0, 24)) : nameVal;
     const showNameSub = f1 && !f1IsName && primaryVal !== nameVal;
     const val2 = f2 ? (f2 === '__name__' ? n.name.substring(0, 22) : String(n[f2] || '').substring(0, 22)) : '';
-    const numLines = 1 + (showNameSub ? 1 : 0) + (val2 ? 1 : 0);
+    const val3 = f3 ? (f3 === '__name__' ? n.name.substring(0, 22) : String(n[f3] || '').substring(0, 22)) : '';
+    const numLines = 1 + (showNameSub ? 1 : 0) + (val2 ? 1 : 0) + (val3 ? 1 : 0);
     const textTotalH = numLines * TEXT_LH;
     const innerH = Math.max(AV, textTotalH);
     const totalRowH = innerH + PAD_V * 2;
@@ -608,6 +643,7 @@ function mkLeafSummaryLI(leafNodes, ac) {
     let textLines = '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(primaryVal) + '</div>';
     if (showNameSub) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>'; }
     if (val2) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>'; }
+    if (val3) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val3) + '</div>'; }
     const rowBorder = isLast ? '' : 'border-bottom:1px solid #e2e8f0;';
     rowsHtml += '<div style="position:relative;background:#ffffff;height:' + totalRowH + 'px;' + rowBorder + 'box-sizing:border-box;">' + avatarHtml + '<div style="margin-left:' + textLeftMargin + 'px;padding-top:' + textTopPad + 'px;padding-right:' + PAD_H + 'px;">' + textLines + '</div></div>';
   });
@@ -846,8 +882,202 @@ function closeReassignModal(){document.getElementById('reassign-modal').classLis
 function filterReassignList(){const q=document.getElementById('reassign-search').value.trim().toLowerCase();renderReassignList(q?_reassignAllNodes.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):_reassignAllNodes);}
 function renderReassignList(nodes){document.getElementById('reassign-list').innerHTML=nodes.slice(0,60).map(n=>{const isRoot=n.id==='__root__';const initials=n.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();return '<div class="modal-emp-row'+(S.reassignPick===n.id?' selected':'')+'" onclick="pickReassign(\''+esc(n.id)+'\',\''+esc(n.name)+'\')"><div class="modal-emp-avatar">'+(isRoot?'🔼':esc(initials))+'</div><div><div class="modal-emp-name">'+esc(n.name)+'</div><div class="modal-emp-sub">'+(isRoot?'Will appear as root node':esc(n.id))+'</div></div></div>';}).join('');}
 function pickReassign(id,name){S.reassignPick=id;document.getElementById('reassign-confirm-btn').disabled=false;document.getElementById('reassign-note').textContent='→ '+name;const q=document.getElementById('reassign-search').value.trim().toLowerCase();renderReassignList(q?_reassignAllNodes.filter(n=>n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)):_reassignAllNodes);}
-function confirmReassign(){if(!S.reassignTarget||!S.reassignPick)return;S.managerOverrides[S.reassignTarget]=S.reassignPick==='__root__'?'':S.reassignPick;closeReassignModal();buildViewData();renderChart();}
-function removeCurrentNode(){if(!S.reassignTarget)return;S.removedIds.add(S.reassignTarget);closeReassignModal();buildViewData();renderChart();}
+function confirmReassign(){if(!S.reassignTarget||!S.reassignPick)return;pushUndo();S.managerOverrides[S.reassignTarget]=S.reassignPick==='__root__'?'':S.reassignPick;closeReassignModal();buildViewData();renderChart();persistState();showToast('Reassigned',true);}
+function removeCurrentNode(){if(!S.reassignTarget)return;if(!confirm('Remove this person from the chart? Their direct reports will be re-parented to whoever was their manager.'))return;pushUndo();S.removedIds.add(S.reassignTarget);closeReassignModal();buildViewData();renderChart();persistState();showToast('Removed from chart',true);}
+
+/* ════════════════════════════════════════════════════════════════════
+   PHASE 1 · Drag-to-reassign  +  PHASE 3 · Undo  +  PHASE 2 · Persist
+   ════════════════════════════════════════════════════════════════════ */
+function isDescendant(maybeDescendantId,ancestorId){
+  // returns true if maybeDescendantId is a descendant (or self) of ancestorId
+  if(maybeDescendantId===ancestorId)return true;
+  const byId=Object.fromEntries(S.viewData.map(n=>[n.id,n]));
+  let cur=byId[maybeDescendantId];const seen=new Set();
+  while(cur&&cur.manager&&!seen.has(cur.id)){
+    seen.add(cur.id);
+    if(cur.manager===ancestorId)return true;
+    cur=byId[cur.manager];
+  }
+  return false;
+}
+function onCardDragStart(e){
+  if(S.pvMode){e.preventDefault();return;}
+  const id=e.currentTarget.dataset.dragId;if(!id)return;
+  S.draggingNodeId=id;
+  e.currentTarget.classList.add('node-dragging');
+  e.currentTarget.setAttribute('aria-grabbed','true');
+  try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){/*noop*/}
+  document.getElementById('root-drop-zone').classList.add('dragging-active');
+}
+function onCardDragOver(e){
+  if(!S.draggingNodeId)return;
+  const targetId=e.currentTarget.dataset.dragId;
+  if(targetId===S.draggingNodeId)return;
+  // Cannot reparent under own descendant (would create a cycle)
+  const invalid=isDescendant(targetId,S.draggingNodeId);
+  e.preventDefault();
+  e.dataTransfer.dropEffect=invalid?'none':'move';
+  e.currentTarget.classList.add(invalid?'drop-halo-bad':'drop-halo');
+}
+function onCardDragLeave(e){
+  e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
+}
+function onCardDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
+  const draggingId=S.draggingNodeId;if(!draggingId)return;
+  const targetId=e.currentTarget.dataset.dragId;
+  if(targetId===draggingId)return;
+  if(isDescendant(targetId,draggingId)){showToast('Cannot move under own descendant',true);return;}
+  if(S.managerOverrides[draggingId]===targetId){return;}// no-op
+  pushUndo();
+  S.managerOverrides[draggingId]=targetId;
+  S.draggingNodeId=null;
+  buildViewData();renderChart();persistState();
+  const tName=(S.viewData.find(n=>n.id===targetId)||{}).name||targetId;
+  const dName=(S.viewData.find(n=>n.id===draggingId)||{}).name||draggingId;
+  showToast('Moved '+dName+' under '+tName);
+}
+function onCardDragEnd(e){
+  e.currentTarget.classList.remove('node-dragging');
+  e.currentTarget.setAttribute('aria-grabbed','false');
+  document.querySelectorAll('.drop-halo,.drop-halo-bad').forEach(c=>c.classList.remove('drop-halo','drop-halo-bad'));
+  document.getElementById('root-drop-zone').classList.remove('dragging-active','over');
+  S.draggingNodeId=null;
+}
+// Root drop zone (drop a card to make it a root)
+function bindRootDropZone(){
+  const z=document.getElementById('root-drop-zone');if(!z||z._bound)return;z._bound=true;
+  z.addEventListener('dragover',e=>{if(!S.draggingNodeId)return;e.preventDefault();e.dataTransfer.dropEffect='move';z.classList.add('over');});
+  z.addEventListener('dragleave',()=>z.classList.remove('over'));
+  z.addEventListener('drop',e=>{
+    e.preventDefault();z.classList.remove('over','dragging-active');
+    const id=S.draggingNodeId;if(!id)return;
+    if(S.managerOverrides[id]==='')return;
+    pushUndo();
+    S.managerOverrides[id]='';
+    S.draggingNodeId=null;
+    buildViewData();renderChart();persistState();
+    const dName=(S.viewData.find(n=>n.id===id)||{}).name||id;
+    showToast(dName+' is now a root');
+  });
+}
+
+/* ── Toast ── */
+let _toastTimer=null;
+function showToast(msg,withUndo){
+  let t=document.getElementById('app-toast');
+  if(!t){t=document.createElement('div');t.id='app-toast';t.className='toast';document.body.appendChild(t);}
+  t.innerHTML=esc(msg)+(withUndo&&S.undoStack.length?'<button class="toast-action" onclick="undo()">↶ Undo</button>':'');
+  t.classList.add('visible');
+  clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('visible'),3200);
+}
+
+/* ── Undo stack ── */
+function snapshotState(){
+  return{
+    managerOverrides:{...S.managerOverrides},
+    removedIds:new Set(S.removedIds),
+    activeFilters:{...S.activeFilters},
+    skipDepth:S.skipDepth,
+    managerMode:S.managerMode
+  };
+}
+function pushUndo(){
+  S.undoStack.push(snapshotState());
+  if(S.undoStack.length>UNDO_MAX)S.undoStack.shift();
+  const ub=document.getElementById('undo-btn');if(ub)ub.disabled=false;
+}
+function undo(){
+  if(!S.undoStack.length){showToast('Nothing to undo');return;}
+  const prev=S.undoStack.pop();
+  S.managerOverrides=prev.managerOverrides;
+  S.removedIds=prev.removedIds;
+  S.activeFilters=prev.activeFilters;
+  S.skipDepth=prev.skipDepth;
+  S.managerMode=prev.managerMode;
+  const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);
+  const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';
+  buildViewData();renderChart();buildFilterBar();persistState();
+  const ub=document.getElementById('undo-btn');if(ub)ub.disabled=S.undoStack.length===0;
+  showToast('Undid last change');
+}
+window.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey&&(e.key==='z'||e.key==='Z')){
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test((e.target||{}).tagName||''))return;
+    e.preventDefault();undo();
+  }
+});
+
+/* ── Persistence (localStorage) ── */
+function fileSig(){return(S.columns||[]).join('|');}
+function persistState(){
+  if(!S.rawRows.length)return;
+  clearTimeout(S._persistTimer);
+  S._persistTimer=setTimeout(()=>{
+    try{
+      const data={
+        sig:fileSig(),
+        colMap:S.colMap,
+        managerOverrides:S.managerOverrides,
+        removedIds:[...S.removedIds],
+        cardSlots:S.cardSlots,
+        cardAccent:S.cardAccent,
+        empTypeCol:S.empTypeCol,
+        empTypeLabels:S.empTypeLabels,
+        empTypeColors:S.empTypeColors,
+        filterCols:S.filterCols,
+        activeFilters:S.activeFilters,
+        photoMatchCol:S.photoMatchCol,
+        photoSize:S.photoSize,
+        photoShape:S.photoShape,
+        photoPlacement:S.photoPlacement,
+        summaryField1:S.summaryField1,
+        summaryField2:S.summaryField2,
+        summaryField3:S.summaryField3,
+        chartBgColor:S.chartBgColor,
+        transparentExport:S.transparentExport,
+        skipDepth:S.skipDepth,
+        managerMode:S.managerMode,
+        savedAt:Date.now()
+      };
+      localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
+    }catch(e){console.warn('persist failed',e);}
+  },200);
+}
+function loadPersisted(){
+  try{const raw=localStorage.getItem(PERSIST_KEY);return raw?JSON.parse(raw):null;}catch(e){return null;}
+}
+function clearPersisted(){try{localStorage.removeItem(PERSIST_KEY);}catch(e){}S.undoStack=[];const ub=document.getElementById('undo-btn');if(ub)ub.disabled=true;}
+function applyPersisted(d){
+  if(!d)return false;
+  // Validate that saved colMap columns still exist in the current file
+  const cols=new Set(S.columns);
+  if(!d.colMap||!cols.has(d.colMap.empId)||!cols.has(d.colMap.empName))return false;
+  S.colMap=d.colMap;
+  S.managerOverrides=d.managerOverrides||{};
+  S.removedIds=new Set(d.removedIds||[]);
+  S.cardSlots=d.cardSlots||S.cardSlots;
+  S.cardAccent=d.cardAccent||S.cardAccent;
+  S.empTypeCol=d.empTypeCol||'';
+  S.empTypeLabels=d.empTypeLabels||{active:'',vacant:'',resigned:''};
+  S.empTypeColors=d.empTypeColors||S.empTypeColors;
+  S.filterCols=(d.filterCols||[]).filter(c=>cols.has(c));
+  S.activeFilters=Object.fromEntries(Object.entries(d.activeFilters||{}).filter(([k])=>cols.has(k)));
+  S.photoMatchCol=cols.has(d.photoMatchCol||'')?d.photoMatchCol:S.colMap.empId;
+  S.photoSize=d.photoSize||80;
+  S.photoShape=d.photoShape||'circle';
+  S.photoPlacement=d.photoPlacement||'top';
+  S.summaryField1=d.summaryField1||'';
+  S.summaryField2=d.summaryField2||'';
+  S.summaryField3=d.summaryField3||'';
+  S.chartBgColor=d.chartBgColor||'#f1f5f9';
+  S.transparentExport=!!d.transparentExport;
+  S.skipDepth=d.skipDepth||0;
+  S.managerMode=!!d.managerMode;
+  buildEmpTypeMap();
+  return true;
+}
 
 document.getElementById('file-input').addEventListener('change',function(e){if(e.target.files[0])handleFile(e.target.files[0]);});
 document.getElementById('photo-folder-input').addEventListener('change',function(e){if(e.target.files.length)loadFromFileInput(e.target.files);});
