@@ -170,6 +170,25 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
+/* ── Compact mode: shrink cards + tighter spacing for max density ── */
+body.compact-mode .node-card{width:208px!important}
+body.compact-mode .ncard-body{padding:9px 11px 8px!important}
+body.compact-mode .ncard-header,body.compact-mode .ncard-footer{padding:4px 8px!important}
+body.compact-mode .ncard-name{font-size:0.78rem!important;margin-bottom:2px!important}
+body.compact-mode .ncard-sub{font-size:0.66rem!important;-webkit-line-clamp:1!important}
+body.compact-mode .ncard-body-b1{font-size:0.62rem!important;padding-top:3px!important;margin-top:3px!important}
+body.compact-mode .ncard-slot{font-size:0.56rem!important}
+body.compact-mode .ncard-photo,body.compact-mode .ncard-photo-fallback{width:54px!important;height:54px!important;font-size:14px!important}
+body.compact-mode .org-tree li{padding:18px 4px 0 4px!important}
+body.compact-mode .org-tree ul{padding-top:18px!important}
+body.compact-mode .org-tree li::before,body.compact-mode .org-tree li::after,body.compact-mode .org-tree ul ul::before{height:18px!important}
+body.compact-mode .summary-list-card{width:188px!important}
+.compact-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;flex-shrink:0}
+.compact-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
+.compact-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
+.row-size-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
+.row-size-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
+.row-size-select{background:transparent;border:none;border-radius:6px;padding:3px 18px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none}
 /* ── Children row chunking for max-6-per-row ── */
 .children-rows-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;padding-top:24px}
 .children-rows-wrap::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px;margin-left:-1px;z-index:0}
@@ -322,18 +341,31 @@ body{display:flex;flex-direction:column}
 .orient-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
 .orient-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
 .orient-btn.horizontal{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
-/* ── Grid Mode (Phase 9) ── */
-.chart-canvas-content.grid-mode #org-tree{display:none}
+/* ── Grid Mode v2: tree stays visible, drag to translate, SVG connectors ── */
+#org-grid{display:none}
+.chart-canvas-content.grid-mode #org-tree li::before,
+.chart-canvas-content.grid-mode #org-tree li::after,
+.chart-canvas-content.grid-mode #org-tree ul ul::before,
+.chart-canvas-content.grid-mode .children-rows-wrap::before,
+.chart-canvas-content.grid-mode .children-row-ul.row-cont{border:none!important;background:transparent!important}
+.chart-canvas-content.grid-mode #org-tree li::before,
+.chart-canvas-content.grid-mode #org-tree li::after,
+.chart-canvas-content.grid-mode #org-tree ul ul::before{display:none!important}
 .chart-canvas-content.grid-mode #fro-svg{display:none}
-#org-grid{display:none;position:relative;padding:32px}
-.chart-canvas-content.grid-mode #org-grid{display:grid;grid-auto-rows:minmax(200px,auto);gap:80px 24px;justify-content:start}
-#org-grid .grid-cell{width:280px;display:flex;align-items:flex-start;justify-content:center;position:relative;min-height:180px;transition:background 0.15s}
-#org-grid .grid-cell.drop-target-cell{background:rgba(34,197,94,0.13);border-radius:12px;outline:2px dashed #16a34a;outline-offset:-4px}
-#org-grid .grid-cell.drop-target-cell-bad{background:rgba(239,68,68,0.13);border-radius:12px;outline:2px dashed #dc2626;outline-offset:-4px}
-.grid-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(to right,rgba(148,163,184,0.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,0.22) 1px,transparent 1px);background-size:304px 280px;background-position:32px 32px;pointer-events:none;z-index:0;display:none}
+.chart-canvas-content.grid-mode .node-card.grid-translated{z-index:6;box-shadow:0 6px 20px rgba(15,23,42,0.18)!important}
+.grid-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(to right,rgba(148,163,184,0.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,0.22) 1px,transparent 1px);background-size:20px 20px;background-position:0 0;pointer-events:none;z-index:0;display:none}
 .chart-canvas-content.grid-mode .grid-overlay.visible{display:block}
 .grid-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:1;display:none}
 .chart-canvas-content.grid-mode .grid-svg{display:block}
+/* Multi-select selection indicator */
+.node-card.selected{box-shadow:0 0 0 3px rgba(34,197,94,0.6),0 8px 24px rgba(34,197,94,0.2)!important;outline:none!important}
+.align-toolbar{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:6px;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:5000;display:none;gap:3px;align-items:center;font-family:'Plus Jakarta Sans',sans-serif}
+.align-toolbar.visible{display:flex}
+.align-toolbar .at-label{padding:0 10px;font-size:0.72rem;opacity:0.85;font-weight:700}
+.align-toolbar .at-sep{width:1px;height:18px;background:rgba(255,255,255,0.18);margin:0 2px}
+.align-toolbar .at-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background 0.15s;display:flex;align-items:center;justify-content:center}
+.align-toolbar .at-btn:hover{background:rgba(255,255,255,0.18)}
+.align-toolbar .at-btn.danger:hover{background:rgba(239,68,68,0.4)}
 /* Person-View grid mirror */
 #pv-org-grid{display:none;position:relative;padding:32px}
 .pv-tree-content.grid-mode #pv-org-tree{display:none}
@@ -448,7 +480,10 @@ body{display:flex;flex-direction:column}
       <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Search → Person View..." autocomplete="off"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
-      <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div><div class="tb-sep"></div>
+      <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
+      <div class="row-size-wrap" title="Maximum number of cards in a single row. 'Auto' picks a near-square layout based on the count of siblings."><span class="row-size-label">Per row</span><select class="row-size-select" id="row-size-select" onchange="setMaxPerRow(this.value)" aria-label="Maximum cards per row"><option value="auto">Auto</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option></select></div>
+      <button class="compact-btn" id="compact-btn" onclick="toggleCompact()" title="Compact mode: shrink cards, auto-fit row size, fit-to-screen — squeezes the chart into the smallest readable footprint">📐 Compact Fit</button>
+      <div class="tb-sep"></div>
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Compact ICs into a single summary list under each manager"><div class="mgr-mode-dot"></div>Manager View</div>
       <div class="grid-mode-btn" id="grid-mode-btn" onclick="toggleGridMode()" title="Switch to free-form grid: cards auto-place by depth (level=row), drag any card to any cell to override"><div class="grid-mode-dot"></div>Grid Mode</div>
       <button class="btn btn-ghost btn-sm" id="grid-lines-btn" onclick="toggleGridLines()" title="Show/hide gridlines (gridlines never appear in PNG/PPTX/print exports)" style="display:none">⊞ Gridlines</button>
@@ -486,6 +521,24 @@ body{display:flex;flex-direction:column}
     </div>
   </div>
 </main>
+
+<!-- Multi-select align toolbar (visible when 2+ cards selected via Shift+click) -->
+<div class="align-toolbar" id="align-toolbar" role="toolbar" aria-label="Align selected cards">
+  <span class="at-label" id="at-count">2 selected</span>
+  <span class="at-sep"></span>
+  <button class="at-btn" onclick="alignSelected('left')" title="Align left edges">⬅</button>
+  <button class="at-btn" onclick="alignSelected('center-h')" title="Center horizontally">⬌</button>
+  <button class="at-btn" onclick="alignSelected('right')" title="Align right edges">➡</button>
+  <span class="at-sep"></span>
+  <button class="at-btn" onclick="alignSelected('top')" title="Align top edges">⬆</button>
+  <button class="at-btn" onclick="alignSelected('middle')" title="Center vertically">⇕</button>
+  <button class="at-btn" onclick="alignSelected('bottom')" title="Align bottom edges">⬇</button>
+  <span class="at-sep"></span>
+  <button class="at-btn" onclick="distributeSelected('h')" title="Distribute horizontally evenly">≡</button>
+  <button class="at-btn" onclick="distributeSelected('v')" title="Distribute vertically evenly">⋮</button>
+  <span class="at-sep"></span>
+  <button class="at-btn danger" onclick="clearSelection()" title="Clear selection (Esc)">✕</button>
+</div>
 
 <!-- Reassign Modal -->
 <div class="modal-overlay hidden" id="reassign-modal">
@@ -607,7 +660,7 @@ const UNDO_MAX=40;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();if(S.gridMode){renderGrid();applyGridLines();}},160);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();const rs=document.getElementById('row-size-select');if(rs)rs.value=String(S.maxPerRow);const cb=document.getElementById('compact-btn');if(cb)cb.classList.toggle('active',S.compact);document.body.classList.toggle('compact-mode',S.compact);if(S.gridMode){bindCanvasGridDND();setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},250);}},160);}}
 function handleFile(file){
   try{
     const ext=(file.name.split('.').pop()||'').toLowerCase();
@@ -718,9 +771,10 @@ function toggleTransparent(){S.transparentExport=!S.transparentExport;const btn=
 function applyChartBg(){const wrap=document.getElementById('chart-canvas-wrap');if(!wrap)return;if(S.transparentExport){wrap.classList.add('transparent-preview');wrap.style.background='';}else{wrap.classList.remove('transparent-preview');wrap.style.background=S.chartBgColor;}}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
-/* ── mkKidsWrap: groups children into rows of max 6 ── */
+/* ── mkKidsWrap: groups children into rows. Row size driven by S.maxPerRow
+       (number 2-12 or 'auto' which picks a near-square layout). ── */
 function mkKidsWrap(kids,depth){
-  const MAX=6;
+  const MAX=getEffectiveMaxPerRow(kids.length);
   if(kids.length<=MAX){
     const ul=document.createElement('ul');
     kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
@@ -740,7 +794,7 @@ function mkKidsWrap(kids,depth){
   return wrap;
 }
 
-function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);if(S.gridMode)renderGrid();return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);if(S.gridMode)renderGrid();}
+function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
   // ── FULL 4-side border color + per-card accent variable ──
@@ -756,6 +810,11 @@ function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li
     card.addEventListener('dragleave',onCardDragLeave);
     card.addEventListener('drop',onCardDrop);
     card.addEventListener('dragend',onCardDragEnd);
+    // Shift+click for multi-select (used by Align toolbar)
+    card.addEventListener('click',function(e){
+      if(e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(node.id,card);}
+    });
+    if(S.selectedIds&&S.selectedIds.has(node.id))card.classList.add('selected');
   }
   const h1=getSlotVal(node,'h1'),h2=getSlotVal(node,'h2'),h3=getSlotVal(node,'h3');const f1=getSlotVal(node,'f1'),f2=getSlotVal(node,'f2'),f3=getSlotVal(node,'f3')||node.id.substring(0,14);const b1=getSlotVal(node,'b1');const subtitle=h2;const ps=S.photoSize,pr=getPhotoRadius(),pfs=Math.round(ps*0.28)+'px';const pInline='width:'+ps+'px;height:'+ps+'px;border-radius:'+pr+';';const initials=node.name.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase();const photoUrl=getPhotoUrl(node);let photoHtml='';if(photoUrl){photoHtml='<img class="ncard-photo" src="'+esc(photoUrl)+'" crossorigin="anonymous" style="'+pInline+'border:3px solid '+acMid+';box-shadow:0 8px 24px '+ac+'66" onerror="this.onerror=null;this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="ncard-photo-fallback" style="display:none;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}else if(Object.keys(S.photoMap).length>0){photoHtml='<div class="ncard-photo-fallback" style="display:flex;'+pInline+'font-size:'+pfs+';background:linear-gradient(150deg,'+acLight+','+ac+'28);color:'+ac+';border:3px solid '+acMid+';">'+esc(initials)+'</div>';}
   const b1row=b1?'<div class="ncard-body-b1">'+esc(b1)+'</div>':'';const textBlock='<div class="ncard-text-wrap"><div class="ncard-name">'+esc(node.name)+'</div>'+(subtitle?'<div class="ncard-sub">'+esc(subtitle)+'</div>':'')+b1row+'</div>';let bodyHtml;const pl=S.photoPlacement;if(!photoHtml||pl==='none'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column">'+textBlock+'</div>';}else if(pl==='top'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:column;align-items:center"><div style="flex-shrink:0">'+photoHtml+'</div>'+textBlock+'</div>';}else if(pl==='left'){bodyHtml='<div class="ncard-body-inner" style="flex-direction:row;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}else{bodyHtml='<div class="ncard-body-inner" style="flex-direction:row-reverse;align-items:flex-start"><div style="flex-shrink:0">'+photoHtml+'</div><div style="flex:1;min-width:0">'+textBlock+'</div></div>';}
@@ -790,10 +849,14 @@ function mkLeafSummaryLI(leafNodes, ac) {
   const count = leafNodes.length;
   const AV = 28; const PAD_H = 14; const PAD_V = 8; const TEXT_LH = 16; const GAP = 10; const HEADER_LBL_H = 22;
   const FF = "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
+  // IC summary now uses the parent card's accent (ac) — was hardcoded purple before
+  const headerBg = ac + '14';        // 8% tint
+  const headerBorder = ac + '40';    // 25% tint
+  const headerColor = ac;            // full
   const headerHtml =
-    '<div style="position:relative;background:#f5f3ff;border-bottom:1px solid #e9d5ff;padding:9px ' + PAD_H + 'px;' + FF + '">' +
-      '<div style="height:' + HEADER_LBL_H + 'px;line-height:' + HEADER_LBL_H + 'px;font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em;padding-right:42px;white-space:nowrap;overflow:hidden;' + FF + '">ICs (' + count + ')</div>' +
-      '<div style="position:absolute;top:8px;right:' + PAD_H + 'px;height:24px;line-height:24px;background:#7c3aed;color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
+    '<div style="position:relative;background:' + headerBg + ';border-bottom:1px solid ' + headerBorder + ';padding:9px ' + PAD_H + 'px;' + FF + '">' +
+      '<div style="height:' + HEADER_LBL_H + 'px;line-height:' + HEADER_LBL_H + 'px;font-size:11px;font-weight:800;color:' + headerColor + ';text-transform:uppercase;letter-spacing:0.05em;padding-right:42px;white-space:nowrap;overflow:hidden;' + FF + '">ICs (' + count + ')</div>' +
+      '<div style="position:absolute;top:8px;right:' + PAD_H + 'px;height:24px;line-height:24px;background:' + ac + ';color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
     '</div>';
   let rowsHtml = '';
   leafNodes.forEach((n, idx) => {
@@ -830,6 +893,8 @@ function mkLeafSummaryLI(leafNodes, ac) {
   });
   const card = document.createElement('div');
   card.className = 'summary-list-card';
+  card.style.borderTopColor = ac;
+  card.dataset.summaryParent = 'ic';
   card.innerHTML = headerHtml + rowsHtml;
   li.appendChild(card);
   return li;
@@ -1141,11 +1206,14 @@ function drawPVGridConnectors(positions,visible){
 async function printPVA3(){
   if(!S.pvPersonId){alert('No person view open.');return;}
   const overlay=makeOverlay('Preparing A3 PDF…','Capturing this person\'s view');document.body.appendChild(overlay);
+  let svgRestorers=[];
   try{
     const target=S.pvGridMode?document.getElementById('pv-org-grid'):document.getElementById('pv-tree-content');
     const wasTransform=target.style.transform;target.style.transform='scale(1)';
     await new Promise(r=>setTimeout(r,250));
-    const canvas=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true});
+    svgRestorers=await svgsToImagesAsync(target);
+    await new Promise(r=>setTimeout(r,150));
+    const canvas=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false});
     target.style.transform=wasTransform;
     const dataUrl=canvas.toDataURL('image/png');
     const w=window.open('','_blank','width=1400,height=900');
@@ -1158,7 +1226,7 @@ async function printPVA3(){
       '<script>window.addEventListener(\'load\',function(){setTimeout(function(){try{window.print();}catch(_){}}, 350);});<\/script>'+
       '</body></html>');
     w.document.close();
-  }catch(e){console.error(e);alert('Print failed: '+e.message);}finally{overlay.remove();}
+  }catch(e){console.error(e);alert('Print failed: '+e.message);}finally{restoreSvgs(svgRestorers);overlay.remove();}
 }
 
 async function exportPVPNG(){
@@ -1350,7 +1418,7 @@ window.addEventListener('keydown',function(e){
     if(/^(INPUT|TEXTAREA|SELECT)$/.test((e.target||{}).tagName||''))return;
     e.preventDefault();undo();return;
   }
-  // ESC closes whatever modal is open
+  // ESC closes whatever modal is open, otherwise clears multi-select
   if(e.key==='Escape'||e.key==='Esc'){
     const order=['dq-modal','insights-modal','reassign-modal','person-view-modal'];
     for(const id of order){
@@ -1363,6 +1431,7 @@ window.addEventListener('keydown',function(e){
         e.preventDefault();return;
       }
     }
+    if(S.selectedIds&&S.selectedIds.size>0){clearSelection();e.preventDefault();}
   }
 });
 
@@ -1400,6 +1469,8 @@ function persistState(){
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
         orientation:S.orientation,
+        maxPerRow:S.maxPerRow,
+        compact:S.compact,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1576,7 +1647,46 @@ function closeInsightsModal(){document.getElementById('insights-modal').classLis
 /* ════════════════════════════════════════════════════════════════════
    PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
    ════════════════════════════════════════════════════════════════════ */
-S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.orientation='vertical';
+S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.orientation='vertical';S.selectedIds=new Set();
+S.maxPerRow=6;S.compact=false;
+function getEffectiveMaxPerRow(siblingCount){
+  // If the user picked 'auto', aim for a near-square layout that minimizes
+  // chart width. Otherwise honor the explicit value.
+  if(S.maxPerRow==='auto'||S.maxPerRow==null){
+    if(siblingCount<=4)return Math.max(1,siblingCount);
+    if(siblingCount<=9)return Math.ceil(Math.sqrt(siblingCount));
+    if(siblingCount<=16)return 4;
+    if(siblingCount<=36)return 6;
+    return Math.min(8,Math.ceil(Math.sqrt(siblingCount)));
+  }
+  const n=parseInt(S.maxPerRow);
+  return (isFinite(n)&&n>0)?n:6;
+}
+function setMaxPerRow(val){
+  pushUndo();
+  S.maxPerRow=(val==='auto')?'auto':parseInt(val);
+  const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
+  renderChart();persistState();
+  showToast('Max per row: '+(val==='auto'?'Auto-fit':val),true);
+}
+function toggleCompact(){
+  S.compact=!S.compact;
+  document.body.classList.toggle('compact-mode',S.compact);
+  const btn=document.getElementById('compact-btn');if(btn)btn.classList.toggle('active',S.compact);
+  if(S.compact){
+    // Compact = shrink + auto-fit row size + fit to screen
+    if(S.maxPerRow!=='auto'){S._prevMaxPerRow=S.maxPerRow;S.maxPerRow='auto';}
+    const sel=document.getElementById('row-size-select');if(sel)sel.value='auto';
+  }else{
+    // Restore previous row size if we changed it
+    if(S._prevMaxPerRow!==undefined){S.maxPerRow=S._prevMaxPerRow;delete S._prevMaxPerRow;}
+    const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
+  }
+  renderChart();
+  setTimeout(()=>fitToScreen(true),250);
+  persistState();
+  showToast(S.compact?'Compact Fit on — '+S.viewData.length+' cards squeezed into view':'Compact Fit off');
+}
 function toggleOrientation(){
   S.orientation=(S.orientation==='vertical')?'horizontal':'vertical';
   applyOrientation();persistState();
@@ -1591,23 +1701,67 @@ function applyOrientation(){
   if(btn){btn.classList.toggle('horizontal',S.orientation==='horizontal');btn.innerHTML=(S.orientation==='horizontal'?'↔ Horizontal':'↕ Vertical');}
   setTimeout(()=>{try{fitToScreen(true);}catch(_){/*noop*/}},120);
 }
+/* Convert all <svg> elements inside a root to <img> data-URLs before html2canvas
+   runs. html2canvas frequently renders SVGs as solid black blocks, especially
+   when the SVG has computed widths or external CSS. Returns a list of restorers
+   that puts the original SVGs back in place. */
+async function svgsToImagesAsync(root){
+  if(!root)return [];
+  const restorers=[];
+  const svgs=Array.from(root.querySelectorAll('svg'));
+  await Promise.all(svgs.map(svg=>new Promise(resolve=>{
+    try{
+      const w=svg.scrollWidth||svg.clientWidth||parseInt(svg.getAttribute('width'))||0;
+      const h=svg.scrollHeight||svg.clientHeight||parseInt(svg.getAttribute('height'))||0;
+      if(!w||!h){resolve();return;}
+      const cloned=svg.cloneNode(true);
+      cloned.setAttribute('xmlns','http://www.w3.org/2000/svg');
+      cloned.setAttribute('width',String(w));
+      cloned.setAttribute('height',String(h));
+      const xml=new XMLSerializer().serializeToString(cloned);
+      const dataUrl='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
+      const img=document.createElement('img');
+      img.style.cssText=svg.style.cssText;
+      img.style.width=w+'px';img.style.height=h+'px';
+      img.style.position=svg.style.position||'absolute';
+      img.style.top=svg.style.top||'0';
+      img.style.left=svg.style.left||'0';
+      img.style.pointerEvents='none';
+      img.style.zIndex=svg.style.zIndex||'2';
+      const parent=svg.parentNode;const next=svg.nextSibling;
+      restorers.push(()=>{
+        try{if(img.parentNode)img.parentNode.replaceChild(svg,img);
+        else if(parent)parent.insertBefore(svg,next);}catch(_){/*noop*/}
+      });
+      img.onload=()=>resolve();
+      img.onerror=()=>resolve();
+      img.src=dataUrl;
+      parent.replaceChild(img,svg);
+    }catch(e){console.warn('svgToImage fail',e);resolve();}
+  })));
+  return restorers;
+}
+function restoreSvgs(restorers){(restorers||[]).forEach(r=>{try{r();}catch(_){}});}
 async function printA3(){
   const overlay=makeOverlay('Preparing A3 PDF…','Rendering chart at high resolution');
   document.body.appendChild(overlay);
   const savedZoom=S.zoom;applyZoom(1);
   await new Promise(r=>setTimeout(r,140));
-  let stage=null,canvas=null;
+  let stage=null,canvas=null;let svgRestorers=[];
+  // Hide the gridline overlay during capture (html2canvas can mis-render its background-image)
+  const gridOverlay=document.getElementById('grid-overlay');
+  const overlayWasVisible=gridOverlay&&gridOverlay.classList.contains('visible');
+  if(overlayWasVisible)gridOverlay.classList.remove('visible');
   try{
-    if(S.gridMode){
-      const grid=document.getElementById('org-grid');
-      const wasTransform=grid.style.transform;grid.style.transform='scale(1)';
-      await new Promise(r=>setTimeout(r,200));
-      canvas=await html2canvas(grid,{backgroundColor:S.transparentExport?null:S.chartBgColor,scale:2,useCORS:true,logging:false,allowTaint:true});
-      grid.style.transform=wasTransform;
-    }else{
-      stage=await buildRenderStage();
-      canvas=await renderToCanvas(stage);
-    }
+    const cc=document.getElementById('chart-canvas-content');
+    const wasTransform=cc.style.transform;cc.style.transform='scale(1)';
+    await new Promise(r=>setTimeout(r,200));
+    // Convert all SVGs in the chart canvas to image data-URLs first to
+    // avoid html2canvas rendering them as black blocks.
+    svgRestorers=await svgsToImagesAsync(cc);
+    await new Promise(r=>setTimeout(r,150));
+    canvas=await html2canvas(cc,{backgroundColor:S.transparentExport?null:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false});
+    cc.style.transform=wasTransform;
     const dataUrl=canvas.toDataURL('image/png');
     const w=window.open('','_blank','width=1400,height=900');
     if(!w){alert('Pop-up blocked. Allow pop-ups for this site and try again.');return;}
@@ -1636,36 +1790,206 @@ async function printA3(){
   }catch(e){console.error(e);alert('Print failed: '+e.message);}
   finally{
     if(stage&&stage.wrapper)stage.wrapper.remove();
+    restoreSvgs(svgRestorers);
+    if(overlayWasVisible&&gridOverlay)gridOverlay.classList.add('visible');
     overlay.remove();
     applyZoom(savedZoom);
   }
 }
+/* ════════════════════════════════════════════════════════════════════
+   GRID MODE v2 — tree layout stays, drag translates cards
+   Replaces the old separate-grid layout. Cards keep their tree
+   positions until the user drags one; per-card {dx,dy} translation is
+   stored in S.gridOverrides and re-applied after every renderChart.
+   ════════════════════════════════════════════════════════════════════ */
 function toggleGridMode(){
   S.gridMode=!S.gridMode;
-  const content=document.getElementById('chart-canvas-content');
-  if(content)content.classList.toggle('grid-mode',S.gridMode);
+  const cc=document.getElementById('chart-canvas-content');
+  if(cc)cc.classList.toggle('grid-mode',S.gridMode);
   document.getElementById('grid-mode-btn').classList.toggle('active',S.gridMode);
   document.getElementById('grid-lines-btn').style.display=S.gridMode?'inline-flex':'none';
   document.getElementById('grid-reset-btn').style.display=S.gridMode?'inline-flex':'none';
-  if(S.gridMode){renderGrid();applyGridLines();}else{document.getElementById('grid-overlay').classList.remove('visible');}
+  if(S.gridMode){
+    bindCanvasGridDND();
+    setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},120);
+  }else{
+    clearTreeTranslations();
+    const svg=document.getElementById('grid-svg');if(svg)svg.innerHTML='';
+    const ov=document.getElementById('grid-overlay');if(ov)ov.classList.remove('visible');
+    clearSelection();
+  }
   persistState();
-  showToast(S.gridMode?'Grid Mode on — drag any card to any cell':'Tree view restored');
+  showToast(S.gridMode?'Grid Mode on — drag any card to reposition · Shift+click to multi-select':'Grid Mode off — tree view restored');
 }
-function toggleGridLines(){
-  S.gridShowLines=!S.gridShowLines;
-  applyGridLines();
-  persistState();
-}
+function toggleGridLines(){S.gridShowLines=!S.gridShowLines;applyGridLines();persistState();}
 function applyGridLines(){
   const ov=document.getElementById('grid-overlay');if(!ov)return;
   ov.classList.toggle('visible',S.gridMode&&S.gridShowLines);
+  // Resize overlay to canvas-content dimensions so gridlines cover the tree fully
+  const cc=document.getElementById('chart-canvas-content');
+  if(cc&&ov){ov.style.width=Math.max(cc.scrollWidth,cc.offsetWidth)+'px';ov.style.height=Math.max(cc.scrollHeight,cc.offsetHeight)+'px';}
 }
 function resetGridOverrides(){
   if(!Object.keys(S.gridOverrides).length){showToast('Nothing to reset');return;}
-  if(!confirm('Reset all grid position overrides? Cards will return to auto-arrange by depth.'))return;
+  if(!confirm('Reset every card to its original tree position?'))return;
   pushUndo();
   S.gridOverrides={};
-  renderGrid();persistState();showToast('Grid auto-arranged',true);
+  clearTreeTranslations();
+  applyGridOverridesToTree();
+  redrawGridConnectorsFromTree();
+  persistState();
+  showToast('Cards returned to tree positions',true);
+}
+/* Apply / clear translations on the tree DOM */
+function applyGridOverridesToTree(){
+  document.querySelectorAll('#org-tree .node-card[data-drag-id]').forEach(card=>{
+    const id=card.dataset.dragId;const ovr=S.gridOverrides[id];
+    if(ovr&&typeof ovr.dx==='number'&&typeof ovr.dy==='number'&&(ovr.dx||ovr.dy)){
+      card.style.transform='translate('+ovr.dx+'px,'+ovr.dy+'px)';
+      card.classList.add('grid-translated');
+    }else{
+      card.style.transform='';
+      card.classList.remove('grid-translated');
+    }
+  });
+}
+function clearTreeTranslations(){
+  document.querySelectorAll('#org-tree .node-card.grid-translated').forEach(card=>{
+    card.style.transform='';card.classList.remove('grid-translated');
+  });
+}
+/* Draw SVG connectors based on each card's actual on-screen position. */
+function redrawGridConnectorsFromTree(){
+  if(!S.gridMode)return;
+  const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
+  const cc=document.getElementById('chart-canvas-content');if(!cc)return;
+  const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
+  svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
+  svg.style.width=w+'px';svg.style.height=h+'px';
+  const ccRect=cc.getBoundingClientRect();
+  S.viewData.forEach(n=>{
+    if(!n.manager)return;
+    const childCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.id)+'"]');
+    const parentCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.manager)+'"]');
+    if(!childCard||!parentCard)return;
+    const cr=childCard.getBoundingClientRect(),pr=parentCard.getBoundingClientRect();
+    const x1=(pr.left+pr.width/2-ccRect.left)/S.zoom;
+    const y1=(pr.bottom-ccRect.top)/S.zoom;
+    const x2=(cr.left+cr.width/2-ccRect.left)/S.zoom;
+    const y2=(cr.top-ccRect.top)/S.zoom;
+    const midY=(y1+y2)/2;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+x1+' '+y1+' C '+x1+' '+midY+', '+x2+' '+midY+', '+x2+' '+y2);
+    path.setAttribute('stroke','#94a3b8');path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');path.setAttribute('opacity','0.7');
+    svg.appendChild(path);
+  });
+}
+/* Drop on canvas-content sets a translation override on the dragged card */
+function bindCanvasGridDND(){
+  const cc=document.getElementById('chart-canvas-content');if(!cc||cc._gridDND)return;cc._gridDND=true;
+  cc.addEventListener('dragover',e=>{
+    if(!S.draggingNodeId||!S.gridMode)return;
+    e.preventDefault();e.dataTransfer.dropEffect='move';
+  });
+  cc.addEventListener('drop',e=>{
+    if(!S.gridMode||!S.draggingNodeId)return;
+    e.preventDefault();
+    const id=S.draggingNodeId;
+    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');
+    if(!card){S.draggingNodeId=null;return;}
+    const ccRect=cc.getBoundingClientRect();
+    const dropX=(e.clientX-ccRect.left)/S.zoom;
+    const dropY=(e.clientY-ccRect.top)/S.zoom;
+    const cr=card.getBoundingClientRect();
+    const cardCenterX=(cr.left+cr.width/2-ccRect.left)/S.zoom;
+    const cardCenterY=(cr.top+cr.height/2-ccRect.top)/S.zoom;
+    const oldOvr=S.gridOverrides[id]||{dx:0,dy:0};
+    let newDx=oldOvr.dx+(dropX-cardCenterX);
+    let newDy=oldOvr.dy+(dropY-cardCenterY);
+    const SNAP=20;
+    newDx=Math.round(newDx/SNAP)*SNAP;newDy=Math.round(newDy/SNAP)*SNAP;
+    pushUndo();
+    if(newDx===0&&newDy===0)delete S.gridOverrides[id];
+    else S.gridOverrides[id]={dx:newDx,dy:newDy};
+    S.draggingNodeId=null;
+    applyGridOverridesToTree();
+    redrawGridConnectorsFromTree();
+    persistState();
+  });
+}
+/* Multi-select + alignment */
+function toggleSelectCard(id,card){
+  if(S.selectedIds.has(id)){S.selectedIds.delete(id);card&&card.classList.remove('selected');}
+  else{S.selectedIds.add(id);card&&card.classList.add('selected');}
+  refreshAlignToolbar();
+}
+function clearSelection(){
+  S.selectedIds.forEach(id=>{const c=document.querySelector('.node-card[data-drag-id="'+CSS.escape(id)+'"]');if(c)c.classList.remove('selected');});
+  S.selectedIds.clear();refreshAlignToolbar();
+}
+function refreshAlignToolbar(){
+  const tb=document.getElementById('align-toolbar');if(!tb)return;
+  tb.classList.toggle('visible',S.selectedIds.size>=2);
+  const ct=document.getElementById('at-count');if(ct)ct.textContent=S.selectedIds.size+' selected';
+}
+function _measureNatural(card){
+  // Measure the card's bounding box without its current translation override
+  const t=card.style.transform;card.style.transform='';
+  const cr=card.getBoundingClientRect();
+  card.style.transform=t;
+  return cr;
+}
+function alignSelected(direction){
+  if(S.selectedIds.size<2)return;
+  if(!S.gridMode){toggleGridMode();}
+  const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
+  const items=[];
+  S.selectedIds.forEach(id=>{
+    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const nr=_measureNatural(card);
+    items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
+  });
+  if(items.length<2)return;
+  pushUndo();
+  if(direction==='left'){const t=Math.min(...items.map(i=>i.nx));items.forEach(i=>{S.gridOverrides[i.id]={dx:t-i.nx,dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='right'){const t=Math.max(...items.map(i=>i.nx+i.nw));items.forEach(i=>{S.gridOverrides[i.id]={dx:t-(i.nx+i.nw),dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='center-h'){const avg=items.reduce((s,i)=>s+(i.nx+i.nw/2),0)/items.length;items.forEach(i=>{S.gridOverrides[i.id]={dx:avg-(i.nx+i.nw/2),dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='top'){const t=Math.min(...items.map(i=>i.ny));items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:t-i.ny};});}
+  else if(direction==='bottom'){const t=Math.max(...items.map(i=>i.ny+i.nh));items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:t-(i.ny+i.nh)};});}
+  else if(direction==='middle'){const avg=items.reduce((s,i)=>s+(i.ny+i.nh/2),0)/items.length;items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:avg-(i.ny+i.nh/2)};});}
+  applyGridOverridesToTree();
+  redrawGridConnectorsFromTree();
+  persistState();
+  showToast('Aligned '+items.length+' cards',true);
+}
+function distributeSelected(axis){
+  if(S.selectedIds.size<3){showToast('Select 3 or more cards to distribute');return;}
+  if(!S.gridMode)toggleGridMode();
+  const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
+  const items=[];
+  S.selectedIds.forEach(id=>{
+    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const nr=_measureNatural(card);
+    items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
+  });
+  if(items.length<3)return;
+  pushUndo();
+  if(axis==='h'){
+    items.sort((a,b)=>(a.nx+a.nw/2)-(b.nx+b.nw/2));
+    const first=items[0].nx+items[0].nw/2,last=items[items.length-1].nx+items[items.length-1].nw/2;
+    const step=(last-first)/(items.length-1);
+    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.nx+it.nw/2;S.gridOverrides[it.id]={dx:target-cur,dy:(S.gridOverrides[it.id]||{dy:0}).dy||0};});
+  }else{
+    items.sort((a,b)=>(a.ny+a.nh/2)-(b.ny+b.nh/2));
+    const first=items[0].ny+items[0].nh/2,last=items[items.length-1].ny+items[items.length-1].nh/2;
+    const step=(last-first)/(items.length-1);
+    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.ny+it.nh/2;S.gridOverrides[it.id]={dx:(S.gridOverrides[it.id]||{dx:0}).dx||0,dy:target-cur};});
+  }
+  applyGridOverridesToTree();
+  redrawGridConnectorsFromTree();
+  persistState();
+  showToast('Distributed '+items.length+' cards',true);
 }
 function mkBareCard(node){
   // Reuse mkNodeLI for full card fidelity. Temporarily suppress this node's
@@ -1840,9 +2164,16 @@ function applyPersisted(d){
   S.skipDepth=d.skipDepth||0;
   S.managerMode=!!d.managerMode;
   S.gridMode=!!d.gridMode;
-  S.gridOverrides=d.gridOverrides||{};
+  // Migrate v1 grid overrides ({row,col}) to v2 ({dx,dy}) by discarding them — v2
+  // uses pixel translations measured at runtime, not row/col cell coordinates.
+  S.gridOverrides={};
+  Object.entries(d.gridOverrides||{}).forEach(([id,o])=>{
+    if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.gridOverrides[id]=o;
+  });
   S.gridShowLines=d.gridShowLines!==false;
   S.orientation=d.orientation==='horizontal'?'horizontal':'vertical';
+  S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
+  S.compact=!!d.compact;
   buildEmpTypeMap();
   return true;
 }
