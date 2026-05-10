@@ -352,10 +352,12 @@ body{display:flex;flex-direction:column}
   <div class="screen active" id="screen-upload">
     <div class="upload-center">
       <div class="upload-hero"><h1>Build your Org Chart</h1><p>Upload your HR roster and we'll guide you through designing a beautiful, interactive org chart in minutes.</p></div>
-      <div class="upload-zone" id="upload-dropzone">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls"/>
+      <div class="upload-zone" id="upload-dropzone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="if(this.files[0])handleFile(this.files[0])"/>
         <span class="upload-emoji">📊</span><h3>Drop your file here</h3><p>Supports CSV and Excel (.xlsx, .xls)<br>or <span>click to browse</span></p>
       </div>
+      <div id="lib-status" style="font-size:0.78rem;color:var(--text2);font-weight:600;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:-8px"></div>
+      <div style="display:flex;gap:10px"><button class="btn btn-ghost btn-sm" onclick="loadDemoData()">📁 Load demo data</button></div>
       <div class="info-cards">
         <div class="info-card"><div class="info-card-title">Required Columns</div><div class="info-card-row">Employee Code / ID</div><div class="info-card-row">Employee Name</div><div class="info-card-row">Manager Code / ID</div></div>
         <div class="info-card"><div class="info-card-title">FRO &amp; Photo Tips</div><div class="info-card-row">Map FRO column for dotted functional lines</div><div class="info-card-row">Name photos by any column value</div><div class="info-card-row">Pick match column in Chart toolbar</div></div>
@@ -1608,8 +1610,53 @@ function applyPersisted(d){
 
 // Each binding is wrapped so a single missing element never aborts the whole init script.
 function _bind(id,event,fn){try{const el=document.getElementById(id);if(el)el.addEventListener(event,fn);else console.warn('init: missing element #'+id);}catch(ex){console.error('init bind',id,ex);}}
+// (file-input change is also wired inline as a defensive double-bind in case this _bind is missed)
 _bind('file-input','change',function(e){if(e.target.files[0])handleFile(e.target.files[0]);});
 _bind('photo-folder-input','change',function(e){if(e.target.files.length)loadFromFileInput(e.target.files);});
+
+/* Demo data: lets the user try the app without uploading anything. Also serves as
+   a smoke test that the upload pipeline is working. */
+function loadDemoData(){
+  const rows=[
+    {EmpID:'E001',Name:'Alex Rivera',ManagerID:'',Department:'Executive',Title:'CEO'},
+    {EmpID:'E002',Name:'Priya Shah',ManagerID:'E001',Department:'Engineering',Title:'VP Engineering'},
+    {EmpID:'E003',Name:'Marcus Liu',ManagerID:'E001',Department:'Sales',Title:'VP Sales'},
+    {EmpID:'E004',Name:'Sara Okafor',ManagerID:'E001',Department:'People',Title:'VP People'},
+    {EmpID:'E005',Name:'Diego Fernández',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
+    {EmpID:'E006',Name:'Yuki Tanaka',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
+    {EmpID:'E007',Name:'Aanya Mehta',ManagerID:'E005',Department:'Engineering',Title:'Senior Engineer'},
+    {EmpID:'E008',Name:'Tom Becker',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E009',Name:'Rina Patel',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E010',Name:'Hari Sundar',ManagerID:'E006',Department:'Engineering',Title:'Senior Engineer'},
+    {EmpID:'E011',Name:'Jane Park',ManagerID:'E006',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E012',Name:'Lucas Brown',ManagerID:'E003',Department:'Sales',Title:'Sales Manager'},
+    {EmpID:'E013',Name:'Eva Stone',ManagerID:'E012',Department:'Sales',Title:'AE'},
+    {EmpID:'E014',Name:'Omar Hassan',ManagerID:'E012',Department:'Sales',Title:'AE'},
+    {EmpID:'E015',Name:'Maya Chen',ManagerID:'E004',Department:'People',Title:'Recruiter'}
+  ];
+  initData(rows);
+}
+
+/* Library-status indicator: makes it obvious if a CDN library failed to load
+   (e.g. corp firewall blocked cdnjs). Without this, an XLSX upload would just
+   silently fail when XLSX.read runs. */
+function refreshLibStatus(){
+  const el=document.getElementById('lib-status');if(!el)return;
+  const libs=[
+    {name:'Papa (CSV)',ok:typeof Papa!=='undefined'},
+    {name:'XLSX (Excel)',ok:typeof XLSX!=='undefined'},
+    {name:'JSZip',ok:typeof JSZip!=='undefined'},
+    {name:'html2canvas',ok:typeof html2canvas!=='undefined'}
+  ];
+  const allOk=libs.every(l=>l.ok);
+  el.innerHTML=libs.map(l=>'<span style="color:'+(l.ok?'#059669':'#dc2626')+'">'+(l.ok?'✓':'✗')+' '+l.name+'</span>').join('');
+  if(!allOk){
+    el.innerHTML+='<div style="width:100%;text-align:center;color:#dc2626;margin-top:6px">⚠ One or more libraries failed to load — upload may not work. Check your network/firewall and reload.</div>';
+  }
+}
+// Run after a tick so CDN scripts have a chance to evaluate
+setTimeout(refreshLibStatus,200);
+setTimeout(refreshLibStatus,1500);
 (function(){
   const dz=document.getElementById('upload-dropzone');if(!dz)return;
   dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
