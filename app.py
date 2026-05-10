@@ -1251,7 +1251,7 @@ function openDataQualityModal(){
   document.getElementById('dq-sub').textContent=dqIssueCount(issues)+' issues found across '+S.rawRows.length+' rows';
   const sec=(label,emoji,arr,renderRow,bulkAction)=>{
     const empty=arr.length===0;
-    return '<div class="dq-section'+(empty?' empty':'')+'"><h4>'+emoji+' '+label+'<span class="dq-count">'+arr.length+'</span></h4>'+(empty?'<div class="dq-list" style="font-style:italic">None — looks good.</div>':'<div class="dq-list">'+arr.slice(0,40).map(renderRow).join('')+(arr.length>40?'<div class="dq-row" style="font-style:italic;color:var(--text3)">+ '+(arr.length-40)+' more…</div>':'')+'</div>'+(bulkAction&&!empty?bulkAction:'')+'</div>';
+    return '<div class="dq-section'+(empty?' empty':'')+'"><h4>'+emoji+' '+label+'<span class="dq-count">'+arr.length+'</span></h4>'+(empty?'<div class="dq-list" style="font-style:italic">None — looks good.</div>':'<div class="dq-list">'+arr.slice(0,40).map(renderRow).join('')+(arr.length>40?'<div class="dq-row" style="font-style:italic;color:var(--text3)">+ '+(arr.length-40)+' more…</div>':'')+'</div>'+(bulkAction&&!empty?bulkAction:''))+'</div>';
   };
   body.innerHTML=
     sec('Duplicate Employee IDs','♻️',issues.duplicates,
