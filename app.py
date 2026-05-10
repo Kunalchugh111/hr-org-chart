@@ -352,14 +352,17 @@ body{display:flex;flex-direction:column}
   <div class="screen active" id="screen-upload">
     <div class="upload-center">
       <div class="upload-hero"><h1>Build your Org Chart</h1><p>Upload your HR roster and we'll guide you through designing a beautiful, interactive org chart in minutes.</p></div>
-      <div class="upload-zone" id="upload-dropzone">
-        <input type="file" id="file-input" accept=".csv,.xlsx,.xls"/>
+      <div class="upload-zone" id="upload-dropzone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="if(this.files[0])handleFile(this.files[0])"/>
         <span class="upload-emoji">📊</span><h3>Drop your file here</h3><p>Supports CSV and Excel (.xlsx, .xls)<br>or <span>click to browse</span></p>
       </div>
+      <div id="lib-status" style="font-size:0.78rem;color:var(--text2);font-weight:600;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:-8px"></div>
+      <div style="display:flex;gap:10px"><button class="btn btn-ghost btn-sm" onclick="loadDemoData()">📁 Load demo data</button></div>
       <div class="info-cards">
         <div class="info-card"><div class="info-card-title">Required Columns</div><div class="info-card-row">Employee Code / ID</div><div class="info-card-row">Employee Name</div><div class="info-card-row">Manager Code / ID</div></div>
         <div class="info-card"><div class="info-card-title">FRO &amp; Photo Tips</div><div class="info-card-row">Map FRO column for dotted functional lines</div><div class="info-card-row">Name photos by any column value</div><div class="info-card-row">Pick match column in Chart toolbar</div></div>
       </div>
+      <div style="font-size:0.74rem;color:var(--text3);margin-top:6px">Trouble re-uploading? <a href="#" onclick="event.preventDefault();clearPersisted();alert('Saved session cleared. Reload the page or upload again.');" style="color:var(--accent);text-decoration:underline;font-weight:700">Clear saved session</a></div>
     </div>
   </div>
   <div class="screen" id="screen-map">
@@ -528,6 +531,22 @@ body{display:flex;flex-direction:column}
 </div>
 
 <script>
+// Surface uncaught script errors visibly so a parse-time or runtime error doesn't silently
+// disable the page (e.g. file-input change listener never gets attached). Without this,
+// a single broken expression makes the whole inline <script> die quietly.
+window.addEventListener('error',function(e){
+  try{
+    const msg='⚠ Script error: '+(e.message||'unknown')+(e.filename?' ('+e.filename+':'+e.lineno+')':'');
+    console.error('OrgDesign Pro:',e.error||e.message,e);
+    let bar=document.getElementById('app-error-bar');
+    if(!bar){
+      bar=document.createElement('div');bar.id='app-error-bar';
+      bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#dc2626;color:#fff;padding:8px 14px;font:600 13px/1.4 -apple-system,sans-serif;display:flex;align-items:center;gap:10px';
+      document.body&&document.body.appendChild(bar);
+    }
+    bar.textContent=msg+'  ·  Open the browser DevTools Console for details.';
+  }catch(_){/* noop */}
+});
 const S={
   rawRows:[],columns:[],colSamples:{},
   colMap:{empId:'',empName:'',managerId:'',froId:''},
@@ -556,8 +575,49 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
 function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);if(S.gridMode){renderGrid();applyGridLines();}},160);}}
-function handleFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}else if(['xlsx','xls'].includes(ext)){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));};reader.readAsArrayBuffer(file);}else{alert('Please upload a CSV or Excel file.');}}
-function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);S.undoStack=[];const persisted=loadPersisted();if(persisted&&persisted.sig===fileSig()&&applyPersisted(persisted)){buildViewData();buildFilterBar();renderChart();goTo('chart');showToast('Restored your previous session — Ctrl+Z undoes any change');return;}buildMapScreen();goTo('map');}
+function handleFile(file){
+  try{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='csv'){
+      Papa.parse(file,{header:true,skipEmptyLines:true,
+        complete:r=>{try{initData(r.data);}catch(ex){console.error(ex);alert('Failed to load CSV: '+ex.message);}},
+        error:e=>alert('CSV error: '+(e.message||e))});
+    }else if(ext==='xlsx'||ext==='xls'){
+      const reader=new FileReader();
+      reader.onload=e=>{
+        try{
+          const wb=XLSX.read(e.target.result,{type:'array'});
+          if(!wb.SheetNames.length){alert('Excel file has no sheets.');return;}
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+          initData(rows);
+        }catch(ex){console.error(ex);alert('Failed to read Excel: '+ex.message);}
+      };
+      reader.onerror=()=>alert('Could not read the file.');
+      reader.readAsArrayBuffer(file);
+    }else{alert('Please upload a CSV or Excel file (.csv, .xlsx, .xls).');}
+  }catch(ex){console.error(ex);alert('Upload failed: '+ex.message);}
+}
+function initData(rows){
+  if(!rows||!rows.length){alert('The file looks empty — no rows were parsed.');return;}
+  S.rawRows=rows;
+  S.columns=Object.keys(rows[0]||{});
+  if(!S.columns.length){alert('Could not detect any columns. Make sure the first row has headers.');return;}
+  S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});
+  S.colMap=autoDetect(S.columns);
+  S.undoStack=[];
+  buildMapScreen();
+  goTo('map');
+  // Soft-offer: if a saved session matches this file's columns, surface a restore action.
+  // This is opt-in (toast button) rather than silent auto-apply, so any bug in restoration
+  // never blocks a fresh upload.
+  try{
+    const persisted=loadPersisted();
+    if(persisted&&persisted.sig===fileSig()&&persisted.colMap&&S.columns.includes(persisted.colMap.empId)&&S.columns.includes(persisted.colMap.empName)){
+      window._pendingRestore=persisted;
+      setTimeout(()=>showToast('Found a saved session for this file. Restore?',true,'restore'),300);
+    }
+  }catch(_){/* never let restore-detection block the upload */}
+}
 
 function autoDetect(cols){const lc=cols.map(c=>c.toLowerCase().trim());function find(exact,partial){for(const p of exact){const i=lc.findIndex(c=>c===p);if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.startsWith(p)||c.endsWith(p));if(i>=0)return cols[i];}for(const p of partial){const i=lc.findIndex(c=>c.includes(p));if(i>=0)return cols[i];}return '';}return{
   empId:find(['employee code','emp code','emp id','employee id','empcode','empid','staff id','employee_id','emp_id'],['employee code','emp code','employee id','emp id','empcode','empid','staff id']),
@@ -612,7 +672,7 @@ function populatePhotoMatchCol(){const sel=document.getElementById('photo-match-
 function toggleManagerMode(){pushUndo();S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();persistState();}
 function isManager(nodeId){return(S.childMap[nodeId]||[]).length>0;}
 
-function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});}
+function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});if(typeof refreshDataQualityBtn==='function')setTimeout(refreshDataQualityBtn,30);}
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
@@ -1056,12 +1116,31 @@ function bindRootDropZone(){
 
 /* ── Toast ── */
 let _toastTimer=null;
-function showToast(msg,withUndo){
+function showToast(msg,withAction,actionType){
   let t=document.getElementById('app-toast');
   if(!t){t=document.createElement('div');t.id='app-toast';t.className='toast';document.body.appendChild(t);}
-  t.innerHTML=esc(msg)+(withUndo&&S.undoStack.length?'<button class="toast-action" onclick="undo()">↶ Undo</button>':'');
+  let btn='';
+  if(withAction){
+    if(actionType==='restore'){btn='<button class="toast-action" onclick="restoreSavedSession()">↻ Restore</button>';}
+    else if(S.undoStack.length){btn='<button class="toast-action" onclick="undo()">↶ Undo</button>';}
+  }
+  t.innerHTML=esc(msg)+btn;
   t.classList.add('visible');
-  clearTimeout(_toastTimer);_toastTimer=setTimeout(()=>t.classList.remove('visible'),3200);
+  clearTimeout(_toastTimer);
+  // Restore prompt sticks longer; other toasts fade after ~3.2s
+  _toastTimer=setTimeout(()=>t.classList.remove('visible'),actionType==='restore'?9000:3200);
+}
+function restoreSavedSession(){
+  const p=window._pendingRestore;if(!p)return;
+  try{
+    if(applyPersisted(p)){
+      buildViewData();buildFilterBar();renderChart();goTo('chart');
+      showToast('Session restored — Ctrl+Z undoes any change');
+    }else{
+      showToast('Saved session no longer matches — starting fresh');
+    }
+  }catch(ex){console.error(ex);showToast('Could not restore session — starting fresh');}
+  window._pendingRestore=null;
 }
 
 /* ── Undo stack ── */
@@ -1251,7 +1330,7 @@ function openDataQualityModal(){
   document.getElementById('dq-sub').textContent=dqIssueCount(issues)+' issues found across '+S.rawRows.length+' rows';
   const sec=(label,emoji,arr,renderRow,bulkAction)=>{
     const empty=arr.length===0;
-    return '<div class="dq-section'+(empty?' empty':'')+'"><h4>'+emoji+' '+label+'<span class="dq-count">'+arr.length+'</span></h4>'+(empty?'<div class="dq-list" style="font-style:italic">None — looks good.</div>':'<div class="dq-list">'+arr.slice(0,40).map(renderRow).join('')+(arr.length>40?'<div class="dq-row" style="font-style:italic;color:var(--text3)">+ '+(arr.length-40)+' more…</div>':'')+'</div>'+(bulkAction&&!empty?bulkAction:'')+'</div>';
+    return '<div class="dq-section'+(empty?' empty':'')+'"><h4>'+emoji+' '+label+'<span class="dq-count">'+arr.length+'</span></h4>'+(empty?'<div class="dq-list" style="font-style:italic">None — looks good.</div>':'<div class="dq-list">'+arr.slice(0,40).map(renderRow).join('')+(arr.length>40?'<div class="dq-row" style="font-style:italic;color:var(--text3)">+ '+(arr.length-40)+' more…</div>':'')+'</div>'+(bulkAction&&!empty?bulkAction:''))+'</div>';
   };
   body.innerHTML=
     sec('Duplicate Employee IDs','♻️',issues.duplicates,
@@ -1529,19 +1608,65 @@ function applyPersisted(d){
   return true;
 }
 
-document.getElementById('file-input').addEventListener('change',function(e){if(e.target.files[0])handleFile(e.target.files[0]);});
-document.getElementById('photo-folder-input').addEventListener('change',function(e){if(e.target.files.length)loadFromFileInput(e.target.files);});
-const dz=document.getElementById('upload-dropzone');
-dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
-dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
-dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
-document.getElementById('reassign-modal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeReassignModal();});
-document.getElementById('person-view-modal').addEventListener('click',function(e){if(e.target===e.currentTarget)closePV();});
-document.getElementById('dq-modal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeDataQualityModal();});
-document.getElementById('insights-modal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeInsightsModal();});
-// Refresh DQ button after every chart build
-const _origBuildViewData=buildViewData;
-buildViewData=function(){_origBuildViewData.apply(this,arguments);setTimeout(refreshDataQualityBtn,30);};
+// Each binding is wrapped so a single missing element never aborts the whole init script.
+function _bind(id,event,fn){try{const el=document.getElementById(id);if(el)el.addEventListener(event,fn);else console.warn('init: missing element #'+id);}catch(ex){console.error('init bind',id,ex);}}
+// (file-input change is also wired inline as a defensive double-bind in case this _bind is missed)
+_bind('file-input','change',function(e){if(e.target.files[0])handleFile(e.target.files[0]);});
+_bind('photo-folder-input','change',function(e){if(e.target.files.length)loadFromFileInput(e.target.files);});
+
+/* Demo data: lets the user try the app without uploading anything. Also serves as
+   a smoke test that the upload pipeline is working. */
+function loadDemoData(){
+  const rows=[
+    {EmpID:'E001',Name:'Alex Rivera',ManagerID:'',Department:'Executive',Title:'CEO'},
+    {EmpID:'E002',Name:'Priya Shah',ManagerID:'E001',Department:'Engineering',Title:'VP Engineering'},
+    {EmpID:'E003',Name:'Marcus Liu',ManagerID:'E001',Department:'Sales',Title:'VP Sales'},
+    {EmpID:'E004',Name:'Sara Okafor',ManagerID:'E001',Department:'People',Title:'VP People'},
+    {EmpID:'E005',Name:'Diego Fernández',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
+    {EmpID:'E006',Name:'Yuki Tanaka',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
+    {EmpID:'E007',Name:'Aanya Mehta',ManagerID:'E005',Department:'Engineering',Title:'Senior Engineer'},
+    {EmpID:'E008',Name:'Tom Becker',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E009',Name:'Rina Patel',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E010',Name:'Hari Sundar',ManagerID:'E006',Department:'Engineering',Title:'Senior Engineer'},
+    {EmpID:'E011',Name:'Jane Park',ManagerID:'E006',Department:'Engineering',Title:'Engineer'},
+    {EmpID:'E012',Name:'Lucas Brown',ManagerID:'E003',Department:'Sales',Title:'Sales Manager'},
+    {EmpID:'E013',Name:'Eva Stone',ManagerID:'E012',Department:'Sales',Title:'AE'},
+    {EmpID:'E014',Name:'Omar Hassan',ManagerID:'E012',Department:'Sales',Title:'AE'},
+    {EmpID:'E015',Name:'Maya Chen',ManagerID:'E004',Department:'People',Title:'Recruiter'}
+  ];
+  initData(rows);
+}
+
+/* Library-status indicator: makes it obvious if a CDN library failed to load
+   (e.g. corp firewall blocked cdnjs). Without this, an XLSX upload would just
+   silently fail when XLSX.read runs. */
+function refreshLibStatus(){
+  const el=document.getElementById('lib-status');if(!el)return;
+  const libs=[
+    {name:'Papa (CSV)',ok:typeof Papa!=='undefined'},
+    {name:'XLSX (Excel)',ok:typeof XLSX!=='undefined'},
+    {name:'JSZip',ok:typeof JSZip!=='undefined'},
+    {name:'html2canvas',ok:typeof html2canvas!=='undefined'}
+  ];
+  const allOk=libs.every(l=>l.ok);
+  el.innerHTML=libs.map(l=>'<span style="color:'+(l.ok?'#059669':'#dc2626')+'">'+(l.ok?'✓':'✗')+' '+l.name+'</span>').join('');
+  if(!allOk){
+    el.innerHTML+='<div style="width:100%;text-align:center;color:#dc2626;margin-top:6px">⚠ One or more libraries failed to load — upload may not work. Check your network/firewall and reload.</div>';
+  }
+}
+// Run after a tick so CDN scripts have a chance to evaluate
+setTimeout(refreshLibStatus,200);
+setTimeout(refreshLibStatus,1500);
+(function(){
+  const dz=document.getElementById('upload-dropzone');if(!dz)return;
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
+  dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+})();
+_bind('reassign-modal','click',function(e){if(e.target===e.currentTarget)closeReassignModal();});
+_bind('person-view-modal','click',function(e){if(e.target===e.currentTarget)closePV();});
+_bind('dq-modal','click',function(e){if(e.target===e.currentTarget)closeDataQualityModal();});
+_bind('insights-modal','click',function(e){if(e.target===e.currentTarget)closeInsightsModal();});
 </script>
 </body>
 </html>'''
