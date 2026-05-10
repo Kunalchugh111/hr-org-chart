@@ -170,6 +170,25 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
+/* ── Compact mode: shrink cards + tighter spacing for max density ── */
+body.compact-mode .node-card{width:208px!important}
+body.compact-mode .ncard-body{padding:9px 11px 8px!important}
+body.compact-mode .ncard-header,body.compact-mode .ncard-footer{padding:4px 8px!important}
+body.compact-mode .ncard-name{font-size:0.78rem!important;margin-bottom:2px!important}
+body.compact-mode .ncard-sub{font-size:0.66rem!important;-webkit-line-clamp:1!important}
+body.compact-mode .ncard-body-b1{font-size:0.62rem!important;padding-top:3px!important;margin-top:3px!important}
+body.compact-mode .ncard-slot{font-size:0.56rem!important}
+body.compact-mode .ncard-photo,body.compact-mode .ncard-photo-fallback{width:54px!important;height:54px!important;font-size:14px!important}
+body.compact-mode .org-tree li{padding:18px 4px 0 4px!important}
+body.compact-mode .org-tree ul{padding-top:18px!important}
+body.compact-mode .org-tree li::before,body.compact-mode .org-tree li::after,body.compact-mode .org-tree ul ul::before{height:18px!important}
+body.compact-mode .summary-list-card{width:188px!important}
+.compact-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;flex-shrink:0}
+.compact-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
+.compact-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
+.row-size-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
+.row-size-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
+.row-size-select{background:transparent;border:none;border-radius:6px;padding:3px 18px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none}
 /* ── Children row chunking for max-6-per-row ── */
 .children-rows-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;padding-top:24px}
 .children-rows-wrap::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px;margin-left:-1px;z-index:0}
@@ -461,7 +480,10 @@ body{display:flex;flex-direction:column}
       <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Search → Person View..." autocomplete="off"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
-      <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div><div class="tb-sep"></div>
+      <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
+      <div class="row-size-wrap" title="Maximum number of cards in a single row. 'Auto' picks a near-square layout based on the count of siblings."><span class="row-size-label">Per row</span><select class="row-size-select" id="row-size-select" onchange="setMaxPerRow(this.value)" aria-label="Maximum cards per row"><option value="auto">Auto</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option></select></div>
+      <button class="compact-btn" id="compact-btn" onclick="toggleCompact()" title="Compact mode: shrink cards, auto-fit row size, fit-to-screen — squeezes the chart into the smallest readable footprint">📐 Compact Fit</button>
+      <div class="tb-sep"></div>
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Compact ICs into a single summary list under each manager"><div class="mgr-mode-dot"></div>Manager View</div>
       <div class="grid-mode-btn" id="grid-mode-btn" onclick="toggleGridMode()" title="Switch to free-form grid: cards auto-place by depth (level=row), drag any card to any cell to override"><div class="grid-mode-dot"></div>Grid Mode</div>
       <button class="btn btn-ghost btn-sm" id="grid-lines-btn" onclick="toggleGridLines()" title="Show/hide gridlines (gridlines never appear in PNG/PPTX/print exports)" style="display:none">⊞ Gridlines</button>
@@ -638,7 +660,7 @@ const UNDO_MAX=40;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();if(S.gridMode){bindCanvasGridDND();setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},250);}},160);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();const rs=document.getElementById('row-size-select');if(rs)rs.value=String(S.maxPerRow);const cb=document.getElementById('compact-btn');if(cb)cb.classList.toggle('active',S.compact);document.body.classList.toggle('compact-mode',S.compact);if(S.gridMode){bindCanvasGridDND();setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},250);}},160);}}
 function handleFile(file){
   try{
     const ext=(file.name.split('.').pop()||'').toLowerCase();
@@ -749,9 +771,10 @@ function toggleTransparent(){S.transparentExport=!S.transparentExport;const btn=
 function applyChartBg(){const wrap=document.getElementById('chart-canvas-wrap');if(!wrap)return;if(S.transparentExport){wrap.classList.add('transparent-preview');wrap.style.background='';}else{wrap.classList.remove('transparent-preview');wrap.style.background=S.chartBgColor;}}
 function getSlotVal(node,slot){const f=S.cardSlots[slot];if(!f)return '';if(f==='__auto_reports__')return childrenOf(node.id).length+' reports';if(f==='__auto_teamsize__')return countDescendants(node.id)+' people';return String(node[f]||'').substring(0,28);}
 
-/* ── mkKidsWrap: groups children into rows of max 6 ── */
+/* ── mkKidsWrap: groups children into rows. Row size driven by S.maxPerRow
+       (number 2-12 or 'auto' which picks a near-square layout). ── */
 function mkKidsWrap(kids,depth){
-  const MAX=6;
+  const MAX=getEffectiveMaxPerRow(kids.length);
   if(kids.length<=MAX){
     const ul=document.createElement('ul');
     kids.forEach(k=>ul.appendChild(mkNodeLI(k,depth+1)));
@@ -1446,6 +1469,8 @@ function persistState(){
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
         orientation:S.orientation,
+        maxPerRow:S.maxPerRow,
+        compact:S.compact,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1623,6 +1648,45 @@ function closeInsightsModal(){document.getElementById('insights-modal').classLis
    PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
    ════════════════════════════════════════════════════════════════════ */
 S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.orientation='vertical';S.selectedIds=new Set();
+S.maxPerRow=6;S.compact=false;
+function getEffectiveMaxPerRow(siblingCount){
+  // If the user picked 'auto', aim for a near-square layout that minimizes
+  // chart width. Otherwise honor the explicit value.
+  if(S.maxPerRow==='auto'||S.maxPerRow==null){
+    if(siblingCount<=4)return Math.max(1,siblingCount);
+    if(siblingCount<=9)return Math.ceil(Math.sqrt(siblingCount));
+    if(siblingCount<=16)return 4;
+    if(siblingCount<=36)return 6;
+    return Math.min(8,Math.ceil(Math.sqrt(siblingCount)));
+  }
+  const n=parseInt(S.maxPerRow);
+  return (isFinite(n)&&n>0)?n:6;
+}
+function setMaxPerRow(val){
+  pushUndo();
+  S.maxPerRow=(val==='auto')?'auto':parseInt(val);
+  const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
+  renderChart();persistState();
+  showToast('Max per row: '+(val==='auto'?'Auto-fit':val),true);
+}
+function toggleCompact(){
+  S.compact=!S.compact;
+  document.body.classList.toggle('compact-mode',S.compact);
+  const btn=document.getElementById('compact-btn');if(btn)btn.classList.toggle('active',S.compact);
+  if(S.compact){
+    // Compact = shrink + auto-fit row size + fit to screen
+    if(S.maxPerRow!=='auto'){S._prevMaxPerRow=S.maxPerRow;S.maxPerRow='auto';}
+    const sel=document.getElementById('row-size-select');if(sel)sel.value='auto';
+  }else{
+    // Restore previous row size if we changed it
+    if(S._prevMaxPerRow!==undefined){S.maxPerRow=S._prevMaxPerRow;delete S._prevMaxPerRow;}
+    const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
+  }
+  renderChart();
+  setTimeout(()=>fitToScreen(true),250);
+  persistState();
+  showToast(S.compact?'Compact Fit on — '+S.viewData.length+' cards squeezed into view':'Compact Fit off');
+}
 function toggleOrientation(){
   S.orientation=(S.orientation==='vertical')?'horizontal':'vertical';
   applyOrientation();persistState();
@@ -2108,6 +2172,8 @@ function applyPersisted(d){
   });
   S.gridShowLines=d.gridShowLines!==false;
   S.orientation=d.orientation==='horizontal'?'horizontal':'vertical';
+  S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
+  S.compact=!!d.compact;
   buildEmpTypeMap();
   return true;
 }
