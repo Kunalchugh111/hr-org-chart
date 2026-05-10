@@ -301,6 +301,23 @@ body{display:flex;flex-direction:column}
 .map-hint.warn{color:#b45309;font-weight:600}
 .map-hint.err{color:var(--danger);font-weight:600}
 .map-hint.ok{color:#059669;font-weight:600}
+/* ── Grid Mode (Phase 9) ── */
+.chart-canvas-content.grid-mode #org-tree{display:none}
+.chart-canvas-content.grid-mode #fro-svg{display:none}
+#org-grid{display:none;position:relative;padding:32px}
+.chart-canvas-content.grid-mode #org-grid{display:grid;grid-auto-rows:minmax(200px,auto);gap:80px 24px;justify-content:start}
+#org-grid .grid-cell{width:280px;display:flex;align-items:flex-start;justify-content:center;position:relative;min-height:180px;transition:background 0.15s}
+#org-grid .grid-cell.drop-target-cell{background:rgba(34,197,94,0.13);border-radius:12px;outline:2px dashed #16a34a;outline-offset:-4px}
+#org-grid .grid-cell.drop-target-cell-bad{background:rgba(239,68,68,0.13);border-radius:12px;outline:2px dashed #dc2626;outline-offset:-4px}
+.grid-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(to right,rgba(148,163,184,0.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,0.22) 1px,transparent 1px);background-size:304px 280px;background-position:32px 32px;pointer-events:none;z-index:0;display:none}
+.chart-canvas-content.grid-mode .grid-overlay.visible{display:block}
+.grid-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:1;display:none}
+.chart-canvas-content.grid-mode .grid-svg{display:block}
+.grid-mode-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.grid-mode-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
+.grid-mode-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
+.grid-mode-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.grid-mode-btn.active .grid-mode-dot{background:#0891b2}
 /* ── Print stylesheet (Phase 6) — A3 landscape, chart only ── */
 @media print{
   @page{size:A3 landscape;margin:8mm}
@@ -401,7 +418,10 @@ body{display:flex;flex-direction:column}
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div><div class="tb-sep"></div>
-      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()"><div class="mgr-mode-dot"></div>Manager View</div>
+      <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Compact ICs into a single summary list under each manager"><div class="mgr-mode-dot"></div>Manager View</div>
+      <div class="grid-mode-btn" id="grid-mode-btn" onclick="toggleGridMode()" title="Switch to free-form grid: cards auto-place by depth (level=row), drag any card to any cell to override"><div class="grid-mode-dot"></div>Grid Mode</div>
+      <button class="btn btn-ghost btn-sm" id="grid-lines-btn" onclick="toggleGridLines()" title="Show/hide gridlines (gridlines never appear in PNG/PPTX/print exports)" style="display:none">⊞ Gridlines</button>
+      <button class="btn btn-ghost btn-sm" id="grid-reset-btn" onclick="resetGridOverrides()" title="Reset all grid position overrides — restore auto-arrangement by depth" style="display:none">↻ Auto-arrange</button>
       <div class="summary-fields-wrap" id="summary-fields-wrap" style="display:none" title="Pick up to 3 fields to display on each IC summary row"><span class="summary-fields-label">IC fields</span><select class="summary-field-select" id="summary-field1" onchange="S.summaryField1=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 1"><option value="">Field 1…</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field2" onchange="S.summaryField2=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 2"><option value="">Field 2…</option></select><span style="font-size:0.7rem;color:#7c3aed;font-weight:700">+</span><select class="summary-field-select" id="summary-field3" onchange="S.summaryField3=this.value;if(S.managerMode)renderChart();persistState();" aria-label="IC summary field 3"><option value="">Field 3…</option></select></div><div class="tb-sep"></div>
       <input type="file" id="photo-folder-input" class="photo-folder-input" accept="image/*" multiple webkitdirectory/>
       <div class="bg-control-wrap" title="Pick which column value must match the photo filename (no extension)">
@@ -425,8 +445,11 @@ body{display:flex;flex-direction:column}
     <div class="filter-bar" id="filter-bar" style="display:none"></div>
     <div class="chart-canvas-wrap" id="chart-canvas-wrap">
       <div class="chart-canvas-content" id="chart-canvas-content">
+        <div class="grid-overlay" id="grid-overlay"></div>
+        <svg class="grid-svg" id="grid-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         <svg id="fro-svg" style="position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:2;display:block"></svg>
         <div class="org-tree" id="org-tree"></div>
+        <div id="org-grid"></div>
       </div>
     </div>
   </div>
@@ -532,7 +555,7 @@ const UNDO_MAX=40;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();},160);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);if(S.gridMode){renderGrid();applyGridLines();}},160);}}
 function handleFile(file){const ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>initData(r.data),error:e=>alert('CSV error: '+e.message)});}else if(['xlsx','xls'].includes(ext)){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'});initData(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}));};reader.readAsArrayBuffer(file);}else{alert('Please upload a CSV or Excel file.');}}
 function initData(rows){S.rawRows=rows;S.columns=rows.length?Object.keys(rows[0]):[];S.colSamples={};S.columns.forEach(col=>{S.colSamples[col]=[...new Set(rows.slice(0,25).map(r=>String(r[col]||'').trim()).filter(v=>v&&v!=='undefined'&&v!=='null'))].slice(0,3);});S.colMap=autoDetect(S.columns);S.undoStack=[];const persisted=loadPersisted();if(persisted&&persisted.sig===fileSig()&&applyPersisted(persisted)){buildViewData();buildFilterBar();renderChart();goTo('chart');showToast('Restored your previous session — Ctrl+Z undoes any change');return;}buildMapScreen();goTo('map');}
 
@@ -624,7 +647,7 @@ function mkKidsWrap(kids,depth){
   return wrap;
 }
 
-function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);}
+function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);if(S.gridMode)renderGrid();return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);if(S.gridMode)renderGrid();}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
   // ── FULL 4-side border color + per-card accent variable ──
@@ -976,6 +999,7 @@ function onCardDragStart(e){
 }
 function onCardDragOver(e){
   if(!S.draggingNodeId)return;
+  if(S.gridMode){return;}// In grid mode the cell handles the visual feedback
   const targetId=e.currentTarget.dataset.dragId;
   if(targetId===S.draggingNodeId)return;
   // Cannot reparent under own descendant (would create a cycle)
@@ -988,6 +1012,8 @@ function onCardDragLeave(e){
   e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
 }
 function onCardDrop(e){
+  // In grid mode, the cell handles the drop (repositioning, not reassigning)
+  if(S.gridMode){return;}
   e.preventDefault();
   e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
   const draggingId=S.draggingNodeId;if(!draggingId)return;
@@ -1118,6 +1144,9 @@ function persistState(){
         transparentExport:S.transparentExport,
         skipDepth:S.skipDepth,
         managerMode:S.managerMode,
+        gridMode:S.gridMode,
+        gridOverrides:S.gridOverrides,
+        gridShowLines:S.gridShowLines,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1289,6 +1318,184 @@ function openInsightsModal(){
   document.getElementById('insights-modal').classList.remove('hidden');
 }
 function closeInsightsModal(){document.getElementById('insights-modal').classList.add('hidden');}
+
+/* ════════════════════════════════════════════════════════════════════
+   PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
+   ════════════════════════════════════════════════════════════════════ */
+S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;
+function toggleGridMode(){
+  S.gridMode=!S.gridMode;
+  const content=document.getElementById('chart-canvas-content');
+  if(content)content.classList.toggle('grid-mode',S.gridMode);
+  document.getElementById('grid-mode-btn').classList.toggle('active',S.gridMode);
+  document.getElementById('grid-lines-btn').style.display=S.gridMode?'inline-flex':'none';
+  document.getElementById('grid-reset-btn').style.display=S.gridMode?'inline-flex':'none';
+  if(S.gridMode){renderGrid();applyGridLines();}else{document.getElementById('grid-overlay').classList.remove('visible');}
+  persistState();
+  showToast(S.gridMode?'Grid Mode on — drag any card to any cell':'Tree view restored');
+}
+function toggleGridLines(){
+  S.gridShowLines=!S.gridShowLines;
+  applyGridLines();
+  persistState();
+}
+function applyGridLines(){
+  const ov=document.getElementById('grid-overlay');if(!ov)return;
+  ov.classList.toggle('visible',S.gridMode&&S.gridShowLines);
+}
+function resetGridOverrides(){
+  if(!Object.keys(S.gridOverrides).length){showToast('Nothing to reset');return;}
+  if(!confirm('Reset all grid position overrides? Cards will return to auto-arrange by depth.'))return;
+  pushUndo();
+  S.gridOverrides={};
+  renderGrid();persistState();showToast('Grid auto-arranged',true);
+}
+function mkBareCard(node){
+  // Reuse mkNodeLI for full card fidelity. Temporarily suppress this node's
+  // children in S.childMap so mkNodeLI doesn't recursively build the full subtree
+  // (would be O(N^2) across the whole grid).
+  const orig=S.childMap[node.id];
+  S.childMap[node.id]=[];
+  const li=mkNodeLI(node,0);
+  S.childMap[node.id]=orig;
+  const card=li.querySelector('.node-card');
+  const cb=card?card.querySelector('.collapse-btn'):null;
+  if(cb)cb.remove();
+  return card;
+}
+function computeGridPositions(visibleNodes){
+  const positions={};
+  // Default: row = depth - skipDepth + 1, col = order within depth (left-to-right tree-order)
+  // BFS from roots to preserve tree ordering
+  const skip=S.skipDepth||0;
+  const roots=skip>0?visibleNodes.filter(n=>(S.nodeDepth[n.id]||0)===skip):(S.childMap['']||[]);
+  const rowsByDepth={};
+  const queue=[...roots];const seen=new Set();
+  while(queue.length){
+    const n=queue.shift();
+    if(seen.has(n.id))continue;seen.add(n.id);
+    const d=(S.nodeDepth[n.id]||0)-skip+1;
+    if(!rowsByDepth[d])rowsByDepth[d]=[];
+    rowsByDepth[d].push(n);
+    (S.childMap[n.id]||[]).forEach(k=>{if(visibleNodes.find(v=>v.id===k.id))queue.push(k);});
+  }
+  // Pick up any node that wasn't reached (e.g. orphan)
+  visibleNodes.forEach(n=>{if(!seen.has(n.id)){const d=(S.nodeDepth[n.id]||0)-skip+1;if(!rowsByDepth[d])rowsByDepth[d]=[];rowsByDepth[d].push(n);}});
+  Object.keys(rowsByDepth).sort((a,b)=>+a-+b).forEach(d=>{
+    rowsByDepth[d].forEach((n,i)=>{positions[n.id]={row:+d,col:i+1};});
+  });
+  // Apply overrides (but only for nodes still present)
+  Object.entries(S.gridOverrides).forEach(([id,pos])=>{
+    if(visibleNodes.find(n=>n.id===id)&&pos&&pos.row>=1&&pos.col>=1)positions[id]={row:pos.row,col:pos.col};
+  });
+  return positions;
+}
+function renderGrid(){
+  const grid=document.getElementById('org-grid');if(!grid)return;
+  grid.innerHTML='';
+  // Determine visible nodes (mirroring renderChart's logic)
+  let visible;
+  if(S.skipDepth>0){
+    // include all nodes at skipDepth and below (their descendants are also visible via tree)
+    visible=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)>=S.skipDepth);
+  }else{
+    visible=S.viewData.slice();
+  }
+  if(!visible.length){grid.innerHTML='<div class="no-data" style="margin:24px">No nodes to display.</div>';updateStats(visible);return;}
+  const positions=computeGridPositions(visible);
+  let maxCol=1,maxRow=1;
+  Object.values(positions).forEach(p=>{if(p.col>maxCol)maxCol=p.col;if(p.row>maxRow)maxRow=p.row;});
+  // Build cells: pre-create maxRow×maxCol grid of empty cells (drop targets), then fill in occupied ones
+  grid.style.gridTemplateColumns='repeat('+(maxCol+2)+',280px)';
+  grid.style.gridTemplateRows='repeat('+(maxRow+1)+',minmax(200px,auto))';
+  const occupied={};Object.entries(positions).forEach(([id,p])=>{occupied[p.row+'_'+p.col]=id;});
+  for(let r=1;r<=maxRow+1;r++){
+    for(let c=1;c<=maxCol+2;c++){
+      const cell=document.createElement('div');
+      cell.className='grid-cell';
+      cell.dataset.row=r;cell.dataset.col=c;
+      cell.style.gridRow=r;cell.style.gridColumn=c;
+      bindGridCellDND(cell);
+      const occId=occupied[r+'_'+c];
+      if(occId){const n=visible.find(v=>v.id===occId);if(n){const card=mkBareCard(n);cell.appendChild(card);cell.dataset.id=occId;}}
+      grid.appendChild(cell);
+    }
+  }
+  drawGridConnectors(positions,visible);
+  updateStats(visible);
+  setTimeout(fitToScreen,160);
+}
+function bindGridCellDND(cell){
+  cell.addEventListener('dragover',e=>{
+    if(!S.draggingNodeId||!S.gridMode)return;
+    e.preventDefault();e.dataTransfer.dropEffect='move';
+    cell.classList.add('drop-target-cell');
+  });
+  cell.addEventListener('dragleave',()=>cell.classList.remove('drop-target-cell','drop-target-cell-bad'));
+  cell.addEventListener('drop',e=>{
+    cell.classList.remove('drop-target-cell','drop-target-cell-bad');
+    if(!S.gridMode||!S.draggingNodeId)return;
+    e.preventDefault();e.stopPropagation();
+    const draggedId=S.draggingNodeId;
+    const newRow=parseInt(cell.dataset.row),newCol=parseInt(cell.dataset.col);
+    // If cell is occupied by another card, swap positions
+    const occupantId=cell.dataset.id;
+    pushUndo();
+    if(occupantId&&occupantId!==draggedId){
+      // swap: dragged → cell's coords; occupant → dragged's old coords
+      const draggedOld=S.gridOverrides[draggedId]||findAutoPos(draggedId);
+      S.gridOverrides[draggedId]={row:newRow,col:newCol};
+      if(draggedOld)S.gridOverrides[occupantId]={row:draggedOld.row,col:draggedOld.col};
+    }else{
+      S.gridOverrides[draggedId]={row:newRow,col:newCol};
+    }
+    S.draggingNodeId=null;
+    renderGrid();persistState();
+    showToast('Card repositioned',true);
+  });
+}
+function findAutoPos(id){
+  const visible=S.viewData;const positions=computeGridPositions(visible);
+  // Strip overrides for this id to get the natural pos
+  const tmp={...S.gridOverrides};delete tmp[id];
+  const orig=S.gridOverrides;S.gridOverrides=tmp;
+  const p=computeGridPositions(visible)[id];
+  S.gridOverrides=orig;
+  return p||null;
+}
+function drawGridConnectors(positions,visible){
+  const svg=document.getElementById('grid-svg');if(!svg)return;
+  svg.innerHTML='';
+  const grid=document.getElementById('org-grid');if(!grid)return;
+  const gRect=grid.getBoundingClientRect();
+  // Use an SVG sized to the grid
+  svg.setAttribute('width',(grid.scrollWidth||grid.offsetWidth)+'px');
+  svg.setAttribute('height',(grid.scrollHeight||grid.offsetHeight)+'px');
+  svg.style.left=grid.offsetLeft+'px';
+  svg.style.top=grid.offsetTop+'px';
+  // For each visible node with a manager that's also visible, draw a connector
+  const byId=Object.fromEntries(visible.map(n=>[n.id,n]));
+  visible.forEach(n=>{
+    if(!n.manager||!byId[n.manager])return;
+    const childCell=grid.querySelector('[data-row="'+positions[n.id].row+'"][data-col="'+positions[n.id].col+'"]');
+    const parentPos=positions[n.manager];if(!parentPos)return;
+    const parentCell=grid.querySelector('[data-row="'+parentPos.row+'"][data-col="'+parentPos.col+'"]');
+    if(!childCell||!parentCell)return;
+    const cc=childCell.querySelector('.node-card'),pc=parentCell.querySelector('.node-card');
+    if(!cc||!pc)return;
+    const cr=cc.getBoundingClientRect(),pr=pc.getBoundingClientRect();
+    const x1=(pr.left+pr.width/2-gRect.left)/S.zoom;
+    const y1=(pr.bottom-gRect.top)/S.zoom;
+    const x2=(cr.left+cr.width/2-gRect.left)/S.zoom;
+    const y2=(cr.top-gRect.top)/S.zoom;
+    const midY=(y1+y2)/2;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+x1+' '+y1+' C '+x1+' '+midY+', '+x2+' '+midY+', '+x2+' '+y2);
+    path.setAttribute('stroke','#94a3b8');path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');path.setAttribute('opacity','0.7');
+    svg.appendChild(path);
+  });
+}
 function applyPersisted(d){
   if(!d)return false;
   // Validate that saved colMap columns still exist in the current file
@@ -1315,6 +1522,9 @@ function applyPersisted(d){
   S.transparentExport=!!d.transparentExport;
   S.skipDepth=d.skipDepth||0;
   S.managerMode=!!d.managerMode;
+  S.gridMode=!!d.gridMode;
+  S.gridOverrides=d.gridOverrides||{};
+  S.gridShowLines=d.gridShowLines!==false;
   buildEmpTypeMap();
   return true;
 }
