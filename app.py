@@ -301,6 +301,27 @@ body{display:flex;flex-direction:column}
 .map-hint.warn{color:#b45309;font-weight:600}
 .map-hint.err{color:var(--danger);font-weight:600}
 .map-hint.ok{color:#059669;font-weight:600}
+/* ── Orientation: horizontal (left-right) tree layout ── */
+.chart-canvas-content.horizontal-layout #org-tree ul{padding-top:0!important;padding-left:36px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;flex-wrap:nowrap!important}
+.chart-canvas-content.horizontal-layout #org-tree li{display:flex!important;flex-direction:row!important;align-items:center!important;padding:8px 0 8px 36px!important;text-align:left!important;vertical-align:middle!important;position:relative}
+/* Disable the default vertical-tree connectors */
+.chart-canvas-content.horizontal-layout #org-tree li::before,
+.chart-canvas-content.horizontal-layout #org-tree li::after{border:none!important;width:auto!important;height:auto!important;top:auto!important;right:auto!important;border-radius:0!important}
+/* Horizontal arm + vertical trunk: rebuilt via the same pseudo-elements */
+.chart-canvas-content.horizontal-layout #org-tree li::before{display:block!important;content:''!important;position:absolute!important;left:0!important;top:50%!important;width:36px!important;height:0!important;border-top:2px solid #cbd5e1!important}
+.chart-canvas-content.horizontal-layout #org-tree li::after{display:block!important;content:''!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;height:100%!important;border-left:2px solid #cbd5e1!important;width:0!important}
+.chart-canvas-content.horizontal-layout #org-tree li:first-child::after{top:50%!important;height:50%!important;bottom:0!important}
+.chart-canvas-content.horizontal-layout #org-tree li:last-child::after{top:0!important;bottom:50%!important;height:50%!important}
+.chart-canvas-content.horizontal-layout #org-tree li:only-child::after{display:none!important}
+.chart-canvas-content.horizontal-layout #org-tree ul ul::before{display:none!important}
+.chart-canvas-content.horizontal-layout .children-rows-wrap{flex-direction:column!important;padding-top:0!important;padding-left:36px!important;align-items:flex-start!important;gap:6px!important}
+.chart-canvas-content.horizontal-layout .children-rows-wrap::before{display:none!important}
+.chart-canvas-content.horizontal-layout .children-row-ul{flex-direction:column!important;padding-top:0!important;padding-left:36px!important}
+.chart-canvas-content.horizontal-layout .children-row-ul.row-cont{padding-top:8px!important;padding-left:36px!important;border-top:none!important;border-left:1.5px dashed #cbd5e1!important;margin-top:0!important;margin-left:6px!important}
+.chart-canvas-content.horizontal-layout .children-row-ul.row-cont::after{top:50%!important;left:-9px!important;transform:translateY(-50%)!important}
+.orient-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.orient-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.orient-btn.horizontal{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 /* ── Grid Mode (Phase 9) ── */
 .chart-canvas-content.grid-mode #org-tree{display:none}
 .chart-canvas-content.grid-mode #fro-svg{display:none}
@@ -313,6 +334,13 @@ body{display:flex;flex-direction:column}
 .chart-canvas-content.grid-mode .grid-overlay.visible{display:block}
 .grid-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:1;display:none}
 .chart-canvas-content.grid-mode .grid-svg{display:block}
+/* Person-View grid mirror */
+#pv-org-grid{display:none;position:relative;padding:32px}
+.pv-tree-content.grid-mode #pv-org-tree{display:none}
+.pv-tree-content.grid-mode #pv-fro-svg{display:none}
+.pv-tree-content.grid-mode #pv-org-grid{display:grid;grid-auto-rows:minmax(200px,auto);gap:80px 24px;justify-content:start}
+.pv-tree-content.grid-mode #pv-grid-svg{display:block}
+#pv-org-grid .grid-cell{width:280px;display:flex;align-items:flex-start;justify-content:center;position:relative;min-height:180px}
 .grid-mode-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
 .grid-mode-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
 .grid-mode-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
@@ -436,7 +464,8 @@ body{display:flex;flex-direction:column}
       <div class="fro-legend" id="fro-legend" style="display:none"><span class="fro-legend-line"></span>FRO line</div>
       <button class="dq-toolbar-btn" id="dq-btn" onclick="openDataQualityModal()" title="Data quality issues found in your roster (duplicates, cycles, orphans)" style="display:none">⚠ <span id="dq-count">0</span> issues</button>
       <button class="btn btn-ghost btn-sm" onclick="openInsightsModal()" title="Org-design insights (span-of-control outliers, depth, single-report managers)" id="insights-btn">💡 Insights</button>
-      <button class="btn btn-ghost btn-sm" onclick="window.print()" title="Print or save the current chart as PDF (uses browser Print → Landscape A3)">🖨 Print</button>
+      <button class="orient-btn" id="orient-btn" onclick="toggleOrientation()" title="Switch chart between Vertical (top-down, default) and Horizontal (left-to-right) tree layout">↕ Vertical</button>
+      <button class="btn btn-ghost btn-sm" onclick="printA3()" title="Print or save as A3-landscape PDF — opens a print-ready preview window with the right paper size baked in">🖨 Print A3</button>
       <div class="tb-sep"></div>
       <div style="flex:1"></div>
       <div id="root-drop-zone" title="Drop a card here to make it a root (no manager)">⬆ Drop here to make root</div>
@@ -516,15 +545,19 @@ body{display:flex;flex-direction:column}
         <div class="tb-sep"></div>
         <div class="zoom-strip"><button class="btn-zoom" onclick="pvZoomBy(-0.1)">−</button><span class="zoom-label" id="pv-zoom-level">100%</span><button class="btn-zoom" onclick="pvZoomBy(0.1)">+</button><button class="btn-zoom" onclick="pvFit()" title="Fit">⊡</button></div>
         <div class="tb-sep"></div>
-        <button class="btn btn-ghost btn-sm" onclick="locatePersonOnChart()">📌 Locate</button>
-        <button class="btn btn-ghost btn-sm" onclick="exportPVPNG()">📸 PNG</button>
-        <button class="modal-close" onclick="closePV()" style="font-size:1.2rem;margin-left:4px">✕</button>
+        <button class="grid-mode-btn" id="pv-grid-btn" onclick="togglePVGrid()" title="Grid mode for this person's subtree — auto-arrange by depth, drag any card to any cell"><div class="grid-mode-dot"></div>Grid</button>
+        <button class="btn btn-ghost btn-sm" onclick="printPVA3()" title="Print or save this person's chart as A3 landscape PDF">🖨 A3</button>
+        <button class="btn btn-ghost btn-sm" onclick="locatePersonOnChart()" title="Close this view and highlight the person on the main chart">📌 Locate</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportPVPNG()" title="Save this view as a PNG image">📸 PNG</button>
+        <button class="modal-close" onclick="closePV()" style="font-size:1.2rem;margin-left:4px" aria-label="Close Person View">✕</button>
       </div>
     </div>
     <div class="pv-chart-area" id="pv-chart-area">
       <div class="pv-tree-content" id="pv-tree-content">
+        <svg class="grid-svg" id="pv-grid-svg" xmlns="http://www.w3.org/2000/svg"></svg>
         <svg id="pv-fro-svg" style="position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:2;display:block"></svg>
         <div class="org-tree" id="pv-org-tree"></div>
+        <div id="pv-org-grid"></div>
       </div>
     </div>
   </div>
@@ -574,7 +607,7 @@ const UNDO_MAX=40;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);if(S.gridMode){renderGrid();applyGridLines();}},160);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();if(S.gridMode){renderGrid();applyGridLines();}},160);}}
 function handleFile(file){
   try{
     const ext=(file.name.split('.').pop()||'').toLowerCase();
@@ -988,6 +1021,146 @@ function initPVPan(){const area=document.getElementById('pv-chart-area');if(!are
 
 function locatePersonOnChart(){if(!S.pvPersonId)return;closePV();setTimeout(()=>highlightNode(S.pvPersonId),80);}
 
+/* ── Person View Grid Mode ── */
+S.pvGridMode=false;S.pvGridOverrides={};
+function togglePVGrid(){
+  S.pvGridMode=!S.pvGridMode;
+  document.getElementById('pv-grid-btn').classList.toggle('active',S.pvGridMode);
+  const tc=document.getElementById('pv-tree-content');
+  if(tc)tc.classList.toggle('grid-mode',S.pvGridMode);
+  if(S.pvGridMode)renderPVGrid();
+  else {
+    // restore tree view
+    if(S.pvPersonId)renderPersonView(S.pvPersonId,S.pvDepth);
+  }
+}
+function renderPVGrid(){
+  if(!S.pvPersonId)return;
+  const{allNodes,childMap,byId}=buildRawChildMap();
+  // Collect subtree nodes within current depth
+  const included=new Set();
+  function collect(id,d){if(included.has(id))return;included.add(id);if(d<S.pvDepth)(childMap[id]||[]).forEach(k=>collect(k.id,d+1));}
+  collect(S.pvPersonId,0);
+  const visibleNodes=allNodes.filter(n=>included.has(n.id));
+  // Make personId the root (clear manager)
+  const personNode=byId[S.pvPersonId];const savedMgr=personNode?personNode.manager:undefined;if(personNode)personNode.manager='';
+  // Compute depth from root for each subtree node
+  const depth={};const queue=[{id:S.pvPersonId,d:0}];const seen=new Set();
+  while(queue.length){const{id,d}=queue.shift();if(seen.has(id))continue;seen.add(id);depth[id]=d;(childMap[id]||[]).filter(k=>included.has(k.id)).forEach(k=>queue.push({id:k.id,d:d+1}));}
+  // Auto positions: row = depth+1, col = order in BFS within depth
+  const rowsByDepth={};
+  Object.entries(depth).sort((a,b)=>a[1]-b[1]).forEach(([id,d])=>{if(!rowsByDepth[d])rowsByDepth[d]=[];rowsByDepth[d].push(byId[id]);});
+  const positions={};
+  Object.keys(rowsByDepth).sort((a,b)=>+a-+b).forEach(d=>{rowsByDepth[d].forEach((n,i)=>{positions[n.id]={row:+d+1,col:i+1};});});
+  // Apply per-PV overrides
+  Object.entries(S.pvGridOverrides).forEach(([id,pos])=>{if(visibleNodes.find(v=>v.id===id))positions[id]={row:pos.row,col:pos.col};});
+  let maxCol=1,maxRow=1;Object.values(positions).forEach(p=>{if(p.col>maxCol)maxCol=p.col;if(p.row>maxRow)maxRow=p.row;});
+  // Render into #pv-org-grid using mkBareCard. We swap S.viewData/childMap temporarily so mkBareCard works.
+  const sv=S.viewData,scm=S.childMap,sdc=S.descCount,snh=S.nodeHeight,snd=S.nodeDepth,spv=S.pvMode;
+  S.pvMode=true;S.viewData=visibleNodes;S.childMap={};
+  visibleNodes.forEach(n=>{const m=(n.id===S.pvPersonId)?'':n.manager;if(!S.childMap[m])S.childMap[m]=[];S.childMap[m].push(n);});
+  S.descCount={};S.nodeHeight={};S.nodeDepth={};
+  function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}
+  function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
+  cD(S.pvPersonId);cH(S.pvPersonId);
+  Object.assign(S.nodeDepth,depth);
+  const grid=document.getElementById('pv-org-grid');grid.innerHTML='';
+  grid.style.gridTemplateColumns='repeat('+(maxCol+2)+',280px)';
+  grid.style.gridTemplateRows='repeat('+(maxRow+1)+',minmax(200px,auto))';
+  const occupied={};Object.entries(positions).forEach(([id,p])=>{occupied[p.row+'_'+p.col]=id;});
+  for(let r=1;r<=maxRow+1;r++){
+    for(let c=1;c<=maxCol+2;c++){
+      const cell=document.createElement('div');cell.className='grid-cell';
+      cell.dataset.row=r;cell.dataset.col=c;
+      cell.style.gridRow=r;cell.style.gridColumn=c;
+      bindPVGridCellDND(cell);
+      const occId=occupied[r+'_'+c];
+      if(occId){const n=visibleNodes.find(v=>v.id===occId);if(n){const card=mkBareCard(n);cell.appendChild(card);cell.dataset.id=occId;}}
+      grid.appendChild(cell);
+    }
+  }
+  // Connectors via SVG
+  drawPVGridConnectors(positions,visibleNodes);
+  // Restore S
+  if(personNode&&savedMgr!==undefined)personNode.manager=savedMgr;
+  S.viewData=sv;S.childMap=scm;S.descCount=sdc;S.nodeHeight=snh;S.nodeDepth=snd;S.pvMode=spv;
+  setTimeout(pvFit,160);
+}
+function bindPVGridCellDND(cell){
+  cell.addEventListener('dragover',e=>{if(!S.draggingNodeId||!S.pvGridMode)return;e.preventDefault();e.dataTransfer.dropEffect='move';cell.classList.add('drop-target-cell');});
+  cell.addEventListener('dragleave',()=>cell.classList.remove('drop-target-cell'));
+  cell.addEventListener('drop',e=>{
+    cell.classList.remove('drop-target-cell');
+    if(!S.pvGridMode||!S.draggingNodeId)return;
+    e.preventDefault();e.stopPropagation();
+    const draggedId=S.draggingNodeId;
+    const newRow=parseInt(cell.dataset.row),newCol=parseInt(cell.dataset.col);
+    const occupantId=cell.dataset.id;
+    if(occupantId&&occupantId!==draggedId){
+      // swap
+      const draggedOld=S.pvGridOverrides[draggedId];
+      S.pvGridOverrides[draggedId]={row:newRow,col:newCol};
+      if(draggedOld)S.pvGridOverrides[occupantId]={row:draggedOld.row,col:draggedOld.col};
+    }else{
+      S.pvGridOverrides[draggedId]={row:newRow,col:newCol};
+    }
+    S.draggingNodeId=null;
+    renderPVGrid();
+    showToast('Card repositioned in this view');
+  });
+}
+function drawPVGridConnectors(positions,visible){
+  const svg=document.getElementById('pv-grid-svg');if(!svg)return;svg.innerHTML='';
+  const grid=document.getElementById('pv-org-grid');if(!grid)return;
+  svg.setAttribute('width',(grid.scrollWidth||grid.offsetWidth)+'px');
+  svg.setAttribute('height',(grid.scrollHeight||grid.offsetHeight)+'px');
+  svg.style.left=grid.offsetLeft+'px';svg.style.top=grid.offsetTop+'px';
+  const gRect=grid.getBoundingClientRect();
+  const byId=Object.fromEntries(visible.map(n=>[n.id,n]));
+  visible.forEach(n=>{
+    if(!n.manager||!byId[n.manager])return;
+    const childCell=grid.querySelector('[data-row="'+positions[n.id].row+'"][data-col="'+positions[n.id].col+'"]');
+    const pPos=positions[n.manager];if(!pPos)return;
+    const parentCell=grid.querySelector('[data-row="'+pPos.row+'"][data-col="'+pPos.col+'"]');
+    if(!childCell||!parentCell)return;
+    const cc=childCell.querySelector('.node-card'),pc=parentCell.querySelector('.node-card');
+    if(!cc||!pc)return;
+    const cr=cc.getBoundingClientRect(),pr=pc.getBoundingClientRect();
+    const x1=(pr.left+pr.width/2-gRect.left)/S.pvZoom;
+    const y1=(pr.bottom-gRect.top)/S.pvZoom;
+    const x2=(cr.left+cr.width/2-gRect.left)/S.pvZoom;
+    const y2=(cr.top-gRect.top)/S.pvZoom;
+    const midY=(y1+y2)/2;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+x1+' '+y1+' C '+x1+' '+midY+', '+x2+' '+midY+', '+x2+' '+y2);
+    path.setAttribute('stroke','#94a3b8');path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');path.setAttribute('opacity','0.7');
+    svg.appendChild(path);
+  });
+}
+async function printPVA3(){
+  if(!S.pvPersonId){alert('No person view open.');return;}
+  const overlay=makeOverlay('Preparing A3 PDF…','Capturing this person\'s view');document.body.appendChild(overlay);
+  try{
+    const target=S.pvGridMode?document.getElementById('pv-org-grid'):document.getElementById('pv-tree-content');
+    const wasTransform=target.style.transform;target.style.transform='scale(1)';
+    await new Promise(r=>setTimeout(r,250));
+    const canvas=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true});
+    target.style.transform=wasTransform;
+    const dataUrl=canvas.toDataURL('image/png');
+    const w=window.open('','_blank','width=1400,height=900');
+    if(!w){alert('Pop-up blocked.');return;}
+    w.document.open();
+    w.document.write('<!DOCTYPE html><html><head><title>Person View — A3 Print</title>'+
+      '<style>@page{size:A3 landscape;margin:6mm}html,body{margin:0;padding:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}body{display:flex;flex-direction:column;align-items:center;padding:18px}.print-bar{display:flex;gap:10px;margin-bottom:10px}.print-bar button{padding:9px 16px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer}.print-bar .hint{font-size:12px;color:#64748b;align-self:center}img{max-width:100%;display:block}@media print{body{padding:0;display:block}.print-bar{display:none!important}img{width:100%;height:auto}}</style></head><body>'+
+      '<div class="print-bar"><button onclick="window.print()">🖨 Print / Save as PDF</button><span class="hint">A3 landscape</span></div>'+
+      '<img src="'+dataUrl+'" alt="Person View"/>'+
+      '<script>window.addEventListener(\'load\',function(){setTimeout(function(){try{window.print();}catch(_){}}, 350);});<\/script>'+
+      '</body></html>');
+    w.document.close();
+  }catch(e){console.error(e);alert('Print failed: '+e.message);}finally{overlay.remove();}
+}
+
 async function exportPVPNG(){
   if(!S.pvPersonId)return;
   const overlay=makeOverlay('Exporting Person View...','');document.body.appendChild(overlay);
@@ -1226,6 +1399,7 @@ function persistState(){
         gridMode:S.gridMode,
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
+        orientation:S.orientation,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1321,7 +1495,8 @@ function dqIssueCount(i){return(i.duplicates.length+i.selfRef.length+i.cycles.le
 function refreshDataQualityBtn(){
   const issues=validateData();const n=dqIssueCount(issues);
   const btn=document.getElementById('dq-btn');if(!btn)return;
-  if(n>0){btn.style.display='inline-flex';btn.classList.remove('clean');document.getElementById('dq-count').textContent=n;}
+  // Always rewrite innerHTML so we don't depend on a child #dq-count surviving prior swaps
+  if(n>0){btn.style.display='inline-flex';btn.classList.remove('clean');btn.innerHTML='⚠ <span id="dq-count">'+n+'</span> issues';}
   else{btn.style.display='inline-flex';btn.classList.add('clean');btn.innerHTML='✓ Data clean';}
 }
 function openDataQualityModal(){
@@ -1401,7 +1576,70 @@ function closeInsightsModal(){document.getElementById('insights-modal').classLis
 /* ════════════════════════════════════════════════════════════════════
    PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
    ════════════════════════════════════════════════════════════════════ */
-S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;
+S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.orientation='vertical';
+function toggleOrientation(){
+  S.orientation=(S.orientation==='vertical')?'horizontal':'vertical';
+  applyOrientation();persistState();
+  showToast('Layout: '+(S.orientation==='vertical'?'Vertical (top-down)':'Horizontal (left-to-right)'));
+  // FRO lines need recompute after layout change
+  setTimeout(renderFROLines,400);
+}
+function applyOrientation(){
+  const cc=document.getElementById('chart-canvas-content');if(!cc)return;
+  cc.classList.toggle('horizontal-layout',S.orientation==='horizontal');
+  const btn=document.getElementById('orient-btn');
+  if(btn){btn.classList.toggle('horizontal',S.orientation==='horizontal');btn.innerHTML=(S.orientation==='horizontal'?'↔ Horizontal':'↕ Vertical');}
+  setTimeout(()=>{try{fitToScreen(true);}catch(_){/*noop*/}},120);
+}
+async function printA3(){
+  const overlay=makeOverlay('Preparing A3 PDF…','Rendering chart at high resolution');
+  document.body.appendChild(overlay);
+  const savedZoom=S.zoom;applyZoom(1);
+  await new Promise(r=>setTimeout(r,140));
+  let stage=null,canvas=null;
+  try{
+    if(S.gridMode){
+      const grid=document.getElementById('org-grid');
+      const wasTransform=grid.style.transform;grid.style.transform='scale(1)';
+      await new Promise(r=>setTimeout(r,200));
+      canvas=await html2canvas(grid,{backgroundColor:S.transparentExport?null:S.chartBgColor,scale:2,useCORS:true,logging:false,allowTaint:true});
+      grid.style.transform=wasTransform;
+    }else{
+      stage=await buildRenderStage();
+      canvas=await renderToCanvas(stage);
+    }
+    const dataUrl=canvas.toDataURL('image/png');
+    const w=window.open('','_blank','width=1400,height=900');
+    if(!w){alert('Pop-up blocked. Allow pop-ups for this site and try again.');return;}
+    const stamp=new Date().toLocaleDateString();
+    w.document.open();
+    w.document.write(
+      '<!DOCTYPE html><html><head><title>Org Chart — A3 Print</title>'+
+      '<style>'+
+      '@page{size:A3 landscape;margin:6mm}'+
+      'html,body{margin:0;padding:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}'+
+      'body{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:18px}'+
+      '.print-bar{display:flex;gap:10px;align-items:center;margin-bottom:10px}'+
+      '.print-bar button{padding:9px 16px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px}'+
+      '.print-bar button:hover{background:#4338ca}'+
+      '.print-bar .hint{font-size:12px;color:#64748b}'+
+      'img{max-width:100%;display:block;object-fit:contain}'+
+      '@media print{body{padding:0;display:block}.print-bar{display:none!important}img{width:100%;height:auto;max-height:none;page-break-inside:avoid}}'+
+      '</style></head><body>'+
+      '<div class="print-bar"><button onclick="window.print()">🖨 Print / Save as PDF</button>'+
+      '<span class="hint">Paper preset: <b>A3 landscape</b>. In the print dialog, choose "Save as PDF" or your printer.</span></div>'+
+      '<img src="'+dataUrl+'" alt="Org Chart"/>'+
+      '<script>window.addEventListener(\'load\',function(){setTimeout(function(){try{window.print();}catch(_){}}, 350);});<\/script>'+
+      '</body></html>'
+    );
+    w.document.close();
+  }catch(e){console.error(e);alert('Print failed: '+e.message);}
+  finally{
+    if(stage&&stage.wrapper)stage.wrapper.remove();
+    overlay.remove();
+    applyZoom(savedZoom);
+  }
+}
 function toggleGridMode(){
   S.gridMode=!S.gridMode;
   const content=document.getElementById('chart-canvas-content');
@@ -1604,6 +1842,7 @@ function applyPersisted(d){
   S.gridMode=!!d.gridMode;
   S.gridOverrides=d.gridOverrides||{};
   S.gridShowLines=d.gridShowLines!==false;
+  S.orientation=d.orientation==='horizontal'?'horizontal':'vertical';
   buildEmpTypeMap();
   return true;
 }
@@ -1618,21 +1857,21 @@ _bind('photo-folder-input','change',function(e){if(e.target.files.length)loadFro
    a smoke test that the upload pipeline is working. */
 function loadDemoData(){
   const rows=[
-    {EmpID:'E001',Name:'Alex Rivera',ManagerID:'',Department:'Executive',Title:'CEO'},
-    {EmpID:'E002',Name:'Priya Shah',ManagerID:'E001',Department:'Engineering',Title:'VP Engineering'},
-    {EmpID:'E003',Name:'Marcus Liu',ManagerID:'E001',Department:'Sales',Title:'VP Sales'},
-    {EmpID:'E004',Name:'Sara Okafor',ManagerID:'E001',Department:'People',Title:'VP People'},
-    {EmpID:'E005',Name:'Diego Fernández',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
-    {EmpID:'E006',Name:'Yuki Tanaka',ManagerID:'E002',Department:'Engineering',Title:'Eng Manager'},
-    {EmpID:'E007',Name:'Aanya Mehta',ManagerID:'E005',Department:'Engineering',Title:'Senior Engineer'},
-    {EmpID:'E008',Name:'Tom Becker',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
-    {EmpID:'E009',Name:'Rina Patel',ManagerID:'E005',Department:'Engineering',Title:'Engineer'},
-    {EmpID:'E010',Name:'Hari Sundar',ManagerID:'E006',Department:'Engineering',Title:'Senior Engineer'},
-    {EmpID:'E011',Name:'Jane Park',ManagerID:'E006',Department:'Engineering',Title:'Engineer'},
-    {EmpID:'E012',Name:'Lucas Brown',ManagerID:'E003',Department:'Sales',Title:'Sales Manager'},
-    {EmpID:'E013',Name:'Eva Stone',ManagerID:'E012',Department:'Sales',Title:'AE'},
-    {EmpID:'E014',Name:'Omar Hassan',ManagerID:'E012',Department:'Sales',Title:'AE'},
-    {EmpID:'E015',Name:'Maya Chen',ManagerID:'E004',Department:'People',Title:'Recruiter'}
+    {'Employee ID':'E001','Employee Name':'Alex Rivera','Manager ID':'',Department:'Executive',Title:'CEO'},
+    {'Employee ID':'E002','Employee Name':'Priya Shah','Manager ID':'E001',Department:'Engineering',Title:'VP Engineering'},
+    {'Employee ID':'E003','Employee Name':'Marcus Liu','Manager ID':'E001',Department:'Sales',Title:'VP Sales'},
+    {'Employee ID':'E004','Employee Name':'Sara Okafor','Manager ID':'E001',Department:'People',Title:'VP People'},
+    {'Employee ID':'E005','Employee Name':'Diego Fernández','Manager ID':'E002',Department:'Engineering',Title:'Eng Manager'},
+    {'Employee ID':'E006','Employee Name':'Yuki Tanaka','Manager ID':'E002',Department:'Engineering',Title:'Eng Manager'},
+    {'Employee ID':'E007','Employee Name':'Aanya Mehta','Manager ID':'E005',Department:'Engineering',Title:'Senior Engineer'},
+    {'Employee ID':'E008','Employee Name':'Tom Becker','Manager ID':'E005',Department:'Engineering',Title:'Engineer'},
+    {'Employee ID':'E009','Employee Name':'Rina Patel','Manager ID':'E005',Department:'Engineering',Title:'Engineer'},
+    {'Employee ID':'E010','Employee Name':'Hari Sundar','Manager ID':'E006',Department:'Engineering',Title:'Senior Engineer'},
+    {'Employee ID':'E011','Employee Name':'Jane Park','Manager ID':'E006',Department:'Engineering',Title:'Engineer'},
+    {'Employee ID':'E012','Employee Name':'Lucas Brown','Manager ID':'E003',Department:'Sales',Title:'Sales Manager'},
+    {'Employee ID':'E013','Employee Name':'Eva Stone','Manager ID':'E012',Department:'Sales',Title:'AE'},
+    {'Employee ID':'E014','Employee Name':'Omar Hassan','Manager ID':'E012',Department:'Sales',Title:'AE'},
+    {'Employee ID':'E015','Employee Name':'Maya Chen','Manager ID':'E004',Department:'People',Title:'Recruiter'}
   ];
   initData(rows);
 }
