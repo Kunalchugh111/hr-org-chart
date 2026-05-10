@@ -170,7 +170,7 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
-/* ── Compact mode: shrink cards + tighter spacing for max density ── */
+/* ── Compact mode: shrink cards + flat grid-by-depth layout that fills width ── */
 body.compact-mode .node-card{width:208px!important}
 body.compact-mode .ncard-body{padding:9px 11px 8px!important}
 body.compact-mode .ncard-header,body.compact-mode .ncard-footer{padding:4px 8px!important}
@@ -179,10 +179,19 @@ body.compact-mode .ncard-sub{font-size:0.66rem!important;-webkit-line-clamp:1!im
 body.compact-mode .ncard-body-b1{font-size:0.62rem!important;padding-top:3px!important;margin-top:3px!important}
 body.compact-mode .ncard-slot{font-size:0.56rem!important}
 body.compact-mode .ncard-photo,body.compact-mode .ncard-photo-fallback{width:54px!important;height:54px!important;font-size:14px!important}
-body.compact-mode .org-tree li{padding:18px 4px 0 4px!important}
-body.compact-mode .org-tree ul{padding-top:18px!important}
-body.compact-mode .org-tree li::before,body.compact-mode .org-tree li::after,body.compact-mode .org-tree ul ul::before{height:18px!important}
 body.compact-mode .summary-list-card{width:188px!important}
+/* Flat layout (rendered by renderCompactLayout): each depth becomes a wrapping
+   row of cards, gaps tighten so cards visually fill all horizontal space. */
+.org-tree.compact-flat{display:flex!important;flex-direction:column!important;gap:48px!important;padding:24px 12px!important;align-items:flex-start!important}
+.org-tree.compact-flat .compact-depth-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:flex-start;align-items:flex-start;width:100%;position:relative}
+.org-tree.compact-flat .compact-depth-row.row-cap{max-width:none}
+.org-tree.compact-flat .compact-depth-row .node-card,
+.org-tree.compact-flat .compact-depth-row .summary-list-card{position:relative}
+.org-tree.compact-flat .compact-depth-label{position:absolute;left:-2px;top:-22px;font-size:0.62rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em}
+.chart-canvas-content.has-compact #fro-svg,
+.chart-canvas-content.has-compact #org-tree li::before,
+.chart-canvas-content.has-compact #org-tree li::after,
+.chart-canvas-content.has-compact #org-tree ul ul::before{display:none!important}
 .compact-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;flex-shrink:0}
 .compact-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
 .compact-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
@@ -794,7 +803,111 @@ function mkKidsWrap(kids,depth){
   return wrap;
 }
 
-function renderChart(){const tree=document.getElementById('org-tree');tree.innerHTML='';const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;let roots;if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}else{roots=S.childMap['']||[];}if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}const ul=document.createElement('ul');roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));tree.appendChild(ul);updateStats(roots);clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}}
+function renderChart(){
+  const tree=document.getElementById('org-tree');
+  const cc=document.getElementById('chart-canvas-content');
+  tree.innerHTML='';
+  tree.classList.remove('compact-flat');
+  if(cc)cc.classList.remove('has-compact');
+  const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;
+  if(S.compact){renderCompactLayout();}else{
+    let roots;
+    if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}
+    else{roots=S.childMap['']||[];}
+    if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}
+    const ul=document.createElement('ul');
+    roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
+    tree.appendChild(ul);
+    updateStats(roots);
+    clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
+    clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);
+  }
+  if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}
+  else if(S.compact){setTimeout(()=>{redrawCompactConnectors();},250);}
+}
+function renderCompactLayout(){
+  const tree=document.getElementById('org-tree');
+  const cc=document.getElementById('chart-canvas-content');
+  if(cc)cc.classList.add('has-compact');
+  tree.classList.add('compact-flat');
+  // Group visible nodes by depth (relative to skipDepth). In Manager View, leaves
+  // are folded into the IC-summary card under their manager — so skip individual
+  // cards for leaves to avoid duplication.
+  const minD=S.skipDepth||0;const byDepth={};
+  S.viewData.forEach(n=>{
+    const d=(S.nodeDepth[n.id]||0)-minD;if(d<0)return;
+    if(S.managerMode&&!isManager(n.id))return;
+    if(!byDepth[d])byDepth[d]=[];byDepth[d].push(n);
+  });
+  const sortedDepths=Object.keys(byDepth).sort((a,b)=>+a-+b);
+  if(!sortedDepths.length){tree.innerHTML='<div class="no-data">No nodes to display.</div>';updateStats([]);return;}
+  // Per-row cap: 'auto' = no cap (let row fill width), number = cap row width
+  const cap=(S.maxPerRow==='auto')?null:parseInt(S.maxPerRow);
+  // For Manager View we also append IC summary cards per manager at depth+1
+  sortedDepths.forEach(d=>{
+    const row=document.createElement('div');
+    row.className='compact-depth-row'+(cap?' row-cap':'');
+    row.dataset.depth=d;
+    if(cap){const w=cap*210+(cap-1)*14;row.style.maxWidth=w+'px';}
+    // Depth label
+    const lbl=document.createElement('div');lbl.className='compact-depth-label';lbl.textContent='L'+d;row.appendChild(lbl);
+    byDepth[d].forEach(n=>{
+      const card=mkBareCard(n);
+      // mkBareCard hands back a node-card; ensure data-drag-id is set (mkNodeLI adds it)
+      row.appendChild(card);
+    });
+    // Append per-manager IC summaries when Manager View is on
+    if(S.managerMode){
+      byDepth[d].forEach(parent=>{
+        const kids=childrenOf(parent.id);if(!kids.length)return;
+        const leaves=kids.filter(k=>!isManager(k.id));
+        if(!leaves.length)return;
+        const ac=getNodeBorderColor(parent);
+        const sumLi=mkLeafSummaryLI(leaves,ac);
+        const sumCard=sumLi.querySelector('.summary-list-card');
+        if(sumCard){sumCard.dataset.icManager=parent.id;row.appendChild(sumCard);}
+      });
+    }
+    tree.appendChild(row);
+  });
+  updateStats(S.viewData);
+  clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
+}
+function redrawCompactConnectors(){
+  // Use the same SVG (#grid-svg) to draw parent→child + manager→IC connectors
+  const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
+  const cc=document.getElementById('chart-canvas-content');if(!cc)return;
+  const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
+  svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
+  svg.style.width=w+'px';svg.style.height=h+'px';
+  svg.style.display='block';
+  const ccRect=cc.getBoundingClientRect();
+  function bezier(pr,cr,color){
+    const x1=(pr.left+pr.width/2-ccRect.left)/S.zoom;
+    const y1=(pr.bottom-ccRect.top)/S.zoom;
+    const x2=(cr.left+cr.width/2-ccRect.left)/S.zoom;
+    const y2=(cr.top-ccRect.top)/S.zoom;
+    const midY=(y1+y2)/2;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+x1+' '+y1+' C '+x1+' '+midY+', '+x2+' '+midY+', '+x2+' '+y2);
+    path.setAttribute('stroke',color||'#94a3b8');path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');path.setAttribute('opacity','0.7');
+    svg.appendChild(path);
+  }
+  S.viewData.forEach(n=>{
+    if(!n.manager)return;
+    const childCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.id)+'"]');
+    const parentCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.manager)+'"]');
+    if(!childCard||!parentCard)return;
+    bezier(parentCard.getBoundingClientRect(),childCard.getBoundingClientRect(),'#94a3b8');
+  });
+  cc.querySelectorAll('#org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
+    const mgrId=ic.dataset.icManager;if(!mgrId)return;
+    const mgrCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(mgrId)+'"]');
+    if(!mgrCard)return;
+    bezier(mgrCard.getBoundingClientRect(),ic.getBoundingClientRect(),'#7c3aed');
+  });
+}
 
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
   // ── FULL 4-side border color + per-card accent variable ──
@@ -895,6 +1008,25 @@ function mkLeafSummaryLI(leafNodes, ac) {
   card.className = 'summary-list-card';
   card.style.borderTopColor = ac;
   card.dataset.summaryParent = 'ic';
+  // Synthetic ID so this IC summary block can be dragged + selected like a regular card
+  // in grid mode. We store the manager IDs it belongs to so connectors can be drawn.
+  const managerOfICs = (leafNodes[0] && leafNodes[0].manager) || '';
+  const synthId = '__ic__' + (managerOfICs || ('row-' + Math.random().toString(36).slice(2,8)));
+  card.dataset.dragId = synthId;
+  card.dataset.icManager = managerOfICs;
+  card.dataset.icCount = String(leafNodes.length);
+  if (!S.pvMode) {
+    card.draggable = true;
+    card.addEventListener('dragstart', onCardDragStart);
+    card.addEventListener('dragover', onCardDragOver);
+    card.addEventListener('dragleave', onCardDragLeave);
+    card.addEventListener('drop', onCardDrop);
+    card.addEventListener('dragend', onCardDragEnd);
+    card.addEventListener('click', function(e){
+      if (e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(synthId, card);}
+    });
+    if (S.selectedIds && S.selectedIds.has(synthId)) card.classList.add('selected');
+  }
   card.innerHTML = headerHtml + rowsHtml;
   li.appendChild(card);
   return li;
@@ -1297,6 +1429,12 @@ function onCardDragStart(e){
   e.currentTarget.setAttribute('aria-grabbed','true');
   try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',id);}catch(_){/*noop*/}
   document.getElementById('root-drop-zone').classList.add('dragging-active');
+  // First-time hint: tree mode drag = reassign manager. Grid mode = free move.
+  // Show a soft toast once per session so the user discovers the difference.
+  if(!S.gridMode&&!window._dragHintShown){
+    window._dragHintShown=true;
+    showToast('Tree mode: drop on another card to make that the new manager · Want to free-move? Turn on Grid Mode');
+  }
 }
 function onCardDragOver(e){
   if(!S.draggingNodeId)return;
@@ -1313,13 +1451,20 @@ function onCardDragLeave(e){
   e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
 }
 function onCardDrop(e){
-  // In grid mode, the cell handles the drop (repositioning, not reassigning)
+  // In grid mode, the canvas-content handler does the repositioning
   if(S.gridMode){return;}
   e.preventDefault();
   e.currentTarget.classList.remove('drop-halo','drop-halo-bad');
   const draggingId=S.draggingNodeId;if(!draggingId)return;
   const targetId=e.currentTarget.dataset.dragId;
   if(targetId===draggingId)return;
+  // IC summary cards have synthetic ids (prefix '__ic__'). Reassign via tree-drag
+  // doesn't make sense for them — they represent a list of people, not a single
+  // node. Hint the user instead.
+  if(String(draggingId).startsWith('__ic__')||String(targetId).startsWith('__ic__')){
+    showToast('IC summary cards can only be repositioned in Grid Mode — turn it on first');
+    S.draggingNodeId=null;return;
+  }
   if(isDescendant(targetId,draggingId)){showToast('Cannot move under own descendant',true);return;}
   if(S.managerOverrides[draggingId]===targetId){return;}// no-op
   pushUndo();
@@ -1840,9 +1985,9 @@ function resetGridOverrides(){
   persistState();
   showToast('Cards returned to tree positions',true);
 }
-/* Apply / clear translations on the tree DOM */
+/* Apply / clear translations on the tree DOM (covers both regular cards and IC summary cards) */
 function applyGridOverridesToTree(){
-  document.querySelectorAll('#org-tree .node-card[data-drag-id]').forEach(card=>{
+  document.querySelectorAll('#org-tree .node-card[data-drag-id], #org-tree .summary-list-card[data-drag-id]').forEach(card=>{
     const id=card.dataset.dragId;const ovr=S.gridOverrides[id];
     if(ovr&&typeof ovr.dx==='number'&&typeof ovr.dy==='number'&&(ovr.dx||ovr.dy)){
       card.style.transform='translate('+ovr.dx+'px,'+ovr.dy+'px)';
@@ -1854,11 +1999,12 @@ function applyGridOverridesToTree(){
   });
 }
 function clearTreeTranslations(){
-  document.querySelectorAll('#org-tree .node-card.grid-translated').forEach(card=>{
+  document.querySelectorAll('#org-tree .grid-translated').forEach(card=>{
     card.style.transform='';card.classList.remove('grid-translated');
   });
 }
-/* Draw SVG connectors based on each card's actual on-screen position. */
+/* Draw SVG connectors between actual on-screen positions of every parent/child
+   (regular cards), plus from each manager card to its IC summary card if any. */
 function redrawGridConnectorsFromTree(){
   if(!S.gridMode)return;
   const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
@@ -1867,12 +2013,7 @@ function redrawGridConnectorsFromTree(){
   svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
   svg.style.width=w+'px';svg.style.height=h+'px';
   const ccRect=cc.getBoundingClientRect();
-  S.viewData.forEach(n=>{
-    if(!n.manager)return;
-    const childCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.id)+'"]');
-    const parentCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.manager)+'"]');
-    if(!childCard||!parentCard)return;
-    const cr=childCard.getBoundingClientRect(),pr=parentCard.getBoundingClientRect();
+  function bezier(pr,cr,color){
     const x1=(pr.left+pr.width/2-ccRect.left)/S.zoom;
     const y1=(pr.bottom-ccRect.top)/S.zoom;
     const x2=(cr.left+cr.width/2-ccRect.left)/S.zoom;
@@ -1880,9 +2021,24 @@ function redrawGridConnectorsFromTree(){
     const midY=(y1+y2)/2;
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     path.setAttribute('d','M '+x1+' '+y1+' C '+x1+' '+midY+', '+x2+' '+midY+', '+x2+' '+y2);
-    path.setAttribute('stroke','#94a3b8');path.setAttribute('stroke-width','2');
-    path.setAttribute('fill','none');path.setAttribute('opacity','0.7');
+    path.setAttribute('stroke',color||'#94a3b8');path.setAttribute('stroke-width','2');
+    path.setAttribute('fill','none');path.setAttribute('opacity','0.75');
     svg.appendChild(path);
+  }
+  // Manager → child connectors
+  S.viewData.forEach(n=>{
+    if(!n.manager)return;
+    const childCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.id)+'"]');
+    const parentCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.manager)+'"]');
+    if(!childCard||!parentCard)return;
+    bezier(parentCard.getBoundingClientRect(),childCard.getBoundingClientRect(),'#94a3b8');
+  });
+  // Manager → IC summary connectors (when in Manager View)
+  cc.querySelectorAll('#org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
+    const mgrId=ic.dataset.icManager;if(!mgrId)return;
+    const mgrCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(mgrId)+'"]');
+    if(!mgrCard)return;
+    bezier(mgrCard.getBoundingClientRect(),ic.getBoundingClientRect(),'#7c3aed');
   });
 }
 /* Drop on canvas-content sets a translation override on the dragged card */
@@ -1896,7 +2052,7 @@ function bindCanvasGridDND(){
     if(!S.gridMode||!S.draggingNodeId)return;
     e.preventDefault();
     const id=S.draggingNodeId;
-    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');
+    const card=cc.querySelector('#org-tree [data-drag-id="'+CSS.escape(id)+'"]');
     if(!card){S.draggingNodeId=null;return;}
     const ccRect=cc.getBoundingClientRect();
     const dropX=(e.clientX-ccRect.left)/S.zoom;
@@ -1946,7 +2102,7 @@ function alignSelected(direction){
   const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
   const items=[];
   S.selectedIds.forEach(id=>{
-    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const card=cc.querySelector('#org-tree [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
     const nr=_measureNatural(card);
     items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
   });
@@ -1969,7 +2125,7 @@ function distributeSelected(axis){
   const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
   const items=[];
   S.selectedIds.forEach(id=>{
-    const card=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const card=cc.querySelector('#org-tree [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
     const nr=_measureNatural(card);
     items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
   });
