@@ -1017,7 +1017,7 @@ function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.paren
 function updateStats(roots){if(!roots)roots=S.skipDepth>0?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth):(S.childMap['']||[]);document.getElementById('stat-total').textContent=S.viewData.length;document.getElementById('stat-roots').textContent=roots.length;let visCount=0;document.querySelectorAll('.node-card').forEach(card=>{if(!card.closest('li.collapsed > ul')&&!card.closest('li.collapsed > .children-rows-wrap'))visCount++;});document.getElementById('stat-vis').textContent=visCount;document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';const mgrStat=document.getElementById('stat-mgr-mode');const mgrVal=document.getElementById('stat-mgr-val');if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){mgrVal.textContent=S.viewData.filter(n=>!isManager(n.id)).length+' ICs in lists';}}}
 function cwrap(){return document.getElementById('chart-canvas-wrap');}
 function ccontent(){return document.getElementById('chart-canvas-content');}
-function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';}
+function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';if(S.gridMode||S.compact){clearTimeout(window._gz);window._gz=setTimeout(redrawGridConnectorsFromTree,80);}}
 function zoomBy(d){applyZoom(S.zoom+d);}
 function fitToScreen(andCenter){requestAnimationFrame(()=>{const tree=document.getElementById('org-tree');const wrap=cwrap();if(!tree||!wrap)return;const tw=tree.scrollWidth,th=tree.scrollHeight,aw=wrap.clientWidth-100,ah=wrap.clientHeight-100;if(tw<10||th<10)return;applyZoom(Math.max(0.12,Math.min(1,aw/tw,ah/th)));if(andCenter)setTimeout(centerView,70);});}
 function centerView(){const wrap=cwrap();const tree=document.getElementById('org-tree');if(!wrap||!tree)return;const sw=tree.scrollWidth*S.zoom;wrap.scrollLeft=Math.max(0,(sw-wrap.clientWidth)/2);wrap.scrollTop=0;}
@@ -1190,7 +1190,7 @@ function pvFit(){
     setTimeout(()=>{const sw=tree.scrollWidth*S.pvZoom;area.scrollLeft=Math.max(0,(sw-area.clientWidth)/2);area.scrollTop=0;},70);
   });
 }
-function pvZoomBy(d){S.pvZoom=Math.max(0.1,Math.min(3,S.pvZoom+d));document.getElementById('pv-tree-content').style.transform='scale('+S.pvZoom+')';document.getElementById('pv-zoom-level').textContent=Math.round(S.pvZoom*100)+'%';clearTimeout(window._pvFroTimer);window._pvFroTimer=setTimeout(renderPVFROLines,400);}
+function pvZoomBy(d){S.pvZoom=Math.max(0.1,Math.min(3,S.pvZoom+d));document.getElementById('pv-tree-content').style.transform='scale('+S.pvZoom+')';document.getElementById('pv-zoom-level').textContent=Math.round(S.pvZoom*100)+'%';clearTimeout(window._pvFroTimer);window._pvFroTimer=setTimeout(renderPVFROLines,400);if(S.pvGridMode){clearTimeout(window._pvGz);window._pvGz=setTimeout(redrawPVConnectors,80);}}
 
 let _pvPanning=false,_pvPx,_pvPy,_pvSl,_pvSt;
 function initPVPan(){const area=document.getElementById('pv-chart-area');if(!area||area._pvPanInit)return;area._pvPanInit=true;area.addEventListener('mousedown',e=>{if(e.target.closest('.node-card,.collapse-btn'))return;_pvPanning=true;_pvPx=e.clientX;_pvPy=e.clientY;_pvSl=area.scrollLeft;_pvSt=area.scrollTop;area.style.cursor='grabbing';});window.addEventListener('mousemove',e=>{if(!_pvPanning)return;const a=document.getElementById('pv-chart-area');if(a){a.scrollLeft=_pvSl-(e.clientX-_pvPx);a.scrollTop=_pvSt-(e.clientY-_pvPy);}});window.addEventListener('mouseup',()=>{_pvPanning=false;const a=document.getElementById('pv-chart-area');if(a)a.style.cursor='';});area.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();pvZoomBy(e.deltaY<0?0.08:-0.08);}},{passive:false});}
@@ -1234,36 +1234,63 @@ function redrawPVConnectors(){
   const cc=document.getElementById('pv-tree-content');if(!cc)return;
   const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
   svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
-  svg.style.width=w+'px';svg.style.height=h+'px';svg.style.display='block';
+  svg.setAttribute('overflow','visible');
+  svg.style.width=w+'px';svg.style.height=h+'px';svg.style.overflow='visible';svg.style.display='block';
   const ccRect=cc.getBoundingClientRect();
-  function ortho(pr,cr,color){
-    const x1=(pr.left+pr.width/2-ccRect.left)/S.pvZoom;
-    const y1=(pr.bottom-ccRect.top)/S.pvZoom;
-    const x2=(cr.left+cr.width/2-ccRect.left)/S.pvZoom;
-    const y2=(cr.top-ccRect.top)/S.pvZoom;
-    const minTrunk=18;
-    const midY=Math.max(y1+minTrunk,Math.min((y1+y2)/2,y2-minTrunk));
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d','M '+x1+' '+y1+' V '+midY+' H '+x2+' V '+y2);
-    path.setAttribute('stroke',color);path.setAttribute('stroke-width','2');
-    path.setAttribute('fill','none');path.setAttribute('stroke-linejoin','miter');
-    svg.appendChild(path);
+  function addPath(d,color){
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d);p.setAttribute('stroke',color||'#94a3b8');
+    p.setAttribute('stroke-width','2');p.setAttribute('fill','none');
+    p.setAttribute('stroke-linejoin','miter');p.setAttribute('shape-rendering','crispEdges');
+    svg.appendChild(p);
   }
-  // For each li in pv-org-tree, draw a connector to its parent li's card via DOM walk
-  document.querySelectorAll('#pv-org-tree li').forEach(li=>{
-    const card=li.querySelector(':scope > .node-card');
-    if(!card)return;
+  function rectToLocal(r){
+    return{
+      x:(r.left-ccRect.left)/S.pvZoom,y:(r.top-ccRect.top)/S.pvZoom,
+      cx:(r.left+r.width/2-ccRect.left)/S.pvZoom,cy:(r.top+r.height/2-ccRect.top)/S.pvZoom,
+      bottom:(r.bottom-ccRect.top)/S.pvZoom,right:(r.right-ccRect.left)/S.pvZoom
+    };
+  }
+  // Group child li elements by parent li (DOM walk, since PV uses raw children)
+  const lis=Array.from(document.querySelectorAll('#pv-org-tree li'));
+  const byParent=new Map();
+  lis.forEach(li=>{
     const ul=li.parentElement;if(!ul||ul.tagName!=='UL')return;
-    const parentLi=ul.parentElement;if(!parentLi||parentLi.tagName!=='LI')return;
-    const parentCard=parentLi.querySelector(':scope > .node-card');
-    if(!parentCard)return;
-    ortho(parentCard.getBoundingClientRect(),card.getBoundingClientRect(),'#94a3b8');
+    const pli=ul.parentElement;if(!pli||pli.tagName!=='LI')return;
+    if(!byParent.has(pli))byParent.set(pli,[]);
+    byParent.get(pli).push(li);
   });
+  byParent.forEach((kids,pli)=>{
+    const pCard=pli.querySelector(':scope > .node-card');if(!pCard)return;
+    const pr=rectToLocal(pCard.getBoundingClientRect());
+    const childRects=kids.map(li=>{const c=li.querySelector(':scope > .node-card');return c?rectToLocal(c.getBoundingClientRect()):null;}).filter(Boolean);
+    if(!childRects.length)return;
+    const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
+    if(minChildTop<=pr.bottom+8){
+      childRects.forEach(c=>{const trunkY=Math.min(pr.bottom,c.y)-16;addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');});
+      return;
+    }
+    const trunkY=pr.bottom+Math.max(20,Math.round((minChildTop-pr.bottom)/2));
+    addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY,'#94a3b8');
+    const xs=childRects.map(c=>c.cx).concat([pr.cx]);
+    const minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs);
+    if(maxX>minX+0.5)addPath('M '+minX+' '+trunkY+' H '+maxX,'#94a3b8');
+    childRects.forEach(c=>addPath('M '+c.cx+' '+trunkY+' V '+c.y,'#94a3b8'));
+  });
+  // IC summary connectors in PV
   document.querySelectorAll('#pv-org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
     const mgrId=ic.dataset.icManager;if(!mgrId)return;
     const mgrCard=cc.querySelector('#pv-org-tree .node-card[data-drag-id="'+CSS.escape(mgrId)+'"]');
     if(!mgrCard)return;
-    ortho(mgrCard.getBoundingClientRect(),ic.getBoundingClientRect(),'#7c3aed');
+    const pr=rectToLocal(mgrCard.getBoundingClientRect());
+    const cr=rectToLocal(ic.getBoundingClientRect());
+    if(cr.y>pr.bottom+8){
+      const trunkY=pr.bottom+Math.max(20,Math.round((cr.y-pr.bottom)/2));
+      addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+cr.cx+' V '+cr.y,'#7c3aed');
+    }else{
+      const trunkY=Math.min(pr.bottom,cr.y)-16;
+      addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+cr.cx+' V '+cr.y,'#7c3aed');
+    }
   });
 }
 function bindPVCanvasGridDND(){
@@ -2071,50 +2098,84 @@ function clearTreeTranslations(){
     card.style.transform='';card.classList.remove('grid-translated');
   });
 }
-/* Draw SVG connectors between actual on-screen positions of every parent/child
-   (regular cards), plus from each manager card to its IC summary card if any.
-   Lines are orthogonal (vertical → horizontal trunk → vertical) like a real
-   org chart, not curved. */
+/* Draw shared-trunk org-chart connectors. For each manager with N children:
+     - one vertical from the manager's bottom-center down to a trunk row
+     - one horizontal trunk spanning from leftmost to rightmost child center
+     - one vertical from the trunk down to each child's top-center
+   This routes around cards instead of drawing a straight line that cuts
+   through siblings (the previous bug). Plus a separate purple connector
+   to the manager's IC summary card if any. */
 function redrawGridConnectorsFromTree(){
   if(!S.gridMode&&!S.compact)return;
   const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
   const cc=document.getElementById('chart-canvas-content');if(!cc)return;
   const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
   svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
+  svg.setAttribute('overflow','visible');
   svg.style.width=w+'px';svg.style.height=h+'px';
+  svg.style.overflow='visible';
   svg.style.display='block';
   const ccRect=cc.getBoundingClientRect();
-  function ortho(pr,cr,color){
-    const x1=(pr.left+pr.width/2-ccRect.left)/S.zoom;
-    const y1=(pr.bottom-ccRect.top)/S.zoom;
-    const x2=(cr.left+cr.width/2-ccRect.left)/S.zoom;
-    const y2=(cr.top-ccRect.top)/S.zoom;
-    // Pick a vertical mid-row that's biased toward the parent's bottom for a
-    // proper org-chart "trunk". For sideways/same-row cards we still draw a
-    // visible 90° trunk by routing around the y-axis.
-    const minTrunk=18;
-    const midY=Math.max(y1+minTrunk,Math.min((y1+y2)/2,y2-minTrunk));
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    // M x1 y1 → V midY → H x2 → V y2  (right angles only)
-    path.setAttribute('d','M '+x1+' '+y1+' V '+midY+' H '+x2+' V '+y2);
-    path.setAttribute('stroke',color);path.setAttribute('stroke-width','2');
-    path.setAttribute('fill','none');
-    path.setAttribute('stroke-linejoin','miter');
-    path.setAttribute('shape-rendering','crispEdges');
-    svg.appendChild(path);
+  function addPath(d,color){
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d);p.setAttribute('stroke',color||'#94a3b8');
+    p.setAttribute('stroke-width','2');p.setAttribute('fill','none');
+    p.setAttribute('stroke-linejoin','miter');p.setAttribute('shape-rendering','crispEdges');
+    svg.appendChild(p);
   }
-  S.viewData.forEach(n=>{
-    if(!n.manager)return;
-    const childCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.id)+'"]');
-    const parentCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(n.manager)+'"]');
-    if(!childCard||!parentCard)return;
-    ortho(parentCard.getBoundingClientRect(),childCard.getBoundingClientRect(),'#94a3b8');
+  function rectToLocal(r){
+    return{
+      x:(r.left-ccRect.left)/S.zoom,y:(r.top-ccRect.top)/S.zoom,
+      cx:(r.left+r.width/2-ccRect.left)/S.zoom,cy:(r.top+r.height/2-ccRect.top)/S.zoom,
+      bottom:(r.bottom-ccRect.top)/S.zoom,right:(r.right-ccRect.left)/S.zoom,
+      w:r.width/S.zoom,h:r.height/S.zoom
+    };
+  }
+  // Group children by manager
+  const byMgr={};
+  S.viewData.forEach(n=>{if(!n.manager)return;if(!byMgr[n.manager])byMgr[n.manager]=[];byMgr[n.manager].push(n);});
+  Object.entries(byMgr).forEach(([mgrId,kids])=>{
+    const mgrCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(mgrId)+'"]');
+    if(!mgrCard)return;
+    const childCards=kids.map(k=>cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(k.id)+'"]')).filter(Boolean);
+    if(!childCards.length)return;
+    const pr=rectToLocal(mgrCard.getBoundingClientRect());
+    const childRects=childCards.map(c=>rectToLocal(c.getBoundingClientRect()));
+    const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
+    // If a child sits above the manager (after manual drag), fall back to a per-child elbow that loops over the parent.
+    if(minChildTop<=pr.bottom+8){
+      childRects.forEach(c=>{
+        const trunkY=Math.min(pr.bottom,c.y)-16;
+        addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');
+      });
+      return;
+    }
+    // Standard org-chart shared trunk: trunk lives in the gap between parent bottom and lowest child top.
+    const trunkY=pr.bottom+Math.max(20,Math.round((minChildTop-pr.bottom)/2));
+    // Parent → trunk
+    addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY,'#94a3b8');
+    // Trunk horizontal
+    const xs=childRects.map(c=>c.cx).concat([pr.cx]);
+    const minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs);
+    if(maxX>minX+0.5)addPath('M '+minX+' '+trunkY+' H '+maxX,'#94a3b8');
+    // Trunk → each child
+    childRects.forEach(c=>{addPath('M '+c.cx+' '+trunkY+' V '+c.y,'#94a3b8');});
   });
+  // Manager → IC summary connectors (purple)
   cc.querySelectorAll('#org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
     const mgrId=ic.dataset.icManager;if(!mgrId)return;
     const mgrCard=cc.querySelector('#org-tree .node-card[data-drag-id="'+CSS.escape(mgrId)+'"]');
     if(!mgrCard)return;
-    ortho(mgrCard.getBoundingClientRect(),ic.getBoundingClientRect(),'#7c3aed');
+    const pr=rectToLocal(mgrCard.getBoundingClientRect());
+    const cr=rectToLocal(ic.getBoundingClientRect());
+    if(cr.y>pr.bottom+8){
+      const trunkY=pr.bottom+Math.max(20,Math.round((cr.y-pr.bottom)/2));
+      addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+cr.cx+' V '+cr.y,'#7c3aed');
+    }else{
+      // IC sits to the side: route around with a 16px elbow above whichever is higher
+      const trunkY=Math.min(pr.bottom,cr.y)-16;
+      addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+cr.cx+' V '+cr.y,'#7c3aed');
+    }
   });
 }
 /* Drop on canvas-content sets a translation override on the dragged card */
