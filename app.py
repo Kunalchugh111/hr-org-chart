@@ -781,13 +781,14 @@ function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li
   // Drag handlers are always attached. They check context at runtime —
   // tree-mode drag in PV is blocked, but Grid-mode drag (free-move) works in
   // both main chart and Person View.
-  card.draggable=true;
+  card.draggable=!S.gridMode;
   card.dataset.dragId=node.id;
   card.setAttribute('aria-grabbed','false');
   card.addEventListener('dragstart',onCardDragStart);
   card.addEventListener('dragover',onCardDragOver);
   card.addEventListener('dragleave',onCardDragLeave);
   card.addEventListener('drop',onCardDrop);
+  card.addEventListener('pointerdown',onCardPointerDown);
   card.addEventListener('dragend',onCardDragEnd);
   card.addEventListener('click',function(e){
     if(e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(node.id,card);}
@@ -880,12 +881,13 @@ function mkLeafSummaryLI(leafNodes, ac) {
   card.dataset.icManager = managerOfICs;
   card.dataset.icCount = String(leafNodes.length);
   if (!S.pvMode) {
-    card.draggable = true;
+    card.draggable = !S.gridMode;
     card.addEventListener('dragstart', onCardDragStart);
     card.addEventListener('dragover', onCardDragOver);
     card.addEventListener('dragleave', onCardDragLeave);
     card.addEventListener('drop', onCardDrop);
     card.addEventListener('dragend', onCardDragEnd);
+    card.addEventListener('pointerdown', onCardPointerDown);
     card.addEventListener('click', function(e){
       if (e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(synthId, card);}
     });
@@ -1900,6 +1902,7 @@ function toggleGridMode(){
   document.getElementById('grid-mode-btn').classList.toggle('active',S.gridMode);
   document.getElementById('grid-lines-btn').style.display=S.gridMode?'inline-flex':'none';
   document.getElementById('grid-reset-btn').style.display=S.gridMode?'inline-flex':'none';
+  setCardDraggability(S.gridMode);
   if(S.gridMode){
     bindCanvasGridDND();
     setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},120);
@@ -2040,7 +2043,72 @@ function redrawGridConnectorsFromTree(){
     }
   });
 }
-/* Drop on canvas-content sets a translation override on the dragged card */
+/* Pointer-event based drag for Grid Mode. We avoid HTML5 drag-and-drop here
+   because it's unreliable inside Streamlit iframes (drop events sometimes
+   don't fire, drag images are clipped, dataTransfer is flaky). With pointer
+   capture we get real-time line updates as the card is dragged. */
+function setCardDraggability(gridOn){
+  document.querySelectorAll('#org-tree .node-card[data-drag-id], #org-tree .summary-list-card[data-drag-id]').forEach(card=>{
+    card.draggable=!gridOn;
+  });
+}
+function onCardPointerDown(e){
+  if(!S.gridMode)return;
+  if(e.button!==0)return;
+  if(e.target.closest('.ncard-edit-btn,.ncard-export-btn,.collapse-btn'))return;
+  if(e.shiftKey)return;
+  const card=e.currentTarget;
+  const id=card.dataset.dragId;if(!id)return;
+  e.preventDefault();
+  const oldOvr=S.gridOverrides[id]||{dx:0,dy:0};
+  const startX=e.clientX,startY=e.clientY;
+  let curDx=oldOvr.dx,curDy=oldOvr.dy;
+  let moved=false;
+  try{card.setPointerCapture(e.pointerId);}catch(_){}
+  function onMove(ev){
+    const ddx=(ev.clientX-startX)/S.zoom;
+    const ddy=(ev.clientY-startY)/S.zoom;
+    if(!moved&&Math.abs(ddx)<3&&Math.abs(ddy)<3)return;
+    moved=true;
+    card.classList.add('node-dragging','grid-translated');
+    curDx=oldOvr.dx+ddx;
+    curDy=oldOvr.dy+ddy;
+    card.style.transform='translate('+curDx+'px,'+curDy+'px)';
+    if(!window._gridDragRAF){
+      window._gridDragRAF=requestAnimationFrame(()=>{
+        window._gridDragRAF=null;
+        redrawGridConnectorsFromTree();
+      });
+    }
+  }
+  function onUp(ev){
+    card.removeEventListener('pointermove',onMove);
+    card.removeEventListener('pointerup',onUp);
+    card.removeEventListener('pointercancel',onUp);
+    card.classList.remove('node-dragging');
+    try{card.releasePointerCapture(e.pointerId);}catch(_){}
+    if(!moved)return;
+    const SNAP=20;
+    curDx=Math.round(curDx/SNAP)*SNAP;
+    curDy=Math.round(curDy/SNAP)*SNAP;
+    pushUndo();
+    if(curDx===0&&curDy===0){
+      delete S.gridOverrides[id];
+      card.style.transform='';
+      card.classList.remove('grid-translated');
+    }else{
+      S.gridOverrides[id]={dx:curDx,dy:curDy};
+      card.style.transform='translate('+curDx+'px,'+curDy+'px)';
+    }
+    redrawGridConnectorsFromTree();
+    persistState();
+  }
+  card.addEventListener('pointermove',onMove);
+  card.addEventListener('pointerup',onUp);
+  card.addEventListener('pointercancel',onUp);
+}
+/* Legacy HTML5 drag-drop hook on the canvas; kept as a fallback for browsers
+   where pointer events fail. Pointer events take priority in grid mode. */
 function bindCanvasGridDND(){
   const cc=document.getElementById('chart-canvas-content');if(!cc||cc._gridDND)return;cc._gridDND=true;
   cc.addEventListener('dragover',e=>{
