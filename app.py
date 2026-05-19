@@ -208,11 +208,15 @@ body{display:flex;flex-direction:column}
 .ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-.search-wrap{position:relative;flex:1;max-width:240px}
-.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;pointer-events:none;opacity:0.45}
-#chart-search{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:6px 10px 6px 29px;font-size:0.8rem;font-weight:500;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.15s}
-#chart-search:focus{border-color:var(--accent);background:var(--bg)}
-#chart-search::placeholder{color:var(--text3)}
+.search-wrap{position:relative;flex:1;max-width:300px;border-radius:999px;padding:0;box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.42),inset 0 1px 0 rgba(255,255,255,0.25);animation:sr-pill-pulse 2.2s ease-in-out infinite;background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 50%,#c026d3 100%);transition:transform 0.22s cubic-bezier(.34,1.56,.64,1),box-shadow 0.22s ease,filter 0.22s ease;overflow:hidden}
+.search-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.32) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.7s ease;pointer-events:none;z-index:3;border-radius:inherit}
+.search-wrap:hover{transform:translateY(-1px);filter:saturate(1.15) brightness(1.05);animation:none}
+.search-wrap:hover::before{transform:translateX(100%)}
+.search-wrap:focus-within{transform:translateY(-1px);animation:none;box-shadow:0 0 0 4px rgba(192,38,211,0.32),0 12px 28px rgba(192,38,211,0.5),inset 0 1px 0 rgba(255,255,255,0.35)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.15rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))}
+#chart-search{width:100%;background:transparent;border:none;border-radius:999px;padding:11px 18px 11px 40px;font-size:0.8rem;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0.04em;position:relative;z-index:2}
+#chart-search::placeholder{color:rgba(255,255,255,0.78);font-weight:800;text-transform:uppercase;letter-spacing:0.08em;font-size:0.7rem}
+#chart-search:focus{background:transparent}
 #chart-search-results{position:fixed;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:320px;overflow-y:auto;z-index:99999;display:none;min-width:280px}
 #chart-search-results.visible{display:block}
 .sr-item{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:default;border-bottom:1px solid var(--border);transition:background 0.1s}
@@ -221,14 +225,11 @@ body{display:flex;flex-direction:column}
 .sr-info{flex:1;cursor:pointer}
 .sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
-.sr-actions{display:flex;gap:8px;flex-shrink:0;align-items:center}
-.sr-view-pill{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:11px 22px 11px 18px;background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 50%,#c026d3 100%);color:#fff;font-size:0.86rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.06em;text-transform:uppercase;box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.45),inset 0 1px 0 rgba(255,255,255,0.28);animation:sr-pill-pulse 2s ease-in-out infinite;transition:transform 0.22s cubic-bezier(.34,1.56,.64,1),box-shadow 0.22s ease,filter 0.22s ease;flex-shrink:0;white-space:nowrap;overflow:hidden;min-height:44px}
-.sr-view-pill::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.38) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.7s ease;pointer-events:none}
-.sr-view-pill:hover{transform:translateY(-2px) scale(1.06);animation:none;filter:saturate(1.2) brightness(1.05);box-shadow:0 0 0 6px rgba(124,58,237,0.24),0 16px 36px rgba(192,38,211,0.55),inset 0 1px 0 rgba(255,255,255,0.4)}
-.sr-view-pill:hover::before{transform:translateX(100%)}
-.sr-view-pill:active{transform:translateY(0) scale(0.98)}
-.sr-view-pill .sr-view-pill-ico{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:1.6rem;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3))}
-@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.45),inset 0 1px 0 rgba(255,255,255,0.28)}50%{box-shadow:0 0 0 10px rgba(192,38,211,0.07),0 12px 30px rgba(192,38,211,0.62),inset 0 1px 0 rgba(255,255,255,0.4)}}
+.sr-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.sr-view-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:linear-gradient(135deg,#6d28d9,#7c3aed 50%,#a855f7);color:#fff;font-size:0.7rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;box-shadow:0 2px 6px rgba(124,58,237,0.32);transition:transform 0.15s ease,box-shadow 0.15s ease,filter 0.15s ease;flex-shrink:0;white-space:nowrap}
+.sr-view-pill:hover{transform:translateY(-1px);filter:saturate(1.15) brightness(1.05);box-shadow:0 4px 12px rgba(124,58,237,0.5)}
+.sr-view-pill .sr-view-pill-ico{font-size:0.85rem;line-height:1}
+@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.42),inset 0 1px 0 rgba(255,255,255,0.25)}50%{box-shadow:0 0 0 8px rgba(192,38,211,0.06),0 10px 26px rgba(192,38,211,0.55),inset 0 1px 0 rgba(255,255,255,0.35)}}
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
@@ -449,7 +450,7 @@ body{display:flex;flex-direction:column}
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">Setup</button><div class="tb-sep"></div>
-      <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Search → Person View..." autocomplete="off"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Person View — search a person…" autocomplete="off"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
