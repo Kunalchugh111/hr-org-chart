@@ -208,27 +208,29 @@ body{display:flex;flex-direction:column}
 .ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-.search-wrap{position:relative;flex:1;max-width:300px;border-radius:999px;padding:0;box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.42),inset 0 1px 0 rgba(255,255,255,0.25);animation:sr-pill-pulse 2.2s ease-in-out infinite;background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 50%,#c026d3 100%);transition:transform 0.22s cubic-bezier(.34,1.56,.64,1),box-shadow 0.22s ease,filter 0.22s ease;overflow:hidden}
+.search-wrap{position:relative;flex:0 0 auto;width:450px;max-width:450px;height:48px;border-radius:999px;background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 50%,#c026d3 100%);box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 10px 26px rgba(124,58,237,0.45),inset 0 1px 0 rgba(255,255,255,0.28);animation:sr-pill-pulse 2.2s ease-in-out infinite;transition:transform 0.22s cubic-bezier(.34,1.56,.64,1),box-shadow 0.22s ease,filter 0.22s ease;overflow:hidden}
 .search-wrap::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.32) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.7s ease;pointer-events:none;z-index:3;border-radius:inherit}
 .search-wrap:hover{transform:translateY(-1px);filter:saturate(1.15) brightness(1.05);animation:none}
 .search-wrap:hover::before{transform:translateX(100%)}
-.search-wrap:focus-within{transform:translateY(-1px);animation:none;box-shadow:0 0 0 4px rgba(192,38,211,0.32),0 12px 28px rgba(192,38,211,0.5),inset 0 1px 0 rgba(255,255,255,0.35)}
-.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.15rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))}
-#chart-search{width:100%;background:transparent;border:none;border-radius:999px;padding:11px 18px 11px 40px;font-size:0.8rem;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0.04em;position:relative;z-index:2}
-#chart-search::placeholder{color:rgba(255,255,255,0.78);font-weight:800;text-transform:uppercase;letter-spacing:0.08em;font-size:0.7rem}
-#chart-search:focus{background:transparent}
+.search-wrap.expanded{animation:none;box-shadow:0 0 0 4px rgba(192,38,211,0.32),0 14px 32px rgba(192,38,211,0.55),inset 0 1px 0 rgba(255,255,255,0.4)}
+.search-pill-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;background:transparent;border:none;color:#fff;font-weight:800;font-size:0.94rem;letter-spacing:0.09em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:999px;z-index:2;transition:opacity 0.18s ease}
+.search-pill-btn .sp-ico{font-size:1.55rem;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3))}
+.search-wrap.expanded .search-pill-btn{opacity:0;pointer-events:none}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.3rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3));opacity:0;transition:opacity 0.18s ease}
+.search-wrap.expanded .search-icon{opacity:1}
+#chart-search{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:none;border-radius:999px;padding:0 50px 0 50px;font-size:0.92rem;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0.02em;z-index:1;opacity:0;pointer-events:none;transition:opacity 0.18s ease}
+.search-wrap.expanded #chart-search{opacity:1;pointer-events:auto;z-index:4}
+#chart-search::placeholder{color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.02em;text-transform:none}
 #chart-search-results{position:fixed;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:320px;overflow-y:auto;z-index:99999;display:none;min-width:280px}
 #chart-search-results.visible{display:block}
-.sr-item{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:default;border-bottom:1px solid var(--border);transition:background 0.1s}
+.sr-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s,padding-left 0.12s}
 .sr-item:last-child{border-bottom:none}
-.sr-item:hover{background:var(--bg3)}
-.sr-info{flex:1;cursor:pointer}
-.sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
+.sr-item:hover{background:linear-gradient(90deg,rgba(124,58,237,0.08),rgba(192,38,211,0.04));padding-left:18px}
+.sr-info{flex:1;min-width:0}
+.sr-name{font-weight:700;font-size:0.86rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
-.sr-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
-.sr-view-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:linear-gradient(135deg,#6d28d9,#7c3aed 50%,#a855f7);color:#fff;font-size:0.7rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;box-shadow:0 2px 6px rgba(124,58,237,0.32);transition:transform 0.15s ease,box-shadow 0.15s ease,filter 0.15s ease;flex-shrink:0;white-space:nowrap}
-.sr-view-pill:hover{transform:translateY(-1px);filter:saturate(1.15) brightness(1.05);box-shadow:0 4px 12px rgba(124,58,237,0.5)}
-.sr-view-pill .sr-view-pill-ico{font-size:0.85rem;line-height:1}
+.sr-chev{flex-shrink:0;color:#7c3aed;font-size:1.6rem;font-weight:300;line-height:1;opacity:0.45;transition:opacity 0.12s ease,transform 0.18s ease}
+.sr-item:hover .sr-chev{opacity:1;transform:translateX(2px)}
 @keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 8px 22px rgba(124,58,237,0.42),inset 0 1px 0 rgba(255,255,255,0.25)}50%{box-shadow:0 0 0 8px rgba(192,38,211,0.06),0 10px 26px rgba(192,38,211,0.55),inset 0 1px 0 rgba(255,255,255,0.35)}}
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
@@ -450,7 +452,7 @@ body{display:flex;flex-direction:column}
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">Setup</button><div class="tb-sep"></div>
-      <div class="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Person View — search a person…" autocomplete="off"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
+      <div class="search-wrap" id="search-wrap"><button type="button" class="search-pill-btn" id="search-pill-btn" onclick="expandSearch()" aria-label="Open Person View search"><span class="sp-ico">🔍</span>Person View</button><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Type a name or ID…" autocomplete="off" onblur="maybeCollapseSearch()"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
@@ -924,9 +926,12 @@ function initSearch(){const input=document.getElementById('chart-search');const 
   // Also search raw data (cross-filter)
   const rawHits=S.rawRows.map(r=>{const id=String(r[S.colMap.empId]||'').replace(/\.0$/,'').trim();const name=String(r[S.colMap.empName]||'');return{id,name};}).filter(n=>n.id&&!hits.find(h=>h.id===n.id)&&(n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q))).slice(0,5);
   const allHits=[...hits.map(n=>({...n,inChart:true})),...rawHits.map(n=>({...n,inChart:false}))];
-  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View" aria-label="Open Person View"><span class="sr-view-pill-ico">👁</span>View</button></div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
-  positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
-function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
+  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-info"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><span class="sr-chev">›</span></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
+  positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')){box.classList.remove('visible');collapseSearchIfEmpty();}});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
+function expandSearch(){const w=document.getElementById('search-wrap');if(!w)return;w.classList.add('expanded');const i=document.getElementById('chart-search');if(i)setTimeout(()=>i.focus(),20);}
+function maybeCollapseSearch(){setTimeout(()=>{const i=document.getElementById('chart-search');if(i&&!i.value.trim())collapseSearchIfEmpty();},120);}
+function collapseSearchIfEmpty(){const w=document.getElementById('search-wrap');if(!w)return;const i=document.getElementById('chart-search');if(i&&i.value.trim())return;w.classList.remove('expanded');}
+function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');collapseSearchIfEmpty();}
 
 /* ════════════════════════════════════════════════════
    FRO LINES — main chart
@@ -997,7 +1002,7 @@ function openPersonView(personId){
   document.getElementById('pv-sub').textContent='ID: '+personId+' · Cross-filter view · All data · FRO shown as dotted line';
   document.querySelectorAll('.pv-depth-btn').forEach(b=>b.classList.toggle('selected',b.dataset.d==='999'));
   document.getElementById('person-view-modal').classList.remove('hidden');
-  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
+  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');collapseSearchIfEmpty();
   const pvSel=document.getElementById('pv-row-size-select');if(pvSel)pvSel.value=String(S.pvMaxPerRow);
   renderPersonView(personId,999);
   initPVPan();
