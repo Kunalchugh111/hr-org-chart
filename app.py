@@ -155,30 +155,30 @@ body{display:flex;flex-direction:column}
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
-.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left}
+.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left;position:relative;z-index:3}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
 .org-tree{display:inline-block}
 .org-tree ul{padding-top:24px;position:relative;list-style:none;display:flex;justify-content:center}
 .org-tree li{display:table-cell;vertical-align:top;text-align:center;position:relative;padding:24px 7px 0 7px}
-.org-tree li::before,.org-tree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #cbd5e1;width:50%;height:24px}
-.org-tree li::after{right:auto;left:50%;border-left:2px solid #cbd5e1}
+.org-tree li::before,.org-tree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #94a3b8;width:50%;height:24px}
+.org-tree li::after{right:auto;left:50%;border-left:2px solid #94a3b8}
 .org-tree li:only-child::before,.org-tree li:only-child::after{display:none}
 .org-tree li:first-child::before,.org-tree li:last-child::after{display:none}
 .org-tree li:first-child::after{border-radius:6px 0 0 0}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
-.org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
+.org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #94a3b8;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
 .row-size-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .row-size-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
 .row-size-select{background:transparent;border:none;border-radius:6px;padding:3px 18px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none}
 /* ── Children row chunking for max-6-per-row ── */
 .children-rows-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;padding-top:24px}
-.children-rows-wrap::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px;margin-left:-1px;z-index:0}
+.children-rows-wrap::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #94a3b8;height:24px;margin-left:-1px;z-index:0}
 .children-row-ul{padding-top:24px;position:relative;list-style:none;display:flex;justify-content:center;flex-wrap:nowrap}
 .children-row-ul::before{display:none}
-.children-row-ul.row-cont{padding-top:30px;border-top:1.5px dashed #cbd5e1;margin-top:6px;position:relative}
+.children-row-ul.row-cont{padding-top:30px;border-top:1.5px dashed #94a3b8;margin-top:6px;position:relative}
 .children-row-ul.row-cont::after{content:'\2937 continued';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 9px;font-size:0.6rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;border-radius:6px}
 /* Drag-to-reassign visual states */
 .node-card.drop-halo{box-shadow:0 0 0 4px rgba(34,197,94,0.45),0 0 30px rgba(34,197,94,0.35)!important;border-color:#16a34a!important}
@@ -192,7 +192,7 @@ body{display:flex;flex-direction:column}
 .toast .toast-action{background:rgba(255,255,255,0.18);border:none;color:#fff;font-size:0.74rem;font-weight:800;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;pointer-events:auto}
 .toast .toast-action:hover{background:rgba(255,255,255,0.28)}
 /* ── Node card: full 4-side border color ── */
-.node-card{display:inline-block;width:270px;background:var(--bg);border:2px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
+.node-card{display:inline-block;width:270px;background:var(--bg);border:2px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;z-index:3;font-family:'Plus Jakarta Sans',sans-serif}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);z-index:10}
 .node-card.highlighted{box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
 .node-card.collapsed-node{opacity:0.65}
@@ -221,7 +221,12 @@ body{display:flex;flex-direction:column}
 .sr-info{flex:1;cursor:pointer}
 .sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
-.sr-actions{display:flex;gap:4px;flex-shrink:0}
+.sr-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.sr-view-pill{display:inline-flex;align-items:center;gap:4px;padding:5px 13px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:0.72rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.03em;text-transform:uppercase;box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.32);animation:sr-pill-pulse 1.8s ease-in-out infinite;transition:transform 0.15s,box-shadow 0.15s}
+.sr-view-pill:hover{transform:translateY(-1px) scale(1.05);animation:none;box-shadow:0 0 0 5px rgba(124,58,237,0.22),0 8px 22px rgba(124,58,237,0.5)}
+.sr-pin-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--bg2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;transition:all 0.12s;font-family:inherit}
+.sr-pin-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.32)}50%{box-shadow:0 0 0 7px rgba(124,58,237,0.04),0 6px 18px rgba(124,58,237,0.55)}}
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
@@ -560,6 +565,8 @@ body{display:flex;flex-direction:column}
         <button class="pv-depth-btn" data-d="5" onclick="setPVDepth(5)">N‑5</button>
         <div class="tb-sep"></div>
         <div class="zoom-strip"><button class="btn-zoom" onclick="pvZoomBy(-0.1)">−</button><span class="zoom-label" id="pv-zoom-level">100%</span><button class="btn-zoom" onclick="pvZoomBy(0.1)">+</button><button class="btn-zoom" onclick="pvFit()" title="Fit">⊡</button></div>
+        <div class="tb-sep"></div>
+        <div class="row-size-wrap" title="Max number of direct reports shown side-by-side. 'Auto' picks a near-square layout."><span class="row-size-label">Per row</span><select class="row-size-select" id="pv-row-size-select" onchange="setPVMaxPerRow(this.value)" aria-label="Person View: max cards per row"><option value="auto" selected>Auto</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option></select></div>
         <div class="tb-sep"></div>
         <button class="grid-mode-btn" id="pv-grid-btn" onclick="togglePVGrid()" title="Grid mode for this person's subtree — auto-arrange by depth, drag any card to any cell"><div class="grid-mode-dot"></div>Grid</button>
         <button class="btn btn-ghost btn-sm" onclick="printPVA3()" title="Print or save this person's chart as A3 landscape PDF">🖨 A3</button>
@@ -914,7 +921,7 @@ function initSearch(){const input=document.getElementById('chart-search');const 
   // Also search raw data (cross-filter)
   const rawHits=S.rawRows.map(r=>{const id=String(r[S.colMap.empId]||'').replace(/\.0$/,'').trim();const name=String(r[S.colMap.empName]||'');return{id,name};}).filter(n=>n.id&&!hits.find(h=>h.id===n.id)&&(n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q))).slice(0,5);
   const allHits=[...hits.map(n=>({...n,inChart:true})),...rawHits.map(n=>({...n,inChart:false}))];
-  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:0.7rem" onclick="openPersonView(\''+esc(n.id)+'\')">View</button>'+(n.inChart?'<button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:0.7rem" onclick="highlightNode(\''+esc(n.id)+'\')">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
+  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View">👁 View</button>'+(n.inChart?'<button class="sr-pin-btn" onclick="highlightNode(\''+esc(n.id)+'\')" title="Locate on chart">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
   positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
 function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
 
@@ -988,6 +995,7 @@ function openPersonView(personId){
   document.querySelectorAll('.pv-depth-btn').forEach(b=>b.classList.toggle('selected',b.dataset.d==='999'));
   document.getElementById('person-view-modal').classList.remove('hidden');
   document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
+  const pvSel=document.getElementById('pv-row-size-select');if(pvSel)pvSel.value=String(S.pvMaxPerRow);
   renderPersonView(personId,999);
   initPVPan();
 }
@@ -1596,6 +1604,7 @@ function persistState(){
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
         maxPerRow:S.maxPerRow,
+        pvMaxPerRow:S.pvMaxPerRow,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1773,18 +1782,21 @@ function closeInsightsModal(){document.getElementById('insights-modal').classLis
    PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
    ════════════════════════════════════════════════════════════════════ */
 S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.selectedIds=new Set();
-S.maxPerRow=6;
+S.maxPerRow=6;S.pvMaxPerRow='auto';
 function getEffectiveMaxPerRow(siblingCount){
+  // In Person View we use the PV-specific row size so the user can decide
+  // how many direct reports fit on a single row independently of the main chart.
+  const setting=S.pvMode?S.pvMaxPerRow:S.maxPerRow;
   // If the user picked 'auto', aim for a near-square layout that minimizes
   // chart width. Otherwise honor the explicit value.
-  if(S.maxPerRow==='auto'||S.maxPerRow==null){
+  if(setting==='auto'||setting==null){
     if(siblingCount<=4)return Math.max(1,siblingCount);
     if(siblingCount<=9)return Math.ceil(Math.sqrt(siblingCount));
     if(siblingCount<=16)return 4;
     if(siblingCount<=36)return 6;
     return Math.min(8,Math.ceil(Math.sqrt(siblingCount)));
   }
-  const n=parseInt(S.maxPerRow);
+  const n=parseInt(setting);
   return (isFinite(n)&&n>0)?n:6;
 }
 function setMaxPerRow(val){
@@ -1793,6 +1805,13 @@ function setMaxPerRow(val){
   const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
   renderChart();persistState();
   showToast('Max per row: '+(val==='auto'?'Auto-fit':val),true);
+}
+function setPVMaxPerRow(val){
+  S.pvMaxPerRow=(val==='auto')?'auto':parseInt(val);
+  const sel=document.getElementById('pv-row-size-select');if(sel)sel.value=String(S.pvMaxPerRow);
+  if(S.pvPersonId)renderPersonView(S.pvPersonId,S.pvDepth);
+  persistState();
+  showToast('Person View · max per row: '+(val==='auto'?'Auto-fit':val),true);
 }
 /* Convert all <svg> elements inside a root to <img> data-URLs before html2canvas
    runs. html2canvas frequently renders SVGs as solid black blocks, especially
@@ -2397,6 +2416,7 @@ function applyPersisted(d){
   });
   S.gridShowLines=d.gridShowLines!==false;
   S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
+  S.pvMaxPerRow=(d.pvMaxPerRow==='auto'||d.pvMaxPerRow==null)?'auto':(parseInt(d.pvMaxPerRow)||'auto');
   buildEmpTypeMap();
   return true;
 }
