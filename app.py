@@ -208,17 +208,17 @@ body{display:flex;flex-direction:column}
 .ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-.search-wrap{position:relative;flex:0 0 auto;width:220px;max-width:220px;height:34px;border-radius:999px;background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 60%,#a855f7 100%);box-shadow:0 0 0 2px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.32),inset 0 1px 0 rgba(255,255,255,0.22);transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease,width 0.22s ease,max-width 0.22s ease;overflow:hidden}
-.search-wrap:hover{filter:saturate(1.12) brightness(1.04);box-shadow:0 0 0 3px rgba(124,58,237,0.22),0 6px 16px rgba(124,58,237,0.42),inset 0 1px 0 rgba(255,255,255,0.28)}
-.search-wrap.expanded{width:340px;max-width:340px;box-shadow:0 0 0 3px rgba(192,38,211,0.28),0 8px 22px rgba(192,38,211,0.42),inset 0 1px 0 rgba(255,255,255,0.32)}
-.search-pill-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:none;color:#fff;font-weight:800;font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:999px;z-index:2;transition:opacity 0.16s ease;padding:0 14px}
-.search-pill-btn .sp-ico{font-size:0.92rem;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25))}
+.search-wrap{position:relative;flex:0 0 auto;width:132px;max-width:132px;height:30px;border-radius:999px;background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 60%,#a855f7 100%);box-shadow:0 0 0 2px rgba(124,58,237,0.14),0 3px 10px rgba(124,58,237,0.28),inset 0 1px 0 rgba(255,255,255,0.22);transition:width 0.22s ease,max-width 0.22s ease,box-shadow 0.18s ease,background 0.18s ease}
+.search-wrap:hover{background:linear-gradient(135deg,#7c3aed 0%,#9333ea 60%,#c026d3 100%);box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 5px 14px rgba(124,58,237,0.4),inset 0 1px 0 rgba(255,255,255,0.28)}
+.search-wrap.expanded{width:280px;max-width:280px;box-shadow:0 0 0 3px rgba(192,38,211,0.26),0 6px 18px rgba(192,38,211,0.4),inset 0 1px 0 rgba(255,255,255,0.3)}
+.search-pill-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:none;color:#fff;font-weight:800;font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:999px;z-index:2;transition:opacity 0.16s ease;padding:0 10px;white-space:nowrap}
+.search-pill-btn .sp-ico{font-size:0.82rem;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25))}
 .search-wrap.expanded .search-pill-btn{opacity:0;pointer-events:none}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.92rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25));opacity:0;transition:opacity 0.16s ease}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:0.82rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25));opacity:0;transition:opacity 0.16s ease}
 .search-wrap.expanded .search-icon{opacity:1}
-#chart-search{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:none;border-radius:999px;padding:0 14px 0 34px;font-size:0.8rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0;z-index:1;opacity:0;pointer-events:none;transition:opacity 0.16s ease}
+#chart-search{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:none;border-radius:999px;padding:0 12px 0 30px;font-size:0.78rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0;z-index:1;opacity:0;pointer-events:none;transition:opacity 0.16s ease}
 .search-wrap.expanded #chart-search{opacity:1;pointer-events:auto;z-index:4}
-#chart-search::placeholder{color:rgba(255,255,255,0.72);font-weight:500;letter-spacing:0;text-transform:none}
+#chart-search::placeholder{color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0;text-transform:none;font-size:0.78rem}
 #chart-search-results{position:fixed;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:320px;overflow-y:auto;z-index:99999;display:none;min-width:280px}
 #chart-search-results.visible{display:block}
 .sr-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s ease}
@@ -449,7 +449,7 @@ body{display:flex;flex-direction:column}
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">Setup</button><div class="tb-sep"></div>
-      <div class="search-wrap" id="search-wrap"><button type="button" class="search-pill-btn" id="search-pill-btn" onclick="expandSearch()" aria-label="Open Person View search"><span class="sp-ico">🔍</span>Person View</button><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Type a name or ID…" autocomplete="off" onblur="maybeCollapseSearch()"/><div id="chart-search-results"></div></div><div class="tb-sep"></div>
+      <div class="search-wrap" id="search-wrap"><button type="button" class="search-pill-btn" id="search-pill-btn" onclick="expandSearch()" aria-label="Open Person View search"><span class="sp-ico">🔍</span>Person View</button><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Type a name or ID…" autocomplete="off" onblur="maybeCollapseSearch()"/></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
@@ -509,6 +509,9 @@ body{display:flex;flex-direction:column}
   <span class="at-sep"></span>
   <button class="at-btn danger" onclick="clearSelection()" title="Clear selection (Esc)">✕</button>
 </div>
+
+<!-- Search results dropdown (rendered at body level so no ancestor CSS clips it) -->
+<div id="chart-search-results"></div>
 
 <!-- Reassign Modal -->
 <div class="modal-overlay hidden" id="reassign-modal">
@@ -942,7 +945,7 @@ function initSearch(){
     _searchTimer=setTimeout(runSearch,120);
   });
   input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});
-  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')){box.classList.remove('visible');collapseSearchIfEmpty();}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#chart-search-results')){box.classList.remove('visible');collapseSearchIfEmpty();}});
   window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});
 }
 function expandSearch(){const w=document.getElementById('search-wrap');if(!w)return;w.classList.add('expanded');const i=document.getElementById('chart-search');if(i)setTimeout(()=>i.focus(),20);}
