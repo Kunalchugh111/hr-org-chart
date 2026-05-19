@@ -222,13 +222,12 @@ body{display:flex;flex-direction:column}
 .sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
 .sr-actions{display:flex;gap:8px;flex-shrink:0;align-items:center}
-.sr-view-pill{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:1.1rem;border:none;border-radius:50%;cursor:pointer;font-family:inherit;box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 6px 16px rgba(124,58,237,0.38);animation:sr-pill-pulse 1.8s ease-in-out infinite;transition:transform 0.18s ease,box-shadow 0.18s ease;position:relative;flex-shrink:0}
-.sr-view-pill::after{content:'View';position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:0.6rem;font-weight:800;color:#4f46e5;letter-spacing:0.08em;text-transform:uppercase;opacity:0;transition:opacity 0.15s;pointer-events:none;white-space:nowrap}
-.sr-view-pill:hover{transform:translateY(-2px) scale(1.08);animation:none;box-shadow:0 0 0 6px rgba(124,58,237,0.2),0 12px 28px rgba(124,58,237,0.55)}
-.sr-view-pill:hover::after{opacity:1}
+.sr-view-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:linear-gradient(135deg,#6d28d9,#7c3aed 45%,#a855f7);color:#fff;font-size:0.78rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;box-shadow:0 0 0 3px rgba(124,58,237,0.18),0 6px 16px rgba(124,58,237,0.4);animation:sr-pill-pulse 1.8s ease-in-out infinite;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;flex-shrink:0;white-space:nowrap}
+.sr-view-pill:hover{transform:translateY(-1px) scale(1.04);animation:none;filter:saturate(1.15);box-shadow:0 0 0 6px rgba(124,58,237,0.22),0 12px 28px rgba(124,58,237,0.55)}
+.sr-view-pill .sr-view-pill-ico{font-size:0.92rem;line-height:1}
 .sr-pin-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--bg2);color:var(--text2);border:1.5px solid var(--border);border-radius:50%;cursor:pointer;font-size:0.95rem;transition:all 0.12s;font-family:inherit;flex-shrink:0}
 .sr-pin-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent);transform:scale(1.08)}
-@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 6px 16px rgba(124,58,237,0.38)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0.04),0 8px 22px rgba(124,58,237,0.6)}}
+@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.18),0 6px 16px rgba(124,58,237,0.4)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0.05),0 8px 22px rgba(124,58,237,0.62)}}
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
@@ -923,7 +922,7 @@ function initSearch(){const input=document.getElementById('chart-search');const 
   // Also search raw data (cross-filter)
   const rawHits=S.rawRows.map(r=>{const id=String(r[S.colMap.empId]||'').replace(/\.0$/,'').trim();const name=String(r[S.colMap.empName]||'');return{id,name};}).filter(n=>n.id&&!hits.find(h=>h.id===n.id)&&(n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q))).slice(0,5);
   const allHits=[...hits.map(n=>({...n,inChart:true})),...rawHits.map(n=>({...n,inChart:false}))];
-  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View" aria-label="Open Person View">👁</button>'+(n.inChart?'<button class="sr-pin-btn" onclick="highlightNode(\''+esc(n.id)+'\')" title="Locate on chart" aria-label="Locate on chart">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
+  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View" aria-label="Open Person View"><span class="sr-view-pill-ico">👁</span>View</button>'+(n.inChart?'<button class="sr-pin-btn" onclick="highlightNode(\''+esc(n.id)+'\')" title="Locate on chart" aria-label="Locate on chart">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
   positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
 function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
 
@@ -1136,11 +1135,20 @@ function redrawPVConnectors(){
   if(!S.pvGridMode)return;
   const svg=document.getElementById('pv-grid-svg');if(!svg)return;svg.innerHTML='';
   const cc=document.getElementById('pv-tree-content');if(!cc)return;
-  const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
+  const ccRect=cc.getBoundingClientRect();
+  let maxRight=Math.max(cc.scrollWidth,cc.offsetWidth);
+  let maxBottom=Math.max(cc.scrollHeight,cc.offsetHeight);
+  cc.querySelectorAll('#pv-org-tree .node-card[data-drag-id], #pv-org-tree .summary-list-card[data-drag-id]').forEach(card=>{
+    const r=card.getBoundingClientRect();
+    const right=(r.right-ccRect.left)/S.pvZoom;
+    const bottom=(r.bottom-ccRect.top)/S.pvZoom;
+    if(right>maxRight)maxRight=right;
+    if(bottom>maxBottom)maxBottom=bottom;
+  });
+  const w=Math.ceil(maxRight)+40;const h=Math.ceil(maxBottom)+40;
   svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
   svg.setAttribute('overflow','visible');
   svg.style.width=w+'px';svg.style.height=h+'px';svg.style.overflow='visible';svg.style.display='block';
-  const ccRect=cc.getBoundingClientRect();
   function addPath(d,color){
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',d);p.setAttribute('stroke',color||'#94a3b8');
@@ -1155,12 +1163,23 @@ function redrawPVConnectors(){
       bottom:(r.bottom-ccRect.top)/S.pvZoom,right:(r.right-ccRect.left)/S.pvZoom
     };
   }
-  // Group child li elements by parent li (DOM walk, since PV uses raw children)
+  // Group child li elements by their containing parent li. Walk UP through
+  // any wrappers (.children-rows-wrap, .children-row-ul, etc.) until we find
+  // an ancestor LI — using li.parentElement.parentElement only works when the
+  // tree is flat; it breaks the moment we render a row-wrapped subtree, which
+  // is why grid lines disappeared on people with many direct reports.
+  function findAncestorLi(li){
+    let p=li.parentElement;
+    while(p&&p.id!=='pv-org-tree'){
+      if(p.tagName==='LI')return p;
+      p=p.parentElement;
+    }
+    return null;
+  }
   const lis=Array.from(document.querySelectorAll('#pv-org-tree li'));
   const byParent=new Map();
   lis.forEach(li=>{
-    const ul=li.parentElement;if(!ul||ul.tagName!=='UL')return;
-    const pli=ul.parentElement;if(!pli||pli.tagName!=='LI')return;
+    const pli=findAncestorLi(li);if(!pli)return;
     if(!byParent.has(pli))byParent.set(pli,[]);
     byParent.get(pli).push(li);
   });
