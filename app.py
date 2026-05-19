@@ -221,12 +221,14 @@ body{display:flex;flex-direction:column}
 .sr-info{flex:1;cursor:pointer}
 .sr-name{font-weight:700;font-size:0.83rem;color:var(--text)}
 .sr-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
-.sr-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
-.sr-view-pill{display:inline-flex;align-items:center;gap:4px;padding:5px 13px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:0.72rem;font-weight:800;border:none;border-radius:999px;cursor:pointer;font-family:inherit;letter-spacing:0.03em;text-transform:uppercase;box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.32);animation:sr-pill-pulse 1.8s ease-in-out infinite;transition:transform 0.15s,box-shadow 0.15s}
-.sr-view-pill:hover{transform:translateY(-1px) scale(1.05);animation:none;box-shadow:0 0 0 5px rgba(124,58,237,0.22),0 8px 22px rgba(124,58,237,0.5)}
-.sr-pin-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--bg2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;transition:all 0.12s;font-family:inherit}
-.sr-pin-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
-@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.32)}50%{box-shadow:0 0 0 7px rgba(124,58,237,0.04),0 6px 18px rgba(124,58,237,0.55)}}
+.sr-actions{display:flex;gap:8px;flex-shrink:0;align-items:center}
+.sr-view-pill{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:1.1rem;border:none;border-radius:50%;cursor:pointer;font-family:inherit;box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 6px 16px rgba(124,58,237,0.38);animation:sr-pill-pulse 1.8s ease-in-out infinite;transition:transform 0.18s ease,box-shadow 0.18s ease;position:relative;flex-shrink:0}
+.sr-view-pill::after{content:'View';position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:0.6rem;font-weight:800;color:#4f46e5;letter-spacing:0.08em;text-transform:uppercase;opacity:0;transition:opacity 0.15s;pointer-events:none;white-space:nowrap}
+.sr-view-pill:hover{transform:translateY(-2px) scale(1.08);animation:none;box-shadow:0 0 0 6px rgba(124,58,237,0.2),0 12px 28px rgba(124,58,237,0.55)}
+.sr-view-pill:hover::after{opacity:1}
+.sr-pin-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--bg2);color:var(--text2);border:1.5px solid var(--border);border-radius:50%;cursor:pointer;font-size:0.95rem;transition:all 0.12s;font-family:inherit;flex-shrink:0}
+.sr-pin-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent);transform:scale(1.08)}
+@keyframes sr-pill-pulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,0.16),0 6px 16px rgba(124,58,237,0.38)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0.04),0 8px 22px rgba(124,58,237,0.6)}}
 .zoom-strip{display:flex;align-items:center;gap:1px;background:var(--bg2);border-radius:8px;padding:2px;border:1.5px solid var(--border)}
 .btn-zoom{background:transparent;border:none;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:0.85rem;font-weight:700;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background 0.12s}
 .btn-zoom:hover{background:var(--bg3);color:var(--text)}
@@ -788,7 +790,7 @@ function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li
   // Drag handlers are always attached. They check context at runtime —
   // tree-mode drag in PV is blocked, but Grid-mode drag (free-move) works in
   // both main chart and Person View.
-  card.draggable=!S.gridMode;
+  card.draggable=!(S.pvMode?S.pvGridMode:S.gridMode);
   card.dataset.dragId=node.id;
   card.setAttribute('aria-grabbed','false');
   card.addEventListener('dragstart',onCardDragStart);
@@ -921,7 +923,7 @@ function initSearch(){const input=document.getElementById('chart-search');const 
   // Also search raw data (cross-filter)
   const rawHits=S.rawRows.map(r=>{const id=String(r[S.colMap.empId]||'').replace(/\.0$/,'').trim();const name=String(r[S.colMap.empName]||'');return{id,name};}).filter(n=>n.id&&!hits.find(h=>h.id===n.id)&&(n.name.toLowerCase().includes(q)||n.id.toLowerCase().includes(q))).slice(0,5);
   const allHits=[...hits.map(n=>({...n,inChart:true})),...rawHits.map(n=>({...n,inChart:false}))];
-  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View">👁 View</button>'+(n.inChart?'<button class="sr-pin-btn" onclick="highlightNode(\''+esc(n.id)+'\')" title="Locate on chart">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
+  box.innerHTML=allHits.length?allHits.map(n=>'<div class="sr-item"><div class="sr-info" onclick="openPersonView(\''+esc(n.id)+'\')"><div class="sr-name">'+esc(n.name)+'</div><div class="sr-sub">'+esc(n.id)+(n.inChart?'':' · <em>not in current filter</em>')+'</div></div><div class="sr-actions"><button class="sr-view-pill" onclick="openPersonView(\''+esc(n.id)+'\')" title="Open Person View" aria-label="Open Person View">👁</button>'+(n.inChart?'<button class="sr-pin-btn" onclick="highlightNode(\''+esc(n.id)+'\')" title="Locate on chart" aria-label="Locate on chart">📌</button>':'')+'</div></div>').join(''):'<div class="sr-item" style="color:var(--text3);font-size:0.8rem;padding:12px 13px">No results</div>';
   positionBox();box.classList.add('visible');});input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))box.classList.remove('visible');});window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});}
 function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
 
@@ -1043,6 +1045,12 @@ function renderPersonView(personId,maxDepth){
   // Restore
   if(personNode&&savedMgr!==undefined)personNode.manager=savedMgr;
   S.viewData=savedVD;S.childMap=savedCM;S.descCount=savedDC;S.nodeHeight=savedNH;S.nodeDepth=savedND;S.pvMode=savedPvMode;
+  // Re-apply PV grid translations + connectors if grid mode was on for this session
+  if(S.pvGridMode){
+    setPVCardDraggability(true);
+    bindPVCanvasGridDND();
+    setTimeout(()=>{applyPVGridOverridesToTree();redrawPVConnectors();},180);
+  }
   // Fit + FRO lines
   setTimeout(()=>{pvFit();setTimeout(()=>renderPVFROLines(),350);},180);
   // Update stats in modal
@@ -1099,6 +1107,7 @@ function togglePVGrid(){
   document.getElementById('pv-grid-btn').classList.toggle('active',S.pvGridMode);
   const tc=document.getElementById('pv-tree-content');
   if(tc)tc.classList.toggle('grid-mode',S.pvGridMode);
+  setPVCardDraggability(S.pvGridMode);
   if(S.pvGridMode){
     bindPVCanvasGridDND();
     setTimeout(()=>{applyPVGridOverridesToTree();redrawPVConnectors();},150);
@@ -2062,31 +2071,42 @@ function redrawGridConnectorsFromTree(){
     }
   });
 }
-/* Pointer-event based drag for Grid Mode. We avoid HTML5 drag-and-drop here
-   because it's unreliable inside Streamlit iframes (drop events sometimes
-   don't fire, drag images are clipped, dataTransfer is flaky). With pointer
-   capture we get real-time line updates as the card is dragged. */
+/* Pointer-event based drag for Grid Mode (main chart + Person View).
+   We avoid HTML5 drag-and-drop here because it's unreliable inside
+   Streamlit iframes (drop events sometimes don't fire, drag images
+   are clipped, dataTransfer is flaky). With pointer capture we get
+   real-time line updates as the card is dragged. */
 function setCardDraggability(gridOn){
   document.querySelectorAll('#org-tree .node-card[data-drag-id], #org-tree .summary-list-card[data-drag-id]').forEach(card=>{
     card.draggable=!gridOn;
   });
 }
+function setPVCardDraggability(gridOn){
+  document.querySelectorAll('#pv-org-tree .node-card[data-drag-id], #pv-org-tree .summary-list-card[data-drag-id]').forEach(card=>{
+    card.draggable=!gridOn;
+  });
+}
 function onCardPointerDown(e){
-  if(!S.gridMode)return;
+  const card=e.currentTarget;
+  const inPV=!!card.closest('#pv-org-tree, #pv-tree-content');
+  const gridOn=inPV?S.pvGridMode:S.gridMode;
+  if(!gridOn)return;
   if(e.button!==0)return;
   if(e.target.closest('.ncard-edit-btn,.ncard-export-btn,.collapse-btn'))return;
   if(e.shiftKey)return;
-  const card=e.currentTarget;
   const id=card.dataset.dragId;if(!id)return;
   e.preventDefault();
-  const oldOvr=S.gridOverrides[id]||{dx:0,dy:0};
+  const overrides=inPV?S.pvGridOverrides:S.gridOverrides;
+  const redraw=inPV?redrawPVConnectors:redrawGridConnectorsFromTree;
+  const oldOvr=overrides[id]||{dx:0,dy:0};
   const startX=e.clientX,startY=e.clientY;
   let curDx=oldOvr.dx,curDy=oldOvr.dy;
   let moved=false;
   try{card.setPointerCapture(e.pointerId);}catch(_){}
   function onMove(ev){
-    const ddx=(ev.clientX-startX)/S.zoom;
-    const ddy=(ev.clientY-startY)/S.zoom;
+    const zoom=inPV?S.pvZoom:S.zoom;
+    const ddx=(ev.clientX-startX)/zoom;
+    const ddy=(ev.clientY-startY)/zoom;
     if(!moved&&Math.abs(ddx)<3&&Math.abs(ddy)<3)return;
     moved=true;
     card.classList.add('node-dragging','grid-translated');
@@ -2096,7 +2116,7 @@ function onCardPointerDown(e){
     if(!window._gridDragRAF){
       window._gridDragRAF=requestAnimationFrame(()=>{
         window._gridDragRAF=null;
-        redrawGridConnectorsFromTree();
+        redraw();
       });
     }
   }
@@ -2112,14 +2132,14 @@ function onCardPointerDown(e){
     curDy=Math.round(curDy/SNAP)*SNAP;
     pushUndo();
     if(curDx===0&&curDy===0){
-      delete S.gridOverrides[id];
+      delete overrides[id];
       card.style.transform='';
       card.classList.remove('grid-translated');
     }else{
-      S.gridOverrides[id]={dx:curDx,dy:curDy};
+      overrides[id]={dx:curDx,dy:curDy};
       card.style.transform='translate('+curDx+'px,'+curDy+'px)';
     }
-    redrawGridConnectorsFromTree();
+    redraw();
     persistState();
   }
   card.addEventListener('pointermove',onMove);
