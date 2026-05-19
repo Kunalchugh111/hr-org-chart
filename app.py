@@ -170,29 +170,6 @@ body{display:flex;flex-direction:column}
 .org-tree li:last-child::before{border-radius:0 6px 0 0}
 .org-tree ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:2px solid #cbd5e1;height:24px}
 .org-tree li.collapsed > ul{display:none!important}
-/* ── Compact mode: shrink cards + flat grid-by-depth layout that fills width ── */
-body.compact-mode .node-card{width:208px!important}
-body.compact-mode .ncard-body{padding:9px 11px 8px!important}
-body.compact-mode .ncard-header,body.compact-mode .ncard-footer{padding:4px 8px!important}
-body.compact-mode .ncard-name{font-size:0.78rem!important;margin-bottom:2px!important}
-body.compact-mode .ncard-sub{font-size:0.66rem!important;-webkit-line-clamp:1!important}
-body.compact-mode .ncard-body-b1{font-size:0.62rem!important;padding-top:3px!important;margin-top:3px!important}
-body.compact-mode .ncard-slot{font-size:0.56rem!important}
-body.compact-mode .ncard-photo,body.compact-mode .ncard-photo-fallback{width:54px!important;height:54px!important;font-size:14px!important}
-body.compact-mode .summary-list-card{width:188px!important}
-/* Flat layout (rendered by renderCompactLayout): each depth becomes a wrapping
-   row of cards, gaps tighten so cards visually fill all horizontal space. */
-.org-tree.compact-flat{display:block!important;padding:36px 24px 24px 24px!important;background:transparent}
-.org-tree.compact-flat .compact-depth-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:flex-start;align-items:flex-start;position:relative;margin-bottom:60px;padding-top:20px}
-.org-tree.compact-flat .compact-depth-row:last-child{margin-bottom:24px}
-.org-tree.compact-flat .compact-depth-row .node-card,
-.org-tree.compact-flat .compact-depth-row .summary-list-card{flex:0 0 auto;margin:0}
-.org-tree.compact-flat .compact-depth-label{position:absolute;left:0;top:0;font-size:0.7rem;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;background:var(--bg2);padding:2px 8px;border-radius:6px;border:1px solid var(--border)}
-.chart-canvas-content.has-compact #fro-svg{display:none!important}
-.chart-canvas-content.has-compact #grid-svg{display:block!important;z-index:1}
-.compact-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;flex-shrink:0}
-.compact-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
-.compact-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
 .row-size-wrap{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .row-size-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);white-space:nowrap}
 .row-size-select{background:transparent;border:none;border-radius:6px;padding:3px 18px 3px 4px;font-size:0.78rem;font-weight:700;color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none}
@@ -327,27 +304,6 @@ body.compact-mode .summary-list-card{width:188px!important}
 .map-hint.warn{color:#b45309;font-weight:600}
 .map-hint.err{color:var(--danger);font-weight:600}
 .map-hint.ok{color:#059669;font-weight:600}
-/* ── Orientation: horizontal (left-right) tree layout ── */
-.chart-canvas-content.horizontal-layout #org-tree ul{padding-top:0!important;padding-left:36px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;flex-wrap:nowrap!important}
-.chart-canvas-content.horizontal-layout #org-tree li{display:flex!important;flex-direction:row!important;align-items:center!important;padding:8px 0 8px 36px!important;text-align:left!important;vertical-align:middle!important;position:relative}
-/* Disable the default vertical-tree connectors */
-.chart-canvas-content.horizontal-layout #org-tree li::before,
-.chart-canvas-content.horizontal-layout #org-tree li::after{border:none!important;width:auto!important;height:auto!important;top:auto!important;right:auto!important;border-radius:0!important}
-/* Horizontal arm + vertical trunk: rebuilt via the same pseudo-elements */
-.chart-canvas-content.horizontal-layout #org-tree li::before{display:block!important;content:''!important;position:absolute!important;left:0!important;top:50%!important;width:36px!important;height:0!important;border-top:2px solid #cbd5e1!important}
-.chart-canvas-content.horizontal-layout #org-tree li::after{display:block!important;content:''!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;height:100%!important;border-left:2px solid #cbd5e1!important;width:0!important}
-.chart-canvas-content.horizontal-layout #org-tree li:first-child::after{top:50%!important;height:50%!important;bottom:0!important}
-.chart-canvas-content.horizontal-layout #org-tree li:last-child::after{top:0!important;bottom:50%!important;height:50%!important}
-.chart-canvas-content.horizontal-layout #org-tree li:only-child::after{display:none!important}
-.chart-canvas-content.horizontal-layout #org-tree ul ul::before{display:none!important}
-.chart-canvas-content.horizontal-layout .children-rows-wrap{flex-direction:column!important;padding-top:0!important;padding-left:36px!important;align-items:flex-start!important;gap:6px!important}
-.chart-canvas-content.horizontal-layout .children-rows-wrap::before{display:none!important}
-.chart-canvas-content.horizontal-layout .children-row-ul{flex-direction:column!important;padding-top:0!important;padding-left:36px!important}
-.chart-canvas-content.horizontal-layout .children-row-ul.row-cont{padding-top:8px!important;padding-left:36px!important;border-top:none!important;border-left:1.5px dashed #cbd5e1!important;margin-top:0!important;margin-left:6px!important}
-.chart-canvas-content.horizontal-layout .children-row-ul.row-cont::after{top:50%!important;left:-9px!important;transform:translateY(-50%)!important}
-.orient-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
-.orient-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
-.orient-btn.horizontal{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 /* ── Grid Mode v2: tree stays visible, drag to translate, SVG connectors ── */
 #org-grid{display:none}
 .chart-canvas-content.grid-mode #org-tree li::before,
@@ -491,7 +447,6 @@ body.compact-mode .summary-list-card{width:188px!important}
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
       <div class="row-size-wrap" title="Maximum number of cards in a single row. 'Auto' picks a near-square layout based on the count of siblings."><span class="row-size-label">Per row</span><select class="row-size-select" id="row-size-select" onchange="setMaxPerRow(this.value)" aria-label="Maximum cards per row"><option value="auto">Auto</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6" selected>6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option></select></div>
-      <button class="compact-btn" id="compact-btn" onclick="toggleCompact()" title="Compact mode: shrink cards, auto-fit row size, fit-to-screen — squeezes the chart into the smallest readable footprint">📐 Compact Fit</button>
       <div class="tb-sep"></div>
       <div class="mgr-mode-btn" id="mgr-mode-btn" onclick="toggleManagerMode()" title="Compact ICs into a single summary list under each manager"><div class="mgr-mode-dot"></div>Manager View</div>
       <div class="grid-mode-btn" id="grid-mode-btn" onclick="toggleGridMode()" title="Switch to free-form grid: cards auto-place by depth (level=row), drag any card to any cell to override"><div class="grid-mode-dot"></div>Grid Mode</div>
@@ -508,7 +463,6 @@ body.compact-mode .summary-list-card{width:188px!important}
       <div class="fro-legend" id="fro-legend" style="display:none"><span class="fro-legend-line"></span>FRO line</div>
       <button class="dq-toolbar-btn" id="dq-btn" onclick="openDataQualityModal()" title="Data quality issues found in your roster (duplicates, cycles, orphans)" style="display:none">⚠ <span id="dq-count">0</span> issues</button>
       <button class="btn btn-ghost btn-sm" onclick="openInsightsModal()" title="Org-design insights (span-of-control outliers, depth, single-report managers)" id="insights-btn">💡 Insights</button>
-      <button class="orient-btn" id="orient-btn" onclick="toggleOrientation()" title="Switch chart between Vertical (top-down, default) and Horizontal (left-to-right) tree layout">↕ Vertical</button>
       <button class="btn btn-ghost btn-sm" onclick="printA3()" title="Print or save as A3-landscape PDF — opens a print-ready preview window with the right paper size baked in">🖨 Print A3</button>
       <div class="tb-sep"></div>
       <div style="flex:1"></div>
@@ -669,7 +623,7 @@ const UNDO_MAX=40;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function xe(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 
-function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);applyOrientation();const rs=document.getElementById('row-size-select');if(rs)rs.value=String(S.maxPerRow);const cb=document.getElementById('compact-btn');if(cb)cb.classList.toggle('active',S.compact);document.body.classList.toggle('compact-mode',S.compact);if(S.gridMode){bindCanvasGridDND();setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},250);}},160);}}
+function goTo(step){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+step).classList.add('active');const order=['upload','map','card','filter','chart'];const cur=order.indexOf(step);order.forEach((s,i)=>{const el=document.getElementById('nav-step-'+s);if(!el)return;el.className='step-item'+(i<cur?' done':i===cur?' active':'');const dot=el.querySelector('.step-dot');if(dot)dot.textContent=i<cur?'✓':String(i+1);});if(step==='chart'){setTimeout(()=>initPan(),80);setTimeout(()=>initSearch(),80);setTimeout(()=>populateSummaryFields(),120);setTimeout(()=>applyChartBg(),120);setTimeout(()=>bindRootDropZone(),140);setTimeout(()=>{const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';const bgi=document.getElementById('bg-color-input');if(bgi)bgi.value=S.chartBgColor;const tb=document.getElementById('bg-transparent-btn');if(tb)tb.classList.toggle('active',S.transparentExport);refreshDataQualityBtn();const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');if(gl)gl.style.display=S.gridMode?'inline-flex':'none';if(gr)gr.style.display=S.gridMode?'inline-flex':'none';const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);const rs=document.getElementById('row-size-select');if(rs)rs.value=String(S.maxPerRow);if(S.gridMode){bindCanvasGridDND();setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},250);}},160);}}
 function handleFile(file){
   try{
     const ext=(file.name.split('.').pop()||'').toLowerCase();
@@ -805,90 +759,21 @@ function mkKidsWrap(kids,depth){
 
 function renderChart(){
   const tree=document.getElementById('org-tree');
-  const cc=document.getElementById('chart-canvas-content');
   tree.innerHTML='';
-  tree.classList.remove('compact-flat');
   tree.style.width='';
-  if(cc)cc.classList.remove('has-compact');
   const ds=document.getElementById('depth-select');if(ds)ds.value=S.skipDepth;
-  if(S.compact){renderCompactLayout();}else{
-    let roots;
-    if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}
-    else{roots=S.childMap['']||[];}
-    if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}
-    const ul=document.createElement('ul');
-    roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
-    tree.appendChild(ul);
-    updateStats(roots);
-    clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
-    clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);
-  }
-  if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}
-  else if(S.compact){setTimeout(()=>{redrawCompactConnectors();},250);}
-}
-function renderCompactLayout(){
-  const tree=document.getElementById('org-tree');
-  const cc=document.getElementById('chart-canvas-content');
-  if(cc)cc.classList.add('has-compact');
-  tree.classList.add('compact-flat');
-  // Inline-block chart-canvas-content sizes to its content's max-width.
-  // For flex-wrap to actually wrap, we need a concrete width on the compact
-  // container — pick something based on per-row × card-width when capped,
-  // otherwise size to ~85% of the visible canvas wrap.
-  const wrap=document.getElementById('chart-canvas-wrap');
-  const wrapW=wrap?wrap.clientWidth:1200;
-  const cap=(S.maxPerRow==='auto')?null:parseInt(S.maxPerRow);
-  if(cap){
-    tree.style.width=(cap*210+(cap-1)*14+48)+'px';
-  }else{
-    tree.style.width=Math.max(800,wrapW-80)+'px';
-  }
-  // Group visible nodes by depth (relative to skipDepth). In Manager View, leaves
-  // are folded into the IC-summary card under their manager — so skip individual
-  // cards for leaves to avoid duplication.
-  const minD=S.skipDepth||0;const byDepth={};
-  S.viewData.forEach(n=>{
-    const d=(S.nodeDepth[n.id]||0)-minD;if(d<0)return;
-    if(S.managerMode&&!isManager(n.id))return;
-    if(!byDepth[d])byDepth[d]=[];byDepth[d].push(n);
-  });
-  const sortedDepths=Object.keys(byDepth).sort((a,b)=>+a-+b);
-  if(!sortedDepths.length){tree.innerHTML='<div class="no-data">No nodes to display.</div>';updateStats([]);return;}
-  // For Manager View we also append IC summary cards per manager at depth+1
-  sortedDepths.forEach(d=>{
-    const row=document.createElement('div');
-    row.className='compact-depth-row'+(cap?' row-cap':'');
-    row.dataset.depth=d;
-    if(cap){const w=cap*210+(cap-1)*14;row.style.maxWidth=w+'px';}
-    // Depth label
-    const lbl=document.createElement('div');lbl.className='compact-depth-label';lbl.textContent='L'+d;row.appendChild(lbl);
-    byDepth[d].forEach(n=>{
-      const card=mkBareCard(n);
-      // mkBareCard hands back a node-card; ensure data-drag-id is set (mkNodeLI adds it)
-      row.appendChild(card);
-    });
-    // Append per-manager IC summaries when Manager View is on
-    if(S.managerMode){
-      byDepth[d].forEach(parent=>{
-        const kids=childrenOf(parent.id);if(!kids.length)return;
-        const leaves=kids.filter(k=>!isManager(k.id));
-        if(!leaves.length)return;
-        const ac=getNodeBorderColor(parent);
-        const sumLi=mkLeafSummaryLI(leaves,ac);
-        const sumCard=sumLi.querySelector('.summary-list-card');
-        if(sumCard){sumCard.dataset.icManager=parent.id;row.appendChild(sumCard);}
-      });
-    }
-    tree.appendChild(row);
-  });
-  updateStats(S.viewData);
+  let roots;
+  if(S.skipDepth>0){roots=S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth);}
+  else{roots=S.childMap['']||[];}
+  if(!roots.length){tree.innerHTML='<div class="no-data">No nodes found. Try a lower Skip Top value.</div>';updateStats(roots);return;}
+  const ul=document.createElement('ul');
+  roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
+  tree.appendChild(ul);
+  updateStats(roots);
   clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
+  clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);
+  if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}
 }
-function redrawCompactConnectors(){
-  // Compact uses the same orthogonal connector logic as Grid mode
-  redrawGridConnectorsFromTree();
-}
-
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
   // ── FULL 4-side border color + per-card accent variable ──
   card.style.borderColor=ac;
@@ -1017,7 +902,7 @@ function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.paren
 function updateStats(roots){if(!roots)roots=S.skipDepth>0?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth):(S.childMap['']||[]);document.getElementById('stat-total').textContent=S.viewData.length;document.getElementById('stat-roots').textContent=roots.length;let visCount=0;document.querySelectorAll('.node-card').forEach(card=>{if(!card.closest('li.collapsed > ul')&&!card.closest('li.collapsed > .children-rows-wrap'))visCount++;});document.getElementById('stat-vis').textContent=visCount;document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';const mgrStat=document.getElementById('stat-mgr-mode');const mgrVal=document.getElementById('stat-mgr-val');if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){mgrVal.textContent=S.viewData.filter(n=>!isManager(n.id)).length+' ICs in lists';}}}
 function cwrap(){return document.getElementById('chart-canvas-wrap');}
 function ccontent(){return document.getElementById('chart-canvas-content');}
-function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';if(S.gridMode||S.compact){clearTimeout(window._gz);window._gz=setTimeout(redrawGridConnectorsFromTree,80);}}
+function applyZoom(z){S.zoom=Math.max(0.1,Math.min(3,z));ccontent().style.transform='scale('+S.zoom+')';document.getElementById('zoom-level').textContent=Math.round(S.zoom*100)+'%';if(S.gridMode){clearTimeout(window._gz);window._gz=setTimeout(redrawGridConnectorsFromTree,80);}}
 function zoomBy(d){applyZoom(S.zoom+d);}
 function fitToScreen(andCenter){requestAnimationFrame(()=>{const tree=document.getElementById('org-tree');const wrap=cwrap();if(!tree||!wrap)return;const tw=tree.scrollWidth,th=tree.scrollHeight,aw=wrap.clientWidth-100,ah=wrap.clientHeight-100;if(tw<10||th<10)return;applyZoom(Math.max(0.12,Math.min(1,aw/tw,ah/th)));if(andCenter)setTimeout(centerView,70);});}
 function centerView(){const wrap=cwrap();const tree=document.getElementById('org-tree');if(!wrap||!tree)return;const sw=tree.scrollWidth*S.zoom;wrap.scrollLeft=Math.max(0,(sw-wrap.clientWidth)/2);wrap.scrollTop=0;}
@@ -1516,7 +1401,7 @@ function onCardDragStart(e){
   const inPV=!!card.closest('#pv-org-tree, #pv-tree-content');
   // Block drag-start when we're not allowed to translate:
   //   - PV without pvGridMode: card is read-only
-  //   - Main with neither gridMode nor compact: only drag-to-reassign is allowed
+  //   - Main without gridMode: only drag-to-reassign is allowed
   //     (we don't preventDefault here because reassign IS a real interaction)
   if(inPV&&!S.pvGridMode){e.preventDefault();return;}
   const id=card.dataset.dragId;if(!id)return;
@@ -1708,9 +1593,7 @@ function persistState(){
         gridMode:S.gridMode,
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
-        orientation:S.orientation,
         maxPerRow:S.maxPerRow,
-        compact:S.compact,
         savedAt:Date.now()
       };
       localStorage.setItem(PERSIST_KEY,JSON.stringify(data));
@@ -1887,8 +1770,8 @@ function closeInsightsModal(){document.getElementById('insights-modal').classLis
 /* ════════════════════════════════════════════════════════════════════
    PHASE 9 · Grid Mode — auto-arrange by depth + drag-to-cell override
    ════════════════════════════════════════════════════════════════════ */
-S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.orientation='vertical';S.selectedIds=new Set();
-S.maxPerRow=6;S.compact=false;
+S.gridMode=false;S.gridOverrides={};S.gridShowLines=true;S.selectedIds=new Set();
+S.maxPerRow=6;
 function getEffectiveMaxPerRow(siblingCount){
   // If the user picked 'auto', aim for a near-square layout that minimizes
   // chart width. Otherwise honor the explicit value.
@@ -1908,38 +1791,6 @@ function setMaxPerRow(val){
   const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
   renderChart();persistState();
   showToast('Max per row: '+(val==='auto'?'Auto-fit':val),true);
-}
-function toggleCompact(){
-  S.compact=!S.compact;
-  document.body.classList.toggle('compact-mode',S.compact);
-  const btn=document.getElementById('compact-btn');if(btn)btn.classList.toggle('active',S.compact);
-  if(S.compact){
-    // Compact = shrink + auto-fit row size + fit to screen
-    if(S.maxPerRow!=='auto'){S._prevMaxPerRow=S.maxPerRow;S.maxPerRow='auto';}
-    const sel=document.getElementById('row-size-select');if(sel)sel.value='auto';
-  }else{
-    // Restore previous row size if we changed it
-    if(S._prevMaxPerRow!==undefined){S.maxPerRow=S._prevMaxPerRow;delete S._prevMaxPerRow;}
-    const sel=document.getElementById('row-size-select');if(sel)sel.value=String(S.maxPerRow);
-  }
-  renderChart();
-  setTimeout(()=>fitToScreen(true),250);
-  persistState();
-  showToast(S.compact?'Compact Fit on — '+S.viewData.length+' cards squeezed into view':'Compact Fit off');
-}
-function toggleOrientation(){
-  S.orientation=(S.orientation==='vertical')?'horizontal':'vertical';
-  applyOrientation();persistState();
-  showToast('Layout: '+(S.orientation==='vertical'?'Vertical (top-down)':'Horizontal (left-to-right)'));
-  // FRO lines need recompute after layout change
-  setTimeout(renderFROLines,400);
-}
-function applyOrientation(){
-  const cc=document.getElementById('chart-canvas-content');if(!cc)return;
-  cc.classList.toggle('horizontal-layout',S.orientation==='horizontal');
-  const btn=document.getElementById('orient-btn');
-  if(btn){btn.classList.toggle('horizontal',S.orientation==='horizontal');btn.innerHTML=(S.orientation==='horizontal'?'↔ Horizontal':'↕ Vertical');}
-  setTimeout(()=>{try{fitToScreen(true);}catch(_){/*noop*/}},120);
 }
 /* Convert all <svg> elements inside a root to <img> data-URLs before html2canvas
    runs. html2canvas frequently renders SVGs as solid black blocks, especially
@@ -2076,7 +1927,7 @@ function resetGridOverrides(){
   S.gridOverrides={};
   clearTreeTranslations();
   applyGridOverridesToTree();
-  redrawGridConnectorsFromTree();
+  requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
   persistState();
   showToast('Cards returned to tree positions',true);
 }
@@ -2106,16 +1957,27 @@ function clearTreeTranslations(){
    through siblings (the previous bug). Plus a separate purple connector
    to the manager's IC summary card if any. */
 function redrawGridConnectorsFromTree(){
-  if(!S.gridMode&&!S.compact)return;
+  if(!S.gridMode)return;
   const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
   const cc=document.getElementById('chart-canvas-content');if(!cc)return;
-  const w=Math.max(cc.scrollWidth,cc.offsetWidth);const h=Math.max(cc.scrollHeight,cc.offsetHeight);
+  // Compute SVG box big enough to cover all visible cards INCLUDING translated ones
+  // (CSS transforms don't expand the parent's scrollWidth, so we have to scan).
+  const ccRect=cc.getBoundingClientRect();
+  let maxRight=Math.max(cc.scrollWidth,cc.offsetWidth);
+  let maxBottom=Math.max(cc.scrollHeight,cc.offsetHeight);
+  cc.querySelectorAll('#org-tree .node-card[data-drag-id], #org-tree .summary-list-card[data-drag-id]').forEach(card=>{
+    const r=card.getBoundingClientRect();
+    const right=(r.right-ccRect.left)/S.zoom;
+    const bottom=(r.bottom-ccRect.top)/S.zoom;
+    if(right>maxRight)maxRight=right;
+    if(bottom>maxBottom)maxBottom=bottom;
+  });
+  const w=Math.ceil(maxRight)+40;const h=Math.ceil(maxBottom)+40;
   svg.setAttribute('width',w+'px');svg.setAttribute('height',h+'px');
   svg.setAttribute('overflow','visible');
   svg.style.width=w+'px';svg.style.height=h+'px';
   svg.style.overflow='visible';
   svg.style.display='block';
-  const ccRect=cc.getBoundingClientRect();
   function addPath(d,color){
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',d);p.setAttribute('stroke',color||'#94a3b8');
@@ -2207,7 +2069,9 @@ function bindCanvasGridDND(){
     else S.gridOverrides[id]={dx:newDx,dy:newDy};
     S.draggingNodeId=null;
     applyGridOverridesToTree();
-    redrawGridConnectorsFromTree();
+    // Wait for the next paint frame so the transform is committed before
+    // measuring card rects for the connector redraw.
+    requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
     persistState();
   });
 }
@@ -2252,7 +2116,7 @@ function alignSelected(direction){
   else if(direction==='bottom'){const t=Math.max(...items.map(i=>i.ny+i.nh));items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:t-(i.ny+i.nh)};});}
   else if(direction==='middle'){const avg=items.reduce((s,i)=>s+(i.ny+i.nh/2),0)/items.length;items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:avg-(i.ny+i.nh/2)};});}
   applyGridOverridesToTree();
-  redrawGridConnectorsFromTree();
+  requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
   persistState();
   showToast('Aligned '+items.length+' cards',true);
 }
@@ -2280,7 +2144,7 @@ function distributeSelected(axis){
     items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.ny+it.nh/2;S.gridOverrides[it.id]={dx:(S.gridOverrides[it.id]||{dx:0}).dx||0,dy:target-cur};});
   }
   applyGridOverridesToTree();
-  redrawGridConnectorsFromTree();
+  requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
   persistState();
   showToast('Distributed '+items.length+' cards',true);
 }
@@ -2464,9 +2328,7 @@ function applyPersisted(d){
     if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.gridOverrides[id]=o;
   });
   S.gridShowLines=d.gridShowLines!==false;
-  S.orientation=d.orientation==='horizontal'?'horizontal':'vertical';
   S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
-  S.compact=!!d.compact;
   buildEmpTypeMap();
   return true;
 }
