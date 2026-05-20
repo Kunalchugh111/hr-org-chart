@@ -330,8 +330,6 @@ body{display:flex;flex-direction:column}
 .align-toolbar .at-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background 0.15s;display:flex;align-items:center;justify-content:center;padding:0}
 .align-toolbar .at-btn:hover{background:rgba(255,255,255,0.18)}
 .align-toolbar .at-btn.danger:hover{background:rgba(239,68,68,0.4)}
-.align-toolbar .at-btn.stack{width:auto;padding:0 12px;gap:5px;background:linear-gradient(135deg,#7c3aed,#a855f7);font-size:11px;letter-spacing:0.06em;text-transform:uppercase}
-.align-toolbar .at-btn.stack:hover{background:linear-gradient(135deg,#9333ea,#c026d3);filter:brightness(1.05)}
 /* Person-View grid mirror — translate-based on the EXISTING PV tree */
 #pv-org-grid{display:none}
 .pv-tree-content.grid-mode #pv-org-tree li::before,
@@ -502,8 +500,6 @@ body{display:flex;flex-direction:column}
   <span class="at-sep"></span>
   <button class="at-btn" onclick="distributeSelected('h')" title="Distribute horizontally evenly">≡</button>
   <button class="at-btn" onclick="distributeSelected('v')" title="Distribute vertically evenly">⋮</button>
-  <span class="at-sep"></span>
-  <button class="at-btn stack" onclick="stackVertical()" title="Stack selected cards as a vertical list — connector lines will route from the parent's side edge instead of from the top">⤓ Stack</button>
   <span class="at-sep"></span>
   <button class="at-btn danger" onclick="clearSelection()" title="Clear selection (Esc)">✕</button>
 </div>
@@ -1017,6 +1013,10 @@ function openPersonView(personId){
   document.getElementById('person-view-modal').classList.remove('hidden');
   document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
   const pvSel=document.getElementById('pv-row-size-select');if(pvSel)pvSel.value=String(S.pvMaxPerRow);
+  // Sync the PV grid-mode UI with restored state so the SVG, CSS connectors
+  // and button highlight all match S.pvGridMode after a page reload.
+  const pvTc=document.getElementById('pv-tree-content');if(pvTc)pvTc.classList.toggle('grid-mode',S.pvGridMode);
+  const pvBtn=document.getElementById('pv-grid-btn');if(pvBtn)pvBtn.classList.toggle('active',S.pvGridMode);
   renderPersonView(personId,999);
   initPVPan();
 }
@@ -1209,8 +1209,6 @@ function redrawPVConnectors(){
     const pr=rectToLocal(pCard.getBoundingClientRect());
     const childRects=kids.map(li=>{const c=li.querySelector(':scope > .node-card');return c?rectToLocal(c.getBoundingClientRect()):null;}).filter(Boolean);
     if(!childRects.length)return;
-    const stackSide=_detectStackSide(pr,childRects);
-    if(stackSide){_drawSideStack(addPath,pr,childRects,stackSide,'#94a3b8');return;}
     const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
     if(minChildTop<=pr.bottom+8){
       childRects.forEach(c=>{const trunkY=Math.min(pr.bottom,c.y)-16;addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');});
@@ -1376,13 +1374,24 @@ async function printPVA3(){
   const overlay=makeOverlay('Preparing A3 PDF…','Capturing this person\'s view');document.body.appendChild(overlay);
   let svgRestorers=[];
   try{
-    const target=S.pvGridMode?document.getElementById('pv-org-grid'):document.getElementById('pv-tree-content');
-    const wasTransform=target.style.transform;target.style.transform='scale(1)';
+    // pv-tree-content carries both the tree DOM and the PV grid SVG, so a single
+    // target works for both tree and grid modes.
+    const target=document.getElementById('pv-tree-content');
+    const wasTransform=target.style.transform;
+    const savedPvZoom=S.pvZoom;
+    target.style.transform='scale(1)';
+    S.pvZoom=1;  // keep redrawPVConnectors' coord math in sync with the rendered scale
     await new Promise(r=>setTimeout(r,250));
+    if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
     svgRestorers=await svgsToImagesAsync(target);
     await new Promise(r=>setTimeout(r,150));
-    const canvas=await html2canvas(target,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false});
+    const bounds=S.pvGridMode?_translatedBounds(target):null;
+    const h2cOpts={backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false};
+    if(bounds){const pw=Math.max(target.scrollWidth,bounds.width),ph=Math.max(target.scrollHeight,bounds.height);h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw)+200;h2cOpts.windowHeight=Math.ceil(ph)+200;h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
+    const canvas=await html2canvas(target,h2cOpts);
+    S.pvZoom=savedPvZoom;
     target.style.transform=wasTransform;
+    if(S.pvGridMode)setTimeout(redrawPVConnectors,40);
     const dataUrl=canvas.toDataURL('image/png');
     const w=window.open('','_blank','width=1400,height=900');
     if(!w){alert('Pop-up blocked.');return;}
@@ -1400,17 +1409,52 @@ async function printPVA3(){
 async function exportPVPNG(){
   if(!S.pvPersonId)return;
   const overlay=makeOverlay('Exporting Person View...','');document.body.appendChild(overlay);
+  const pvContent=document.getElementById('pv-tree-content');
+  const savedTransform=pvContent.style.transform;
+  const savedPvZoom=S.pvZoom;
+  // Sync the inline transform AND S.pvZoom — redrawPVConnectors divides rect
+  // coords by S.pvZoom, so they must match the actual rendered scale or the
+  // SVG paths land at 1/zoom-off positions.
+  pvContent.style.transform='scale(1)';
+  S.pvZoom=1;
   try{
-    const pvContent=document.getElementById('pv-tree-content');
-    const savedTransform=pvContent.style.transform;pvContent.style.transform='scale(1)';
     await new Promise(r=>setTimeout(r,300));
+    if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
     const pvSvg=document.getElementById('pv-fro-svg');pvSvg.setAttribute('width',pvContent.scrollWidth+'px');pvSvg.setAttribute('height',pvContent.scrollHeight+'px');
-    const canvas=await html2canvas(pvContent,{backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true});
-    pvContent.style.transform=savedTransform;
+    // In grid mode, CSS transforms on cards don't expand scrollWidth/Height. Scan
+    // card positions to compute the true bounds so translated cards aren't cropped.
+    const bounds=_translatedBounds(pvContent);
+    const w=Math.max(pvContent.scrollWidth,bounds.width);
+    const h=Math.max(pvContent.scrollHeight,bounds.height);
+    const canvas=await html2canvas(pvContent,{backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});
     const name=(document.getElementById('pv-title').textContent||'person').replace(/[^a-zA-Z0-9]/g,'_');
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'person_'+name+'_N'+S.pvDepth+'_'+stamp+'.png');res();},'image/png'));
-  }catch(e){alert('Export failed: '+e.message);}finally{overlay.remove();}
+  }catch(e){alert('Export failed: '+e.message);}
+  finally{
+    S.pvZoom=savedPvZoom;
+    pvContent.style.transform=savedTransform;
+    // Redraw at the user's actual zoom so the on-screen paths line up again
+    if(S.pvGridMode)setTimeout(redrawPVConnectors,40);
+    overlay.remove();
+  }
+}
+/* Compute the bounding box of every card inside `container`, INCLUDING any
+   CSS transform. The browser doesn't grow scrollWidth/scrollHeight to include
+   translated children, so we have to walk the cards and find the extreme
+   right/bottom edges ourselves. */
+function _translatedBounds(container){
+  const rect=container.getBoundingClientRect();
+  let maxRight=Math.max(container.scrollWidth,container.offsetWidth);
+  let maxBottom=Math.max(container.scrollHeight,container.offsetHeight);
+  container.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{
+    const r=c.getBoundingClientRect();
+    const right=r.right-rect.left;
+    const bottom=r.bottom-rect.top;
+    if(right>maxRight)maxRight=right;
+    if(bottom>maxBottom)maxBottom=bottom;
+  });
+  return {width:Math.ceil(maxRight)+24,height:Math.ceil(maxBottom)+24};
 }
 
 function triggerDownload(blob,fname){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);}
@@ -1420,8 +1464,62 @@ function downloadCSV(){triggerDownload(new Blob([buildCSVContent()],{type:'text/
 function makeOverlay(title,sub){const o=document.createElement('div');o.className='export-overlay';o.innerHTML='<div class="export-spinner"></div><div style="font-weight:700;font-size:0.9rem;color:#0f172a;margin-top:10px">'+title+'</div><div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">'+sub+'</div>';return o;}
 function _saveCollapsedState(){const ids=[];document.querySelectorAll('li.collapsed').forEach(li=>{if(li.dataset.id)ids.push(li.dataset.id);});return ids;}
 function _restoreCollapsedState(ids){if(!ids||!ids.length)return;const s=new Set(ids);document.querySelectorAll('li[data-id]').forEach(li=>{if(s.has(li.dataset.id)){const u=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(u){li.classList.add('collapsed');u.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';}}}});setTimeout(()=>updateStats(),60);}
-async function buildRenderStage(){const savedCollapsed=_saveCollapsedState();expandAll();await new Promise(r=>setTimeout(r,400));if(document.fonts&&document.fonts.ready)await document.fonts.ready;await new Promise(r=>setTimeout(r,200));const orgTree=document.getElementById('org-tree');const container=document.createElement('div');container.className='export-stage-root';const stageBg=S.transparentExport?'transparent':S.chartBgColor;container.style.cssText='position:fixed;top:0;left:0;background:'+stageBg+';padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';const clone=orgTree.cloneNode(true);clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());clone.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const ul=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(ul)ul.style.removeProperty('display');const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');});clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{c.style.removeProperty('opacity');c.style.removeProperty('transform');c.style.setProperty('overflow','visible','important');});container.appendChild(clone);document.body.appendChild(container);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));await new Promise(r=>setTimeout(r,300));_restoreCollapsedState(savedCollapsed);return{stage:container,wrapper:container};}
-async function renderToCanvas(stageObj){const el=stageObj.stage;const w=el.scrollWidth||el.offsetWidth;const h=el.scrollHeight||el.offsetHeight;const bg=S.transparentExport?null:S.chartBgColor;return html2canvas(el,{backgroundColor:bg,scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});}
+async function buildRenderStage(){
+  const savedCollapsed=_saveCollapsedState();expandAll();
+  await new Promise(r=>setTimeout(r,400));
+  if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+  await new Promise(r=>setTimeout(r,200));
+  // In grid mode, redraw connectors first so the cloned grid SVG carries the
+  // freshest path geometry for the export.
+  if(S.gridMode){redrawGridConnectorsFromTree();await new Promise(r=>setTimeout(r,80));}
+  // Clone the WHOLE chart-canvas-content when grid mode is on so card
+  // transforms + SVG connector lines come along; otherwise just the org-tree.
+  const source=S.gridMode?document.getElementById('chart-canvas-content'):document.getElementById('org-tree');
+  const container=document.createElement('div');
+  container.className='export-stage-root'+(S.gridMode?' grid-mode':'');
+  const stageBg=S.transparentExport?'transparent':S.chartBgColor;
+  container.style.cssText='position:fixed;top:0;left:0;background:'+stageBg+';padding:48px 64px 80px 64px;display:inline-block;z-index:9998;pointer-events:none;overflow:visible';
+  const clone=source.cloneNode(true);
+  // Drop the zoom transform on the cloned chart-canvas-content so card
+  // transforms render at their natural 1× pixel positions in the canvas.
+  if(S.gridMode){clone.style.transform='';clone.style.transformOrigin='top left';}
+  clone.querySelectorAll('.collapse-btn,.ncard-edit-btn,.ncard-export-btn').forEach(el=>el.remove());
+  clone.querySelectorAll('li.collapsed').forEach(li=>{
+    li.classList.remove('collapsed');
+    const ul=li.querySelector(':scope > ul,:scope > .children-rows-wrap');
+    if(ul)ul.style.removeProperty('display');
+    const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');
+  });
+  clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{
+    c.style.removeProperty('opacity');
+    // Keep card transforms in grid mode so the user's drag-arrangement is exported.
+    if(!S.gridMode)c.style.removeProperty('transform');
+    c.style.setProperty('overflow','visible','important');
+  });
+  // Hide the gridline overlay pattern in the export (per print stylesheet contract).
+  if(S.gridMode){const ov=clone.querySelector('#grid-overlay, .grid-overlay');if(ov)ov.style.display='none';}
+  container.appendChild(clone);
+  document.body.appendChild(container);
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  await new Promise(r=>setTimeout(r,300));
+  _restoreCollapsedState(savedCollapsed);
+  return{stage:container,wrapper:container,sourceForBounds:S.gridMode?clone:null};
+}
+async function renderToCanvas(stageObj){
+  const el=stageObj.stage;
+  let w=el.scrollWidth||el.offsetWidth;
+  let h=el.scrollHeight||el.offsetHeight;
+  // In grid mode, scrollWidth/scrollHeight ignores translated cards. Walk
+  // the cards and grow the canvas so nothing gets clipped.
+  if(stageObj.sourceForBounds){
+    const b=_translatedBounds(stageObj.sourceForBounds);
+    // Stage has 48/64/80 padding around the clone — keep that in the canvas size.
+    w=Math.max(w,b.width+128);
+    h=Math.max(h,b.height+128);
+  }
+  const bg=S.transparentExport?null:S.chartBgColor;
+  return html2canvas(el,{backgroundColor:bg,scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});
+}
 async function exportPNG(){const overlay=makeOverlay('Rendering org chart...','Capturing full chart at 2x resolution');document.body.appendChild(overlay);const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'orgchart_'+(fp?fp+'_':'')+mode+stamp+'.png');res();},'image/png'));}catch(e){alert('PNG export failed: '+e.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}}
 async function exportSubtree(e,nodeId){e.stopPropagation();const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;const includeIds=new Set([nodeId]);function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}collectDesc(nodeId);const overlay=makeOverlay('Exporting '+node.name+'\'s team ('+includeIds.size+')...','');document.body.appendChild(overlay);const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;const savedSkipDepth=S.skipDepth;const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);const prevOverride=S.managerOverrides[nodeId];S.viewData=savedViewData.filter(n=>includeIds.has(n.id));S.managerOverrides[nodeId]='';S.skipDepth=0;S.childMap={};S.viewData.forEach(n=>{const mgr=(n.id===nodeId)?'':n.manager;if(!S.childMap[mgr])S.childMap[mgr]=[];S.childMap[mgr].push(n);});S.descCount={};S.nodeHeight={};S.nodeDepth={};function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}cD(nodeId);cH(nodeId);cDep(nodeId,0);const savedZoom=S.zoom;applyZoom(1);renderChart();await new Promise(r=>setTimeout(r,400));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'team_'+safeName+'_'+stamp+'.png');res();},'image/png'));}catch(ex){alert('Subtree export failed: '+ex.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;S.skipDepth=savedSkipDepth;renderChart();}}
 const SW=12192000,SH=6858000;
@@ -1577,7 +1675,13 @@ function snapshotState(){
     removedIds:new Set(S.removedIds),
     activeFilters:{...S.activeFilters},
     skipDepth:S.skipDepth,
-    managerMode:S.managerMode
+    managerMode:S.managerMode,
+    // Capture grid-mode state too — without these, Ctrl+Z after a card-drag
+    // would silently reset the grid layout to natural tree positions.
+    gridMode:S.gridMode,
+    gridOverrides:JSON.parse(JSON.stringify(S.gridOverrides||{})),
+    pvGridMode:S.pvGridMode,
+    pvGridOverrides:JSON.parse(JSON.stringify(S.pvGridOverrides||{}))
   };
 }
 function pushUndo(){
@@ -1593,8 +1697,20 @@ function undo(){
   S.activeFilters=prev.activeFilters;
   S.skipDepth=prev.skipDepth;
   S.managerMode=prev.managerMode;
+  S.gridMode=!!prev.gridMode;
+  S.gridOverrides=prev.gridOverrides||{};
+  S.pvGridMode=!!prev.pvGridMode;
+  S.pvGridOverrides=prev.pvGridOverrides||{};
   const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);
   const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';
+  // Sync the grid-mode UI to the restored state
+  const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);
+  const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);
+  const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');
+  if(gl)gl.style.display=S.gridMode?'inline-flex':'none';
+  if(gr)gr.style.display=S.gridMode?'inline-flex':'none';
+  const pvb=document.getElementById('pv-grid-btn');if(pvb)pvb.classList.toggle('active',S.pvGridMode);
+  const pvtc=document.getElementById('pv-tree-content');if(pvtc)pvtc.classList.toggle('grid-mode',S.pvGridMode);
   buildViewData();renderChart();buildFilterBar();persistState();
   const ub=document.getElementById('undo-btn');if(ub)ub.disabled=S.undoStack.length===0;
   showToast('Undid last change');
@@ -1654,6 +1770,8 @@ function persistState(){
         gridMode:S.gridMode,
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
+        pvGridMode:S.pvGridMode,
+        pvGridOverrides:S.pvGridOverrides,
         maxPerRow:S.maxPerRow,
         pvMaxPerRow:S.pvMaxPerRow,
         savedAt:Date.now()
@@ -1923,7 +2041,13 @@ async function printA3(){
     // avoid html2canvas rendering them as black blocks.
     svgRestorers=await svgsToImagesAsync(cc);
     await new Promise(r=>setTimeout(r,150));
-    canvas=await html2canvas(cc,{backgroundColor:S.transparentExport?null:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false});
+    // In grid mode, scrollWidth/scrollHeight doesn't include translated card positions.
+    const bounds=S.gridMode?_translatedBounds(cc):null;
+    const pw=bounds?Math.max(cc.scrollWidth,bounds.width):0;
+    const ph=bounds?Math.max(cc.scrollHeight,bounds.height):0;
+    const h2cOpts={backgroundColor:S.transparentExport?null:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false};
+    if(bounds){h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw)+200;h2cOpts.windowHeight=Math.ceil(ph)+200;h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
+    canvas=await html2canvas(cc,h2cOpts);
     cc.style.transform=wasTransform;
     const dataUrl=canvas.toDataURL('image/png');
     const w=window.open('','_blank','width=1400,height=900');
@@ -2029,48 +2153,6 @@ function clearTreeTranslations(){
    This routes around cards instead of drawing a straight line that cuts
    through siblings (the previous bug). Plus a separate purple connector
    to the manager's IC summary card if any. */
-/* Detect whether a manager's children form a vertical stack offset to one
-   side. Returns 'right', 'left', or null. Used by both grid-mode connector
-   redraws so the connector routes from the parent's side edge instead of
-   crashing down through the column of stacked siblings. */
-function _detectStackSide(pr,childRects){
-  if(childRects.length<2)return null;
-  const cxs=childRects.map(c=>c.cx);
-  const cys=childRects.map(c=>c.cy);
-  const minCx=Math.min.apply(null,cxs),maxCx=Math.max.apply(null,cxs);
-  const minCy=Math.min.apply(null,cys),maxCy=Math.max.apply(null,cys);
-  const xSpread=maxCx-minCx,ySpread=maxCy-minCy;
-  // Tight horizontal cluster + vertical spread larger than ~1 card tall
-  if(xSpread>60)return null;
-  if(ySpread<pr.h*1.0)return null;
-  const avgCx=(minCx+maxCx)/2;
-  const offset=avgCx-pr.cx;
-  // Children must be offset to one side (past the parent's edge + 30px gap)
-  if(Math.abs(offset)<pr.w/2+30)return null;
-  return offset>0?'right':'left';
-}
-function _drawSideStack(addPath,pr,childRects,side,color){
-  color=color||'#94a3b8';
-  if(side==='right'){
-    const minChildLeft=Math.min.apply(null,childRects.map(c=>c.x));
-    const trunkX=Math.max(pr.right+16,minChildLeft-16);
-    const exitY=pr.cy;
-    addPath('M '+pr.right+' '+exitY+' H '+trunkX,color);
-    const minCy=Math.min.apply(null,childRects.map(c=>c.cy));
-    const maxCy=Math.max.apply(null,childRects.map(c=>c.cy));
-    addPath('M '+trunkX+' '+Math.min(exitY,minCy)+' V '+Math.max(exitY,maxCy),color);
-    childRects.forEach(c=>{addPath('M '+trunkX+' '+c.cy+' H '+c.x,color);});
-  }else{
-    const maxChildRight=Math.max.apply(null,childRects.map(c=>c.right));
-    const trunkX=Math.min(pr.x-16,maxChildRight+16);
-    const exitY=pr.cy;
-    addPath('M '+pr.x+' '+exitY+' H '+trunkX,color);
-    const minCy=Math.min.apply(null,childRects.map(c=>c.cy));
-    const maxCy=Math.max.apply(null,childRects.map(c=>c.cy));
-    addPath('M '+trunkX+' '+Math.min(exitY,minCy)+' V '+Math.max(exitY,maxCy),color);
-    childRects.forEach(c=>{addPath('M '+trunkX+' '+c.cy+' H '+c.right,color);});
-  }
-}
 function redrawGridConnectorsFromTree(){
   if(!S.gridMode)return;
   const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
@@ -2118,9 +2200,6 @@ function redrawGridConnectorsFromTree(){
     if(!childCards.length)return;
     const pr=rectToLocal(mgrCard.getBoundingClientRect());
     const childRects=childCards.map(c=>rectToLocal(c.getBoundingClientRect()));
-    // Vertical-stack override: children clustered horizontally to one side of the parent → side connector
-    const stackSide=_detectStackSide(pr,childRects);
-    if(stackSide){_drawSideStack(addPath,pr,childRects,stackSide,'#94a3b8');return;}
     const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
     // If a child sits above the manager (after manual drag), fall back to a per-child elbow that loops over the parent.
     if(minChildTop<=pr.bottom+8){
@@ -2372,35 +2451,6 @@ function distributeSelected(axis){
   persistState();
   showToast('Distributed '+items.length+' cards',true);
 }
-function stackVertical(){
-  if(S.selectedIds.size<2){showToast('Select 2+ cards to stack vertically');return;}
-  const ctx=_gridCtx();
-  if(!ctx.gridOn)ctx.toggle();
-  const cc=ctx.cc;if(!cc)return;
-  const ccRect=cc.getBoundingClientRect();
-  const items=[];
-  S.selectedIds.forEach(id=>{
-    const card=cc.querySelector(ctx.treeSel+' [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
-    const nr=_measureNatural(card);
-    items.push({id,nx:(nr.left-ccRect.left)/ctx.zoom,ny:(nr.top-ccRect.top)/ctx.zoom,nw:nr.width/ctx.zoom,nh:nr.height/ctx.zoom});
-  });
-  if(items.length<2)return;
-  // Anchor on the leftmost-topmost selected card so the column starts there
-  items.sort((a,b)=>(a.ny+a.nh/2)-(b.ny+b.nh/2));
-  const anchorX=Math.min(...items.map(i=>i.nx));
-  const anchorY=items[0].ny;
-  const GAP=14;
-  pushUndo();
-  let runningY=anchorY;
-  items.forEach(it=>{
-    ctx.overrides[it.id]={dx:anchorX-it.nx,dy:runningY-it.ny};
-    runningY+=it.nh+GAP;
-  });
-  ctx.apply();
-  requestAnimationFrame(()=>{ctx.redraw();});
-  persistState();
-  showToast('Stacked '+items.length+' cards vertically · connectors route from the side');
-}
 function mkBareCard(node){
   // Reuse mkNodeLI for full card fidelity. Temporarily suppress this node's
   // children in S.childMap so mkNodeLI doesn't recursively build the full subtree
@@ -2581,6 +2631,12 @@ function applyPersisted(d){
     if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.gridOverrides[id]=o;
   });
   S.gridShowLines=d.gridShowLines!==false;
+  // PV grid mode + overrides survive reload too.
+  S.pvGridMode=!!d.pvGridMode;
+  S.pvGridOverrides={};
+  Object.entries(d.pvGridOverrides||{}).forEach(([id,o])=>{
+    if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.pvGridOverrides[id]=o;
+  });
   S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
   S.pvMaxPerRow=(d.pvMaxPerRow==='auto'||d.pvMaxPerRow==null)?'auto':(parseInt(d.pvMaxPerRow)||'auto');
   buildEmpTypeMap();
