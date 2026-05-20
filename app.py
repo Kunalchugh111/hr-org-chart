@@ -839,13 +839,22 @@ function mkLeafSummaryLI(leafNodes, ac) {
   const AV = 28; const PAD_H = 14; const PAD_V = 8; const TEXT_LH = 16; const GAP = 10; const HEADER_LBL_H = 22;
   const FF = "font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
   // IC summary now uses the parent card's accent (ac) — was hardcoded purple before
-  const headerBg = ac + '14';        // 8% tint
-  const headerBorder = ac + '40';    // 25% tint
-  const headerColor = ac;            // full
+  // Convert hex color (#rrggbb) to rgba string for html2canvas-friendly alpha
+  function _rgba(hex, alpha) {
+    let h = String(hex || '').replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    if (h.length !== 6) return hex;
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+  const headerBg = _rgba(ac, 0.08);
+  const headerBorder = _rgba(ac, 0.25);
+  const headerColor = ac;
+  // Header uses flex layout — easier on html2canvas than absolute positioning
   const headerHtml =
-    '<div style="position:relative;background:' + headerBg + ';border-bottom:1px solid ' + headerBorder + ';padding:9px ' + PAD_H + 'px;' + FF + '">' +
-      '<div style="height:' + HEADER_LBL_H + 'px;line-height:' + HEADER_LBL_H + 'px;font-size:11px;font-weight:800;color:' + headerColor + ';text-transform:uppercase;letter-spacing:0.05em;padding-right:42px;white-space:nowrap;overflow:hidden;' + FF + '">ICs (' + count + ')</div>' +
-      '<div style="position:absolute;top:8px;right:' + PAD_H + 'px;height:24px;line-height:24px;background:' + ac + ';color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;background:' + headerBg + ';border-bottom:1px solid ' + headerBorder + ';padding:9px ' + PAD_H + 'px;gap:8px;' + FF + '">' +
+      '<div style="flex:1;min-width:0;line-height:22px;font-size:11px;font-weight:800;color:' + headerColor + ';text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">ICs (' + count + ')</div>' +
+      '<div style="flex-shrink:0;line-height:24px;background:' + ac + ';color:#ffffff;border-radius:999px;padding:0 10px;font-size:10px;font-weight:800;text-align:center;' + FF + '">' + count + '</div>' +
     '</div>';
   let rowsHtml = '';
   leafNodes.forEach((n, idx) => {
@@ -859,26 +868,20 @@ function mkLeafSummaryLI(leafNodes, ac) {
     const showNameSub = f1 && !f1IsName && primaryVal !== nameVal;
     const val2 = f2 ? (f2 === '__name__' ? n.name.substring(0, 22) : String(n[f2] || '').substring(0, 22)) : '';
     const val3 = f3 ? (f3 === '__name__' ? n.name.substring(0, 22) : String(n[f3] || '').substring(0, 22)) : '';
-    const numLines = 1 + (showNameSub ? 1 : 0) + (val2 ? 1 : 0) + (val3 ? 1 : 0);
-    const textTotalH = numLines * TEXT_LH;
-    const innerH = Math.max(AV, textTotalH);
-    const totalRowH = innerH + PAD_V * 2;
-    const avatarTopY = PAD_V + Math.max(0, Math.round((innerH - AV) / 2));
-    const textTopPad = PAD_V + Math.max(0, Math.round((innerH - textTotalH) / 2));
-    const textLeftMargin = PAD_H + AV + GAP;
     let avatarHtml;
     if (photoUrl) {
-      avatarHtml = '<img src="' + esc(photoUrl) + '" crossorigin="anonymous" style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;object-fit:cover;object-position:center top;border:2px solid ' + borderC + '55;box-sizing:border-box;display:block;">';
+      avatarHtml = '<img src="' + esc(photoUrl) + '" crossorigin="anonymous" style="flex-shrink:0;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;object-fit:cover;object-position:center top;border:2px solid ' + _rgba(borderC, 0.33) + ';box-sizing:border-box;display:block;">';
     } else {
       const innerLH = AV - 4;
-      avatarHtml = '<div style="position:absolute;left:' + PAD_H + 'px;top:' + avatarTopY + 'px;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;background:' + borderC + '1f;color:' + borderC + ';border:2px solid ' + borderC + '55;box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;line-height:' + innerLH + 'px;' + FF + '">' + esc(initials) + '</div>';
+      avatarHtml = '<div style="flex-shrink:0;width:' + AV + 'px;height:' + AV + 'px;border-radius:7px;background:' + _rgba(borderC, 0.12) + ';color:' + borderC + ';border:2px solid ' + _rgba(borderC, 0.33) + ';box-sizing:border-box;text-align:center;font-size:12px;font-weight:800;line-height:' + innerLH + 'px;' + FF + '">' + esc(initials) + '</div>';
     }
-    let textLines = '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(primaryVal) + '</div>';
-    if (showNameSub) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>'; }
-    if (val2) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>'; }
-    if (val3) { textLines += '<div style="height:' + TEXT_LH + 'px;line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val3) + '</div>'; }
+    let textLines = '<div style="line-height:' + TEXT_LH + 'px;font-size:12px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(primaryVal) + '</div>';
+    if (showNameSub) { textLines += '<div style="line-height:' + TEXT_LH + 'px;font-size:10px;color:#475569;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(nameVal) + '</div>'; }
+    if (val2) { textLines += '<div style="line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val2) + '</div>'; }
+    if (val3) { textLines += '<div style="line-height:' + TEXT_LH + 'px;font-size:10px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + FF + '">' + esc(val3) + '</div>'; }
     const rowBorder = isLast ? '' : 'border-bottom:1px solid #e2e8f0;';
-    rowsHtml += '<div style="position:relative;background:#ffffff;height:' + totalRowH + 'px;' + rowBorder + 'box-sizing:border-box;">' + avatarHtml + '<div style="margin-left:' + textLeftMargin + 'px;padding-top:' + textTopPad + 'px;padding-right:' + PAD_H + 'px;">' + textLines + '</div></div>';
+    // Row uses flex layout so html2canvas reliably draws the avatar + text
+    rowsHtml += '<div style="display:flex;align-items:center;gap:' + GAP + 'px;padding:' + PAD_V + 'px ' + PAD_H + 'px;background:#ffffff;' + rowBorder + 'box-sizing:border-box;">' + avatarHtml + '<div style="flex:1;min-width:0;">' + textLines + '</div></div>';
   });
   const card = document.createElement('div');
   card.className = 'summary-list-card';
