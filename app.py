@@ -323,13 +323,15 @@ body{display:flex;flex-direction:column}
 .chart-canvas-content.grid-mode .grid-svg{display:block}
 /* Multi-select selection indicator */
 .node-card.selected{box-shadow:0 0 0 3px rgba(34,197,94,0.6),0 8px 24px rgba(34,197,94,0.2)!important;outline:none!important}
-.align-toolbar{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:6px;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:5000;display:none;gap:3px;align-items:center;font-family:'Plus Jakarta Sans',sans-serif}
+.align-toolbar{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:6px;border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:8500;display:none;gap:3px;align-items:center;font-family:'Plus Jakarta Sans',sans-serif}
 .align-toolbar.visible{display:flex}
 .align-toolbar .at-label{padding:0 10px;font-size:0.72rem;opacity:0.85;font-weight:700}
 .align-toolbar .at-sep{width:1px;height:18px;background:rgba(255,255,255,0.18);margin:0 2px}
-.align-toolbar .at-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background 0.15s;display:flex;align-items:center;justify-content:center}
+.align-toolbar .at-btn{background:rgba(255,255,255,0.06);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background 0.15s;display:flex;align-items:center;justify-content:center;padding:0}
 .align-toolbar .at-btn:hover{background:rgba(255,255,255,0.18)}
 .align-toolbar .at-btn.danger:hover{background:rgba(239,68,68,0.4)}
+.align-toolbar .at-btn.stack{width:auto;padding:0 12px;gap:5px;background:linear-gradient(135deg,#7c3aed,#a855f7);font-size:11px;letter-spacing:0.06em;text-transform:uppercase}
+.align-toolbar .at-btn.stack:hover{background:linear-gradient(135deg,#9333ea,#c026d3);filter:brightness(1.05)}
 /* Person-View grid mirror — translate-based on the EXISTING PV tree */
 #pv-org-grid{display:none}
 .pv-tree-content.grid-mode #pv-org-tree li::before,
@@ -500,6 +502,8 @@ body{display:flex;flex-direction:column}
   <span class="at-sep"></span>
   <button class="at-btn" onclick="distributeSelected('h')" title="Distribute horizontally evenly">≡</button>
   <button class="at-btn" onclick="distributeSelected('v')" title="Distribute vertically evenly">⋮</button>
+  <span class="at-sep"></span>
+  <button class="at-btn stack" onclick="stackVertical()" title="Stack selected cards as a vertical list — connector lines will route from the parent's side edge instead of from the top">⤓ Stack</button>
   <span class="at-sep"></span>
   <button class="at-btn danger" onclick="clearSelection()" title="Clear selection (Esc)">✕</button>
 </div>
@@ -886,19 +890,17 @@ function mkLeafSummaryLI(leafNodes, ac) {
   card.dataset.dragId = synthId;
   card.dataset.icManager = managerOfICs;
   card.dataset.icCount = String(leafNodes.length);
-  if (!S.pvMode) {
-    card.draggable = !S.gridMode;
-    card.addEventListener('dragstart', onCardDragStart);
-    card.addEventListener('dragover', onCardDragOver);
-    card.addEventListener('dragleave', onCardDragLeave);
-    card.addEventListener('drop', onCardDrop);
-    card.addEventListener('dragend', onCardDragEnd);
-    card.addEventListener('pointerdown', onCardPointerDown);
-    card.addEventListener('click', function(e){
-      if (e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(synthId, card);}
-    });
-    if (S.selectedIds && S.selectedIds.has(synthId)) card.classList.add('selected');
-  }
+  card.draggable = !(S.pvMode ? S.pvGridMode : S.gridMode);
+  card.addEventListener('dragstart', onCardDragStart);
+  card.addEventListener('dragover', onCardDragOver);
+  card.addEventListener('dragleave', onCardDragLeave);
+  card.addEventListener('drop', onCardDrop);
+  card.addEventListener('dragend', onCardDragEnd);
+  card.addEventListener('pointerdown', onCardPointerDown);
+  card.addEventListener('click', function(e){
+    if (e.shiftKey){e.preventDefault();e.stopPropagation();toggleSelectCard(synthId, card);}
+  });
+  if (S.selectedIds && S.selectedIds.has(synthId)) card.classList.add('selected');
   card.innerHTML = headerHtml + rowsHtml;
   li.appendChild(card);
   return li;
@@ -1113,7 +1115,7 @@ function pvFit(){
 function pvZoomBy(d){S.pvZoom=Math.max(0.1,Math.min(3,S.pvZoom+d));document.getElementById('pv-tree-content').style.transform='scale('+S.pvZoom+')';document.getElementById('pv-zoom-level').textContent=Math.round(S.pvZoom*100)+'%';clearTimeout(window._pvFroTimer);window._pvFroTimer=setTimeout(renderPVFROLines,400);if(S.pvGridMode){clearTimeout(window._pvGz);window._pvGz=setTimeout(redrawPVConnectors,80);}}
 
 let _pvPanning=false,_pvPx,_pvPy,_pvSl,_pvSt;
-function initPVPan(){const area=document.getElementById('pv-chart-area');if(!area||area._pvPanInit)return;area._pvPanInit=true;area.addEventListener('mousedown',e=>{if(e.target.closest('.node-card,.collapse-btn'))return;_pvPanning=true;_pvPx=e.clientX;_pvPy=e.clientY;_pvSl=area.scrollLeft;_pvSt=area.scrollTop;area.style.cursor='grabbing';});window.addEventListener('mousemove',e=>{if(!_pvPanning)return;const a=document.getElementById('pv-chart-area');if(a){a.scrollLeft=_pvSl-(e.clientX-_pvPx);a.scrollTop=_pvSt-(e.clientY-_pvPy);}});window.addEventListener('mouseup',()=>{_pvPanning=false;const a=document.getElementById('pv-chart-area');if(a)a.style.cursor='';});area.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();pvZoomBy(e.deltaY<0?0.08:-0.08);}},{passive:false});}
+function initPVPan(){const area=document.getElementById('pv-chart-area');if(!area||area._pvPanInit)return;area._pvPanInit=true;area.addEventListener('mousedown',e=>{if(e.target.closest('.node-card,.summary-list-card,.collapse-btn'))return;_pvPanning=true;_pvPx=e.clientX;_pvPy=e.clientY;_pvSl=area.scrollLeft;_pvSt=area.scrollTop;area.style.cursor='grabbing';});window.addEventListener('mousemove',e=>{if(!_pvPanning)return;const a=document.getElementById('pv-chart-area');if(a){a.scrollLeft=_pvSl-(e.clientX-_pvPx);a.scrollTop=_pvSt-(e.clientY-_pvPy);}});window.addEventListener('mouseup',()=>{_pvPanning=false;const a=document.getElementById('pv-chart-area');if(a)a.style.cursor='';});area.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();pvZoomBy(e.deltaY<0?0.08:-0.08);}},{passive:false});}
 
 function locatePersonOnChart(){if(!S.pvPersonId)return;closePV();setTimeout(()=>highlightNode(S.pvPersonId),80);}
 
@@ -1178,7 +1180,8 @@ function redrawPVConnectors(){
     return{
       x:(r.left-ccRect.left)/S.pvZoom,y:(r.top-ccRect.top)/S.pvZoom,
       cx:(r.left+r.width/2-ccRect.left)/S.pvZoom,cy:(r.top+r.height/2-ccRect.top)/S.pvZoom,
-      bottom:(r.bottom-ccRect.top)/S.pvZoom,right:(r.right-ccRect.left)/S.pvZoom
+      bottom:(r.bottom-ccRect.top)/S.pvZoom,right:(r.right-ccRect.left)/S.pvZoom,
+      w:r.width/S.pvZoom,h:r.height/S.pvZoom
     };
   }
   // Group child li elements by their containing parent li. Walk UP through
@@ -1206,6 +1209,8 @@ function redrawPVConnectors(){
     const pr=rectToLocal(pCard.getBoundingClientRect());
     const childRects=kids.map(li=>{const c=li.querySelector(':scope > .node-card');return c?rectToLocal(c.getBoundingClientRect()):null;}).filter(Boolean);
     if(!childRects.length)return;
+    const stackSide=_detectStackSide(pr,childRects);
+    if(stackSide){_drawSideStack(addPath,pr,childRects,stackSide,'#94a3b8');return;}
     const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
     if(minChildTop<=pr.bottom+8){
       childRects.forEach(c=>{const trunkY=Math.min(pr.bottom,c.y)-16;addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');});
@@ -2024,6 +2029,48 @@ function clearTreeTranslations(){
    This routes around cards instead of drawing a straight line that cuts
    through siblings (the previous bug). Plus a separate purple connector
    to the manager's IC summary card if any. */
+/* Detect whether a manager's children form a vertical stack offset to one
+   side. Returns 'right', 'left', or null. Used by both grid-mode connector
+   redraws so the connector routes from the parent's side edge instead of
+   crashing down through the column of stacked siblings. */
+function _detectStackSide(pr,childRects){
+  if(childRects.length<2)return null;
+  const cxs=childRects.map(c=>c.cx);
+  const cys=childRects.map(c=>c.cy);
+  const minCx=Math.min.apply(null,cxs),maxCx=Math.max.apply(null,cxs);
+  const minCy=Math.min.apply(null,cys),maxCy=Math.max.apply(null,cys);
+  const xSpread=maxCx-minCx,ySpread=maxCy-minCy;
+  // Tight horizontal cluster + vertical spread larger than ~1 card tall
+  if(xSpread>60)return null;
+  if(ySpread<pr.h*1.0)return null;
+  const avgCx=(minCx+maxCx)/2;
+  const offset=avgCx-pr.cx;
+  // Children must be offset to one side (past the parent's edge + 30px gap)
+  if(Math.abs(offset)<pr.w/2+30)return null;
+  return offset>0?'right':'left';
+}
+function _drawSideStack(addPath,pr,childRects,side,color){
+  color=color||'#94a3b8';
+  if(side==='right'){
+    const minChildLeft=Math.min.apply(null,childRects.map(c=>c.x));
+    const trunkX=Math.max(pr.right+16,minChildLeft-16);
+    const exitY=pr.cy;
+    addPath('M '+pr.right+' '+exitY+' H '+trunkX,color);
+    const minCy=Math.min.apply(null,childRects.map(c=>c.cy));
+    const maxCy=Math.max.apply(null,childRects.map(c=>c.cy));
+    addPath('M '+trunkX+' '+Math.min(exitY,minCy)+' V '+Math.max(exitY,maxCy),color);
+    childRects.forEach(c=>{addPath('M '+trunkX+' '+c.cy+' H '+c.x,color);});
+  }else{
+    const maxChildRight=Math.max.apply(null,childRects.map(c=>c.right));
+    const trunkX=Math.min(pr.x-16,maxChildRight+16);
+    const exitY=pr.cy;
+    addPath('M '+pr.x+' '+exitY+' H '+trunkX,color);
+    const minCy=Math.min.apply(null,childRects.map(c=>c.cy));
+    const maxCy=Math.max.apply(null,childRects.map(c=>c.cy));
+    addPath('M '+trunkX+' '+Math.min(exitY,minCy)+' V '+Math.max(exitY,maxCy),color);
+    childRects.forEach(c=>{addPath('M '+trunkX+' '+c.cy+' H '+c.right,color);});
+  }
+}
 function redrawGridConnectorsFromTree(){
   if(!S.gridMode)return;
   const svg=document.getElementById('grid-svg');if(!svg)return;svg.innerHTML='';
@@ -2071,6 +2118,9 @@ function redrawGridConnectorsFromTree(){
     if(!childCards.length)return;
     const pr=rectToLocal(mgrCard.getBoundingClientRect());
     const childRects=childCards.map(c=>rectToLocal(c.getBoundingClientRect()));
+    // Vertical-stack override: children clustered horizontally to one side of the parent → side connector
+    const stackSide=_detectStackSide(pr,childRects);
+    if(stackSide){_drawSideStack(addPath,pr,childRects,stackSide,'#94a3b8');return;}
     const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
     // If a child sits above the manager (after manual drag), fall back to a per-child elbow that loops over the parent.
     if(minChildTop<=pr.bottom+8){
@@ -2241,38 +2291,68 @@ function _measureNatural(card){
   card.style.transform=t;
   return cr;
 }
+function _gridCtx(){
+  // Returns the current grid context (main chart vs Person View) so multi-
+  // select tools and connector redraws share one code path.
+  const pvOpen=!document.getElementById('person-view-modal').classList.contains('hidden');
+  return pvOpen?{
+    inPV:true,
+    cc:document.getElementById('pv-tree-content'),
+    zoom:S.pvZoom||1,
+    overrides:S.pvGridOverrides,
+    treeSel:'#pv-org-tree',
+    gridOn:S.pvGridMode,
+    redraw:redrawPVConnectors,
+    apply:applyPVGridOverridesToTree,
+    toggle:togglePVGrid
+  }:{
+    inPV:false,
+    cc:document.getElementById('chart-canvas-content'),
+    zoom:S.zoom,
+    overrides:S.gridOverrides,
+    treeSel:'#org-tree',
+    gridOn:S.gridMode,
+    redraw:redrawGridConnectorsFromTree,
+    apply:applyGridOverridesToTree,
+    toggle:toggleGridMode
+  };
+}
 function alignSelected(direction){
   if(S.selectedIds.size<2)return;
-  if(!S.gridMode){toggleGridMode();}
-  const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
+  const ctx=_gridCtx();
+  if(!ctx.gridOn)ctx.toggle();
+  const cc=ctx.cc;if(!cc)return;
+  const ccRect=cc.getBoundingClientRect();
   const items=[];
   S.selectedIds.forEach(id=>{
-    const card=cc.querySelector('#org-tree [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const card=cc.querySelector(ctx.treeSel+' [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
     const nr=_measureNatural(card);
-    items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
+    items.push({id,nx:(nr.left-ccRect.left)/ctx.zoom,ny:(nr.top-ccRect.top)/ctx.zoom,nw:nr.width/ctx.zoom,nh:nr.height/ctx.zoom});
   });
   if(items.length<2)return;
   pushUndo();
-  if(direction==='left'){const t=Math.min(...items.map(i=>i.nx));items.forEach(i=>{S.gridOverrides[i.id]={dx:t-i.nx,dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
-  else if(direction==='right'){const t=Math.max(...items.map(i=>i.nx+i.nw));items.forEach(i=>{S.gridOverrides[i.id]={dx:t-(i.nx+i.nw),dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
-  else if(direction==='center-h'){const avg=items.reduce((s,i)=>s+(i.nx+i.nw/2),0)/items.length;items.forEach(i=>{S.gridOverrides[i.id]={dx:avg-(i.nx+i.nw/2),dy:(S.gridOverrides[i.id]||{dy:0}).dy||0};});}
-  else if(direction==='top'){const t=Math.min(...items.map(i=>i.ny));items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:t-i.ny};});}
-  else if(direction==='bottom'){const t=Math.max(...items.map(i=>i.ny+i.nh));items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:t-(i.ny+i.nh)};});}
-  else if(direction==='middle'){const avg=items.reduce((s,i)=>s+(i.ny+i.nh/2),0)/items.length;items.forEach(i=>{S.gridOverrides[i.id]={dx:(S.gridOverrides[i.id]||{dx:0}).dx||0,dy:avg-(i.ny+i.nh/2)};});}
-  applyGridOverridesToTree();
-  requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
+  if(direction==='left'){const t=Math.min(...items.map(i=>i.nx));items.forEach(i=>{ctx.overrides[i.id]={dx:t-i.nx,dy:(ctx.overrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='right'){const t=Math.max(...items.map(i=>i.nx+i.nw));items.forEach(i=>{ctx.overrides[i.id]={dx:t-(i.nx+i.nw),dy:(ctx.overrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='center-h'){const avg=items.reduce((s,i)=>s+(i.nx+i.nw/2),0)/items.length;items.forEach(i=>{ctx.overrides[i.id]={dx:avg-(i.nx+i.nw/2),dy:(ctx.overrides[i.id]||{dy:0}).dy||0};});}
+  else if(direction==='top'){const t=Math.min(...items.map(i=>i.ny));items.forEach(i=>{ctx.overrides[i.id]={dx:(ctx.overrides[i.id]||{dx:0}).dx||0,dy:t-i.ny};});}
+  else if(direction==='bottom'){const t=Math.max(...items.map(i=>i.ny+i.nh));items.forEach(i=>{ctx.overrides[i.id]={dx:(ctx.overrides[i.id]||{dx:0}).dx||0,dy:t-(i.ny+i.nh)};});}
+  else if(direction==='middle'){const avg=items.reduce((s,i)=>s+(i.ny+i.nh/2),0)/items.length;items.forEach(i=>{ctx.overrides[i.id]={dx:(ctx.overrides[i.id]||{dx:0}).dx||0,dy:avg-(i.ny+i.nh/2)};});}
+  ctx.apply();
+  requestAnimationFrame(()=>{ctx.redraw();});
   persistState();
   showToast('Aligned '+items.length+' cards',true);
 }
 function distributeSelected(axis){
   if(S.selectedIds.size<3){showToast('Select 3 or more cards to distribute');return;}
-  if(!S.gridMode)toggleGridMode();
-  const cc=document.getElementById('chart-canvas-content');const ccRect=cc.getBoundingClientRect();
+  const ctx=_gridCtx();
+  if(!ctx.gridOn)ctx.toggle();
+  const cc=ctx.cc;if(!cc)return;
+  const ccRect=cc.getBoundingClientRect();
   const items=[];
   S.selectedIds.forEach(id=>{
-    const card=cc.querySelector('#org-tree [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const card=cc.querySelector(ctx.treeSel+' [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
     const nr=_measureNatural(card);
-    items.push({id,nx:(nr.left-ccRect.left)/S.zoom,ny:(nr.top-ccRect.top)/S.zoom,nw:nr.width/S.zoom,nh:nr.height/S.zoom});
+    items.push({id,nx:(nr.left-ccRect.left)/ctx.zoom,ny:(nr.top-ccRect.top)/ctx.zoom,nw:nr.width/ctx.zoom,nh:nr.height/ctx.zoom});
   });
   if(items.length<3)return;
   pushUndo();
@@ -2280,17 +2360,46 @@ function distributeSelected(axis){
     items.sort((a,b)=>(a.nx+a.nw/2)-(b.nx+b.nw/2));
     const first=items[0].nx+items[0].nw/2,last=items[items.length-1].nx+items[items.length-1].nw/2;
     const step=(last-first)/(items.length-1);
-    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.nx+it.nw/2;S.gridOverrides[it.id]={dx:target-cur,dy:(S.gridOverrides[it.id]||{dy:0}).dy||0};});
+    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.nx+it.nw/2;ctx.overrides[it.id]={dx:target-cur,dy:(ctx.overrides[it.id]||{dy:0}).dy||0};});
   }else{
     items.sort((a,b)=>(a.ny+a.nh/2)-(b.ny+b.nh/2));
     const first=items[0].ny+items[0].nh/2,last=items[items.length-1].ny+items[items.length-1].nh/2;
     const step=(last-first)/(items.length-1);
-    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.ny+it.nh/2;S.gridOverrides[it.id]={dx:(S.gridOverrides[it.id]||{dx:0}).dx||0,dy:target-cur};});
+    items.forEach((it,idx)=>{const target=first+step*idx;const cur=it.ny+it.nh/2;ctx.overrides[it.id]={dx:(ctx.overrides[it.id]||{dx:0}).dx||0,dy:target-cur};});
   }
-  applyGridOverridesToTree();
-  requestAnimationFrame(()=>{redrawGridConnectorsFromTree();});
+  ctx.apply();
+  requestAnimationFrame(()=>{ctx.redraw();});
   persistState();
   showToast('Distributed '+items.length+' cards',true);
+}
+function stackVertical(){
+  if(S.selectedIds.size<2){showToast('Select 2+ cards to stack vertically');return;}
+  const ctx=_gridCtx();
+  if(!ctx.gridOn)ctx.toggle();
+  const cc=ctx.cc;if(!cc)return;
+  const ccRect=cc.getBoundingClientRect();
+  const items=[];
+  S.selectedIds.forEach(id=>{
+    const card=cc.querySelector(ctx.treeSel+' [data-drag-id="'+CSS.escape(id)+'"]');if(!card)return;
+    const nr=_measureNatural(card);
+    items.push({id,nx:(nr.left-ccRect.left)/ctx.zoom,ny:(nr.top-ccRect.top)/ctx.zoom,nw:nr.width/ctx.zoom,nh:nr.height/ctx.zoom});
+  });
+  if(items.length<2)return;
+  // Anchor on the leftmost-topmost selected card so the column starts there
+  items.sort((a,b)=>(a.ny+a.nh/2)-(b.ny+b.nh/2));
+  const anchorX=Math.min(...items.map(i=>i.nx));
+  const anchorY=items[0].ny;
+  const GAP=14;
+  pushUndo();
+  let runningY=anchorY;
+  items.forEach(it=>{
+    ctx.overrides[it.id]={dx:anchorX-it.nx,dy:runningY-it.ny};
+    runningY+=it.nh+GAP;
+  });
+  ctx.apply();
+  requestAnimationFrame(()=>{ctx.redraw();});
+  persistState();
+  showToast('Stacked '+items.length+' cards vertically · connectors route from the side');
 }
 function mkBareCard(node){
   // Reuse mkNodeLI for full card fidelity. Temporarily suppress this node's
