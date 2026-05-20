@@ -321,7 +321,7 @@ body{display:flex;flex-direction:column}
 .chart-canvas-content.grid-mode #org-tree li::after,
 .chart-canvas-content.grid-mode #org-tree ul ul::before{display:none!important}
 .chart-canvas-content.grid-mode #fro-svg{display:none}
-.chart-canvas-content.grid-mode .node-card.grid-translated{z-index:6;box-shadow:0 6px 20px rgba(15,23,42,0.18)!important}
+.chart-canvas-content.grid-mode .grid-translated{box-shadow:0 6px 20px rgba(15,23,42,0.18)!important}
 .grid-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(to right,rgba(148,163,184,0.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(148,163,184,0.22) 1px,transparent 1px);background-size:20px 20px;background-position:0 0;pointer-events:none;z-index:-2;display:none}
 .chart-canvas-content.grid-mode .grid-overlay.visible{display:block}
 .grid-svg{position:absolute;top:0;left:0;pointer-events:none;z-index:-1;display:none}
@@ -343,7 +343,7 @@ body{display:flex;flex-direction:column}
 .pv-tree-content.grid-mode #pv-org-tree .children-rows-wrap::before{display:none!important}
 .pv-tree-content.grid-mode #pv-fro-svg{display:none}
 .pv-tree-content.grid-mode #pv-grid-svg{display:block}
-.pv-tree-content.grid-mode .node-card.grid-translated{z-index:6;box-shadow:0 6px 20px rgba(15,23,42,0.18)!important}
+.pv-tree-content.grid-mode .grid-translated{box-shadow:0 6px 20px rgba(15,23,42,0.18)!important}
 .grid-mode-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;font-size:0.74rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;font-family:inherit}
 .grid-mode-btn:hover{border-color:#0891b2;color:#0891b2;background:#ecfeff}
 .grid-mode-btn.active{background:#ecfeff;border-color:#0891b2;color:#0891b2;box-shadow:0 0 0 2px #cffafe}
@@ -1149,14 +1149,17 @@ function applyPVGridOverridesToTree(){
   document.querySelectorAll('#pv-org-tree .node-card[data-drag-id], #pv-org-tree .summary-list-card[data-drag-id]').forEach(card=>{
     const id=card.dataset.dragId;const ovr=S.pvGridOverrides[id];
     if(ovr&&typeof ovr.dx==='number'&&typeof ovr.dy==='number'&&(ovr.dx||ovr.dy)){
-      card.style.transform='translate('+ovr.dx+'px,'+ovr.dy+'px)';
+      // Use position offset, not transform — transform would make the card its
+      // own stacking context and html2canvas can't render the IC summary card's
+      // nested children inside one (the dragged-card-goes-blank-in-PNG bug).
+      card.style.left=ovr.dx+'px';card.style.top=ovr.dy+'px';card.style.transform='';
       card.classList.add('grid-translated');
-    }else{card.style.transform='';card.classList.remove('grid-translated');}
+    }else{card.style.left='';card.style.top='';card.style.transform='';card.classList.remove('grid-translated');}
   });
 }
 function clearPVTreeTranslations(){
   document.querySelectorAll('#pv-org-tree .grid-translated').forEach(card=>{
-    card.style.transform='';card.classList.remove('grid-translated');
+    card.style.left='';card.style.top='';card.style.transform='';card.classList.remove('grid-translated');
   });
 }
 function redrawPVConnectors(){
@@ -1503,8 +1506,9 @@ async function buildRenderStage(){
   });
   clone.querySelectorAll('.node-card,.summary-list-card').forEach(c=>{
     c.style.removeProperty('opacity');
-    // Keep card transforms in grid mode so the user's drag-arrangement is exported.
-    if(!S.gridMode)c.style.removeProperty('transform');
+    // Grid-mode drag positions are written to top/left now (not transform), so
+    // they're preserved by cloneNode and don't need special handling here.
+    c.style.removeProperty('transform');
     c.style.setProperty('overflow','visible','important');
   });
   // Hide the gridline overlay pattern in the export (per print stylesheet contract).
@@ -2149,17 +2153,20 @@ function applyGridOverridesToTree(){
   document.querySelectorAll('#org-tree .node-card[data-drag-id], #org-tree .summary-list-card[data-drag-id]').forEach(card=>{
     const id=card.dataset.dragId;const ovr=S.gridOverrides[id];
     if(ovr&&typeof ovr.dx==='number'&&typeof ovr.dy==='number'&&(ovr.dx||ovr.dy)){
-      card.style.transform='translate('+ovr.dx+'px,'+ovr.dy+'px)';
+      // Use top/left offset rather than transform: a transformed element becomes
+      // its own stacking context, which is what causes dragged IC summary cards
+      // to render with a blank interior in html2canvas PNG exports.
+      card.style.left=ovr.dx+'px';card.style.top=ovr.dy+'px';card.style.transform='';
       card.classList.add('grid-translated');
     }else{
-      card.style.transform='';
+      card.style.left='';card.style.top='';card.style.transform='';
       card.classList.remove('grid-translated');
     }
   });
 }
 function clearTreeTranslations(){
   document.querySelectorAll('#org-tree .grid-translated').forEach(card=>{
-    card.style.transform='';card.classList.remove('grid-translated');
+    card.style.left='';card.style.top='';card.style.transform='';card.classList.remove('grid-translated');
   });
 }
 /* Draw shared-trunk org-chart connectors. For each manager with N children:
@@ -2294,7 +2301,8 @@ function onCardPointerDown(e){
     card.classList.add('node-dragging','grid-translated');
     curDx=oldOvr.dx+ddx;
     curDy=oldOvr.dy+ddy;
-    card.style.transform='translate('+curDx+'px,'+curDy+'px)';
+    // top/left (not transform) to avoid creating a stacking context per card
+    card.style.left=curDx+'px';card.style.top=curDy+'px';card.style.transform='';
     if(!window._gridDragRAF){
       window._gridDragRAF=requestAnimationFrame(()=>{
         window._gridDragRAF=null;
@@ -2315,11 +2323,11 @@ function onCardPointerDown(e){
     pushUndo();
     if(curDx===0&&curDy===0){
       delete overrides[id];
-      card.style.transform='';
+      card.style.left='';card.style.top='';card.style.transform='';
       card.classList.remove('grid-translated');
     }else{
       overrides[id]={dx:curDx,dy:curDy};
-      card.style.transform='translate('+curDx+'px,'+curDy+'px)';
+      card.style.left=curDx+'px';card.style.top=curDy+'px';card.style.transform='';
     }
     redraw();
     persistState();
@@ -2380,10 +2388,13 @@ function refreshAlignToolbar(){
   const ct=document.getElementById('at-count');if(ct)ct.textContent=S.selectedIds.size+' selected';
 }
 function _measureNatural(card){
-  // Measure the card's bounding box without its current translation override
-  const t=card.style.transform;card.style.transform='';
+  // Measure the card's bounding box without its current translation override.
+  // Drag positions are written via top/left now (not transform), so reset all
+  // three properties before measuring, then restore.
+  const t=card.style.transform,l=card.style.left,tp=card.style.top;
+  card.style.transform='';card.style.left='';card.style.top='';
   const cr=card.getBoundingClientRect();
-  card.style.transform=t;
+  card.style.transform=t;card.style.left=l;card.style.top=tp;
   return cr;
 }
 function _gridCtx(){
