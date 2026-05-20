@@ -155,7 +155,7 @@ body{display:flex;flex-direction:column}
 .summary-fields-wrap{display:flex;align-items:center;gap:5px;background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:8px;padding:3px 6px 3px 9px;flex-shrink:0}
 .summary-fields-label{font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#7c3aed;white-space:nowrap}
 .summary-field-select{background:transparent;border:none;padding:3px 18px 3px 4px;font-size:0.75rem;font-weight:700;color:#7c3aed;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none;appearance:none;background-repeat:no-repeat;background-position:right 2px center;max-width:110px}
-.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left;position:relative;z-index:3}
+.summary-list-card{display:inline-block;width:240px;background:#ffffff;border:1.5px solid #e2e8f0;border-top:3px solid #7c3aed;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;vertical-align:top;text-align:left;position:relative}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
@@ -192,7 +192,14 @@ body{display:flex;flex-direction:column}
 .toast .toast-action{background:rgba(255,255,255,0.18);border:none;color:#fff;font-size:0.74rem;font-weight:800;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;pointer-events:auto}
 .toast .toast-action:hover{background:rgba(255,255,255,0.28)}
 /* ── Node card: full 4-side border color ── */
-.node-card{display:inline-block;width:270px;background:var(--bg);border:2px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;z-index:3;font-family:'Plus Jakarta Sans',sans-serif}
+.node-card{display:inline-block;width:270px;background:var(--bg);border:2px solid var(--accent);border-radius:var(--r-lg);cursor:pointer;text-align:left;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;box-shadow:var(--shadow-sm);position:relative;font-family:'Plus Jakarta Sans',sans-serif}
+/* Grid Mode needs cards above the gridline overlay (z:0) and the connector
+   svg (z:1), but z-index outside grid mode creates an html2canvas-hostile
+   stacking context that wipes the IC summary card content in PNG exports. */
+.chart-canvas-content.grid-mode .node-card,
+.chart-canvas-content.grid-mode .summary-list-card,
+.pv-tree-content.grid-mode .node-card,
+.pv-tree-content.grid-mode .summary-list-card{z-index:3}
 .node-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.12),0 0 0 2px rgba(79,70,229,0.12);z-index:10}
 .node-card.highlighted{box-shadow:0 0 0 3px rgba(217,119,6,0.2),0 8px 24px rgba(0,0,0,0.1)!important}
 .node-card.collapsed-node{opacity:0.65}
@@ -1387,7 +1394,7 @@ async function printPVA3(){
     await new Promise(r=>setTimeout(r,150));
     const bounds=S.pvGridMode?_translatedBounds(target):null;
     const h2cOpts={backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false};
-    if(bounds){const pw=Math.max(target.scrollWidth,bounds.width),ph=Math.max(target.scrollHeight,bounds.height);h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw)+200;h2cOpts.windowHeight=Math.ceil(ph)+200;h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
+    if(bounds){const pw=Math.max(target.scrollWidth,bounds.width),ph=Math.max(target.scrollHeight,bounds.height);h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw);h2cOpts.windowHeight=Math.ceil(ph);h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
     const canvas=await html2canvas(target,h2cOpts);
     S.pvZoom=savedPvZoom;
     target.style.transform=wasTransform;
@@ -1421,12 +1428,12 @@ async function exportPVPNG(){
     await new Promise(r=>setTimeout(r,300));
     if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
     const pvSvg=document.getElementById('pv-fro-svg');pvSvg.setAttribute('width',pvContent.scrollWidth+'px');pvSvg.setAttribute('height',pvContent.scrollHeight+'px');
-    // In grid mode, CSS transforms on cards don't expand scrollWidth/Height. Scan
-    // card positions to compute the true bounds so translated cards aren't cropped.
-    const bounds=_translatedBounds(pvContent);
-    const w=Math.max(pvContent.scrollWidth,bounds.width);
-    const h=Math.max(pvContent.scrollHeight,bounds.height);
-    const canvas=await html2canvas(pvContent,{backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});
+    // Real rendered size first, then grow only if translated cards extend past it.
+    const rect=pvContent.getBoundingClientRect();
+    const bounds=S.pvGridMode?_translatedBounds(pvContent):null;
+    const w=Math.max(rect.width||pvContent.scrollWidth,bounds?bounds.width:0);
+    const h=Math.max(rect.height||pvContent.scrollHeight,bounds?bounds.height:0);
+    const canvas=await html2canvas(pvContent,{backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w),windowHeight:Math.ceil(h),scrollX:0,scrollY:0,x:0,y:0});
     const name=(document.getElementById('pv-title').textContent||'person').replace(/[^a-zA-Z0-9]/g,'_');
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'person_'+name+'_N'+S.pvDepth+'_'+stamp+'.png');res();},'image/png'));
@@ -1507,18 +1514,29 @@ async function buildRenderStage(){
 }
 async function renderToCanvas(stageObj){
   const el=stageObj.stage;
-  let w=el.scrollWidth||el.offsetWidth;
-  let h=el.scrollHeight||el.offsetHeight;
-  // In grid mode, scrollWidth/scrollHeight ignores translated cards. Walk
-  // the cards and grow the canvas so nothing gets clipped.
+  // Use the stage's actual rendered box (post-append), not scrollWidth/Height
+  // — for an inline-block container with padding, getBoundingClientRect gives
+  // the exact pixel extent and avoids the html2canvas "captures the whole
+  // window" failure mode you get when windowWidth/Height are over-padded.
+  const rect=el.getBoundingClientRect();
+  let w=rect.width||el.scrollWidth||el.offsetWidth;
+  let h=rect.height||el.scrollHeight||el.offsetHeight;
+  // In grid mode, transforms can put cards past the container's natural box.
+  // _translatedBounds walks .node-card / .summary-list-card and reports the
+  // actual rightmost/bottommost edge so the canvas grows to include them.
   if(stageObj.sourceForBounds){
     const b=_translatedBounds(stageObj.sourceForBounds);
-    // Stage has 48/64/80 padding around the clone — keep that in the canvas size.
-    w=Math.max(w,b.width+128);
-    h=Math.max(h,b.height+128);
+    // The bounds are measured relative to the source clone (container's left
+    // padding is 64). Add that padding back on the right/bottom too so card
+    // shadows don't get clipped.
+    w=Math.max(w,b.width+64);
+    h=Math.max(h,b.height+64);
   }
   const bg=S.transparentExport?null:S.chartBgColor;
-  return html2canvas(el,{backgroundColor:bg,scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});
+  // windowWidth/Height intentionally match width/height — previously they
+  // were +200 which made html2canvas allocate an over-sized virtual window
+  // and the resulting canvas captured a wide swath of empty background.
+  return html2canvas(el,{backgroundColor:bg,scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w),windowHeight:Math.ceil(h),scrollX:0,scrollY:0,x:0,y:0});
 }
 async function exportPNG(){const overlay=makeOverlay('Rendering org chart...','Capturing full chart at 2x resolution');document.body.appendChild(overlay);const savedZoom=S.zoom;applyZoom(1);await new Promise(r=>setTimeout(r,140));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const fp=Object.values(S.activeFilters).filter(Boolean).map(v=>v.replace(/[^a-zA-Z0-9]/g,'_')).join('_');const mode=S.managerMode?'_mgr_view':'';await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'orgchart_'+(fp?fp+'_':'')+mode+stamp+'.png');res();},'image/png'));}catch(e){alert('PNG export failed: '+e.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);}}
 async function exportSubtree(e,nodeId){e.stopPropagation();const node=S.viewData.find(n=>n.id===nodeId);if(!node)return;const includeIds=new Set([nodeId]);function collectDesc(id){(S.childMap[id]||[]).forEach(k=>{includeIds.add(k.id);collectDesc(k.id);});}collectDesc(nodeId);const overlay=makeOverlay('Exporting '+node.name+'\'s team ('+includeIds.size+')...','');document.body.appendChild(overlay);const savedViewData=S.viewData,savedChildMap=S.childMap,savedDescCount=S.descCount,savedNodeHeight=S.nodeHeight,savedNodeDepth=S.nodeDepth;const savedSkipDepth=S.skipDepth;const hadOverride=S.managerOverrides.hasOwnProperty(nodeId);const prevOverride=S.managerOverrides[nodeId];S.viewData=savedViewData.filter(n=>includeIds.has(n.id));S.managerOverrides[nodeId]='';S.skipDepth=0;S.childMap={};S.viewData.forEach(n=>{const mgr=(n.id===nodeId)?'':n.manager;if(!S.childMap[mgr])S.childMap[mgr]=[];S.childMap[mgr].push(n);});S.descCount={};S.nodeHeight={};S.nodeDepth={};function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}cD(nodeId);cH(nodeId);cDep(nodeId,0);const savedZoom=S.zoom;applyZoom(1);renderChart();await new Promise(r=>setTimeout(r,400));let stage;try{stage=await buildRenderStage();const canvas=await renderToCanvas(stage);const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');const safeName=node.name.replace(/[^a-zA-Z0-9]/g,'_');await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'team_'+safeName+'_'+stamp+'.png');res();},'image/png'));}catch(ex){alert('Subtree export failed: '+ex.message);}finally{if(stage&&stage.wrapper)stage.wrapper.remove();overlay.remove();applyZoom(savedZoom);if(hadOverride)S.managerOverrides[nodeId]=prevOverride;else delete S.managerOverrides[nodeId];S.viewData=savedViewData;S.childMap=savedChildMap;S.descCount=savedDescCount;S.nodeHeight=savedNodeHeight;S.nodeDepth=savedNodeDepth;S.skipDepth=savedSkipDepth;renderChart();}}
@@ -2046,7 +2064,7 @@ async function printA3(){
     const pw=bounds?Math.max(cc.scrollWidth,bounds.width):0;
     const ph=bounds?Math.max(cc.scrollHeight,bounds.height):0;
     const h2cOpts={backgroundColor:S.transparentExport?null:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false};
-    if(bounds){h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw)+200;h2cOpts.windowHeight=Math.ceil(ph)+200;h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
+    if(bounds){h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw);h2cOpts.windowHeight=Math.ceil(ph);h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
     canvas=await html2canvas(cc,h2cOpts);
     cc.style.transform=wasTransform;
     const dataUrl=canvas.toDataURL('image/png');
