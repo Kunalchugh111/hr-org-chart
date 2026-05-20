@@ -1654,7 +1654,13 @@ function snapshotState(){
     removedIds:new Set(S.removedIds),
     activeFilters:{...S.activeFilters},
     skipDepth:S.skipDepth,
-    managerMode:S.managerMode
+    managerMode:S.managerMode,
+    // Capture grid-mode state too — without these, Ctrl+Z after a card-drag
+    // would silently reset the grid layout to natural tree positions.
+    gridMode:S.gridMode,
+    gridOverrides:JSON.parse(JSON.stringify(S.gridOverrides||{})),
+    pvGridMode:S.pvGridMode,
+    pvGridOverrides:JSON.parse(JSON.stringify(S.pvGridOverrides||{}))
   };
 }
 function pushUndo(){
@@ -1670,8 +1676,20 @@ function undo(){
   S.activeFilters=prev.activeFilters;
   S.skipDepth=prev.skipDepth;
   S.managerMode=prev.managerMode;
+  S.gridMode=!!prev.gridMode;
+  S.gridOverrides=prev.gridOverrides||{};
+  S.pvGridMode=!!prev.pvGridMode;
+  S.pvGridOverrides=prev.pvGridOverrides||{};
   const mb=document.getElementById('mgr-mode-btn');if(mb)mb.classList.toggle('active',S.managerMode);
   const sf=document.getElementById('summary-fields-wrap');if(sf)sf.style.display=S.managerMode?'flex':'none';
+  // Sync the grid-mode UI to the restored state
+  const cc=document.getElementById('chart-canvas-content');if(cc)cc.classList.toggle('grid-mode',S.gridMode);
+  const gb=document.getElementById('grid-mode-btn');if(gb)gb.classList.toggle('active',S.gridMode);
+  const gl=document.getElementById('grid-lines-btn'),gr=document.getElementById('grid-reset-btn');
+  if(gl)gl.style.display=S.gridMode?'inline-flex':'none';
+  if(gr)gr.style.display=S.gridMode?'inline-flex':'none';
+  const pvb=document.getElementById('pv-grid-btn');if(pvb)pvb.classList.toggle('active',S.pvGridMode);
+  const pvtc=document.getElementById('pv-tree-content');if(pvtc)pvtc.classList.toggle('grid-mode',S.pvGridMode);
   buildViewData();renderChart();buildFilterBar();persistState();
   const ub=document.getElementById('undo-btn');if(ub)ub.disabled=S.undoStack.length===0;
   showToast('Undid last change');
@@ -1731,6 +1749,8 @@ function persistState(){
         gridMode:S.gridMode,
         gridOverrides:S.gridOverrides,
         gridShowLines:S.gridShowLines,
+        pvGridMode:S.pvGridMode,
+        pvGridOverrides:S.pvGridOverrides,
         maxPerRow:S.maxPerRow,
         pvMaxPerRow:S.pvMaxPerRow,
         savedAt:Date.now()
@@ -2590,6 +2610,12 @@ function applyPersisted(d){
     if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.gridOverrides[id]=o;
   });
   S.gridShowLines=d.gridShowLines!==false;
+  // PV grid mode + overrides survive reload too.
+  S.pvGridMode=!!d.pvGridMode;
+  S.pvGridOverrides={};
+  Object.entries(d.pvGridOverrides||{}).forEach(([id,o])=>{
+    if(o&&typeof o.dx==='number'&&typeof o.dy==='number')S.pvGridOverrides[id]=o;
+  });
   S.maxPerRow=(d.maxPerRow==='auto')?'auto':(parseInt(d.maxPerRow)||6);
   S.pvMaxPerRow=(d.pvMaxPerRow==='auto'||d.pvMaxPerRow==null)?'auto':(parseInt(d.pvMaxPerRow)||'auto');
   buildEmpTypeMap();
