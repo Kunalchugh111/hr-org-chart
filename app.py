@@ -208,17 +208,11 @@ body{display:flex;flex-direction:column}
 .ncard-sub{font-size:0.74rem;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .collapse-btn{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:var(--bg);border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.58rem;color:var(--text3);transition:all 0.15s;z-index:5;box-shadow:var(--shadow-xs)}
 .collapse-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-.search-wrap{position:relative;flex:0 0 auto;width:132px;max-width:132px;height:30px;border-radius:999px;background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 60%,#a855f7 100%);box-shadow:0 0 0 2px rgba(124,58,237,0.14),0 3px 10px rgba(124,58,237,0.28),inset 0 1px 0 rgba(255,255,255,0.22);transition:width 0.22s ease,max-width 0.22s ease,box-shadow 0.18s ease,background 0.18s ease}
-.search-wrap:hover{background:linear-gradient(135deg,#7c3aed 0%,#9333ea 60%,#c026d3 100%);box-shadow:0 0 0 3px rgba(124,58,237,0.2),0 5px 14px rgba(124,58,237,0.4),inset 0 1px 0 rgba(255,255,255,0.28)}
-.search-wrap.expanded{width:280px;max-width:280px;box-shadow:0 0 0 3px rgba(192,38,211,0.26),0 6px 18px rgba(192,38,211,0.4),inset 0 1px 0 rgba(255,255,255,0.3)}
-.search-pill-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:none;color:#fff;font-weight:800;font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:999px;z-index:2;transition:opacity 0.16s ease;padding:0 10px;white-space:nowrap}
-.search-pill-btn .sp-ico{font-size:0.82rem;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25))}
-.search-wrap.expanded .search-pill-btn{opacity:0;pointer-events:none}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:0.82rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25));opacity:0;transition:opacity 0.16s ease}
-.search-wrap.expanded .search-icon{opacity:1}
-#chart-search{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:none;border-radius:999px;padding:0 12px 0 30px;font-size:0.78rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;letter-spacing:0;z-index:1;opacity:0;pointer-events:none;transition:opacity 0.16s ease}
-.search-wrap.expanded #chart-search{opacity:1;pointer-events:auto;z-index:4}
-#chart-search::placeholder{color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0;text-transform:none;font-size:0.78rem}
+.search-wrap{position:relative;flex:0 0 auto;width:240px;height:34px}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:0.95rem;pointer-events:none;color:#fff;z-index:2;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.25))}
+#chart-search{width:100%;height:100%;background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 60%,#a855f7 100%);border:none;border-radius:999px;padding:0 14px 0 36px;font-size:0.8rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;box-shadow:0 0 0 2px rgba(124,58,237,0.16),0 4px 12px rgba(124,58,237,0.3),inset 0 1px 0 rgba(255,255,255,0.22);transition:box-shadow 0.18s ease}
+#chart-search:focus{box-shadow:0 0 0 3px rgba(192,38,211,0.28),0 6px 18px rgba(192,38,211,0.42),inset 0 1px 0 rgba(255,255,255,0.32)}
+#chart-search::placeholder{color:rgba(255,255,255,0.85);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:0.7rem}
 #chart-search-results{position:fixed;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:320px;overflow-y:auto;z-index:99999;display:none;min-width:280px}
 #chart-search-results.visible{display:block}
 .sr-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s ease}
@@ -449,7 +443,7 @@ body{display:flex;flex-direction:column}
   <div class="screen" id="screen-chart">
     <div class="chart-toolbar">
       <button class="btn btn-ghost btn-sm" onclick="goTo('filter')">Setup</button><div class="tb-sep"></div>
-      <div class="search-wrap" id="search-wrap"><button type="button" class="search-pill-btn" id="search-pill-btn" onclick="expandSearch()" aria-label="Open Person View search"><span class="sp-ico">🔍</span>Person View</button><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Type a name or ID…" autocomplete="off" onblur="maybeCollapseSearch()"/></div><div class="tb-sep"></div>
+      <div class="search-wrap" id="search-wrap"><span class="search-icon">🔍</span><input id="chart-search" type="text" placeholder="Person View" autocomplete="off"/></div><div class="tb-sep"></div>
       <div class="zoom-strip"><button class="btn-zoom" onclick="zoomBy(-0.1)">−</button><span class="zoom-label" id="zoom-level">100%</span><button class="btn-zoom" onclick="zoomBy(0.1)">+</button><button class="btn-zoom" onclick="fitToScreen(true)" title="Fit">⊡</button></div>
       <button class="btn btn-ghost btn-sm" onclick="centerView()">Center</button><button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand</button><button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse</button><div class="tb-sep"></div>
       <div class="depth-wrap"><span class="depth-label">Skip Top</span><select class="depth-select" id="depth-select" onchange="setSkipDepth(parseInt(this.value))" aria-label="Skip top N levels of hierarchy"><option value="0">None</option><option value="1">L1</option><option value="2">L2</option><option value="3">L3</option><option value="4">L4</option><option value="5">L5</option><option value="6">L6</option></select></div>
@@ -945,13 +939,10 @@ function initSearch(){
     _searchTimer=setTimeout(runSearch,120);
   });
   input.addEventListener('focus',()=>{if(input.value.trim())positionBox();});
-  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#chart-search-results')){box.classList.remove('visible');collapseSearchIfEmpty();}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap')&&!e.target.closest('#chart-search-results')){box.classList.remove('visible');}});
   window.addEventListener('resize',()=>{if(box.classList.contains('visible'))positionBox();});
 }
-function expandSearch(){const w=document.getElementById('search-wrap');if(!w)return;w.classList.add('expanded');const i=document.getElementById('chart-search');if(i)setTimeout(()=>i.focus(),20);}
-function maybeCollapseSearch(){setTimeout(()=>{const i=document.getElementById('chart-search');if(i&&!i.value.trim())collapseSearchIfEmpty();},120);}
-function collapseSearchIfEmpty(){const w=document.getElementById('search-wrap');if(!w)return;const i=document.getElementById('chart-search');if(i&&i.value.trim())return;w.classList.remove('expanded');}
-function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');collapseSearchIfEmpty();}
+function highlightNode(id){document.querySelectorAll('.node-card.highlighted').forEach(c=>c.classList.remove('highlighted'));S.highlighted=id;expandAll();const li=document.querySelector('#org-tree li[data-id="'+CSS.escape(id)+'"]');if(li){const card=li.querySelector('.node-card');if(card){card.classList.add('highlighted');setTimeout(()=>{const r=card.getBoundingClientRect();const w=cwrap();const wr=w.getBoundingClientRect();w.scrollTo({left:w.scrollLeft+(r.left-wr.left)-wr.width/2+r.width/2,top:w.scrollTop+(r.top-wr.top)-wr.height/2+r.height/2,behavior:'smooth'});},80);}}document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');}
 
 /* ════════════════════════════════════════════════════
    FRO LINES — main chart
@@ -1022,7 +1013,7 @@ function openPersonView(personId){
   document.getElementById('pv-sub').textContent='ID: '+personId+' · Cross-filter view · All data · FRO shown as dotted line';
   document.querySelectorAll('.pv-depth-btn').forEach(b=>b.classList.toggle('selected',b.dataset.d==='999'));
   document.getElementById('person-view-modal').classList.remove('hidden');
-  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');collapseSearchIfEmpty();
+  document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
   const pvSel=document.getElementById('pv-row-size-select');if(pvSel)pvSel.value=String(S.pvMaxPerRow);
   renderPersonView(personId,999);
   initPVPan();
