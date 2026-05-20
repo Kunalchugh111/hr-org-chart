@@ -1013,6 +1013,10 @@ function openPersonView(personId){
   document.getElementById('person-view-modal').classList.remove('hidden');
   document.getElementById('chart-search').value='';document.getElementById('chart-search-results').classList.remove('visible');
   const pvSel=document.getElementById('pv-row-size-select');if(pvSel)pvSel.value=String(S.pvMaxPerRow);
+  // Sync the PV grid-mode UI with restored state so the SVG, CSS connectors
+  // and button highlight all match S.pvGridMode after a page reload.
+  const pvTc=document.getElementById('pv-tree-content');if(pvTc)pvTc.classList.toggle('grid-mode',S.pvGridMode);
+  const pvBtn=document.getElementById('pv-grid-btn');if(pvBtn)pvBtn.classList.toggle('active',S.pvGridMode);
   renderPersonView(personId,999);
   initPVPan();
 }
@@ -1373,7 +1377,10 @@ async function printPVA3(){
     // pv-tree-content carries both the tree DOM and the PV grid SVG, so a single
     // target works for both tree and grid modes.
     const target=document.getElementById('pv-tree-content');
-    const wasTransform=target.style.transform;target.style.transform='scale(1)';
+    const wasTransform=target.style.transform;
+    const savedPvZoom=S.pvZoom;
+    target.style.transform='scale(1)';
+    S.pvZoom=1;  // keep redrawPVConnectors' coord math in sync with the rendered scale
     await new Promise(r=>setTimeout(r,250));
     if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
     svgRestorers=await svgsToImagesAsync(target);
@@ -1382,7 +1389,9 @@ async function printPVA3(){
     const h2cOpts={backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,allowTaint:true,foreignObjectRendering:false};
     if(bounds){const pw=Math.max(target.scrollWidth,bounds.width),ph=Math.max(target.scrollHeight,bounds.height);h2cOpts.width=Math.ceil(pw);h2cOpts.height=Math.ceil(ph);h2cOpts.windowWidth=Math.ceil(pw)+200;h2cOpts.windowHeight=Math.ceil(ph)+200;h2cOpts.scrollX=0;h2cOpts.scrollY=0;h2cOpts.x=0;h2cOpts.y=0;}
     const canvas=await html2canvas(target,h2cOpts);
+    S.pvZoom=savedPvZoom;
     target.style.transform=wasTransform;
+    if(S.pvGridMode)setTimeout(redrawPVConnectors,40);
     const dataUrl=canvas.toDataURL('image/png');
     const w=window.open('','_blank','width=1400,height=900');
     if(!w){alert('Pop-up blocked.');return;}
@@ -1400,9 +1409,15 @@ async function printPVA3(){
 async function exportPVPNG(){
   if(!S.pvPersonId)return;
   const overlay=makeOverlay('Exporting Person View...','');document.body.appendChild(overlay);
+  const pvContent=document.getElementById('pv-tree-content');
+  const savedTransform=pvContent.style.transform;
+  const savedPvZoom=S.pvZoom;
+  // Sync the inline transform AND S.pvZoom — redrawPVConnectors divides rect
+  // coords by S.pvZoom, so they must match the actual rendered scale or the
+  // SVG paths land at 1/zoom-off positions.
+  pvContent.style.transform='scale(1)';
+  S.pvZoom=1;
   try{
-    const pvContent=document.getElementById('pv-tree-content');
-    const savedTransform=pvContent.style.transform;pvContent.style.transform='scale(1)';
     await new Promise(r=>setTimeout(r,300));
     if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
     const pvSvg=document.getElementById('pv-fro-svg');pvSvg.setAttribute('width',pvContent.scrollWidth+'px');pvSvg.setAttribute('height',pvContent.scrollHeight+'px');
@@ -1412,11 +1427,17 @@ async function exportPVPNG(){
     const w=Math.max(pvContent.scrollWidth,bounds.width);
     const h=Math.max(pvContent.scrollHeight,bounds.height);
     const canvas=await html2canvas(pvContent,{backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true,width:Math.ceil(w),height:Math.ceil(h),windowWidth:Math.ceil(w)+200,windowHeight:Math.ceil(h)+200,scrollX:0,scrollY:0,x:0,y:0});
-    pvContent.style.transform=savedTransform;
     const name=(document.getElementById('pv-title').textContent||'person').replace(/[^a-zA-Z0-9]/g,'_');
     const stamp=new Date().toISOString().slice(0,10).replace(/-/g,'');
     await new Promise(res=>canvas.toBlob(blob=>{if(blob)triggerDownload(blob,'person_'+name+'_N'+S.pvDepth+'_'+stamp+'.png');res();},'image/png'));
-  }catch(e){alert('Export failed: '+e.message);}finally{overlay.remove();}
+  }catch(e){alert('Export failed: '+e.message);}
+  finally{
+    S.pvZoom=savedPvZoom;
+    pvContent.style.transform=savedTransform;
+    // Redraw at the user's actual zoom so the on-screen paths line up again
+    if(S.pvGridMode)setTimeout(redrawPVConnectors,40);
+    overlay.remove();
+  }
 }
 /* Compute the bounding box of every card inside `container`, INCLUDING any
    CSS transform. The browser doesn't grow scrollWidth/scrollHeight to include
