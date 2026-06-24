@@ -1303,6 +1303,51 @@ function clearPVTreeTranslations(){
     card.style.left='';card.style.top='';card.style.transform='';card.classList.remove('grid-translated');
   });
 }
+/* Side-aware grid connectors. In grid mode reports can be dragged anywhere, so
+   route each manager→reports group by where the cards actually landed:
+     • a report dragged fully clear to the RIGHT of the manager → bus off the right edge
+     • fully clear to the LEFT → bus off the left edge (mirrored)
+     • still overlapping the manager's width → classic top-down trunk (unchanged)
+   Side buses leave/enter cards at mid-height (elbow bracket). pr/childRects are
+   already in local zoom-corrected coords; addPath+color come from the caller so
+   this serves both the main chart (#grid-svg) and Person View (#pv-grid-svg). */
+function drawGroupConnectors(pr,childRects,addPath,color){
+  color=color||'#94a3b8';
+  const M=8; // horizontal overlap tolerance before a card counts as "to the side"
+  const left=[],right=[],below=[];
+  childRects.forEach(c=>{
+    if(c.x>pr.right-M)right.push(c);
+    else if(c.right<pr.x+M)left.push(c);
+    else below.push(c);
+  });
+  function sideBus(list,isRight){
+    if(!list.length)return;
+    const edge=isRight?pr.right:pr.x;
+    let busX;
+    if(isRight){const near=Math.min.apply(null,list.map(c=>c.x));busX=edge+Math.max(16,Math.round((near-edge)/2));}
+    else{const near=Math.max.apply(null,list.map(c=>c.right));busX=edge-Math.max(16,Math.round((edge-near)/2));}
+    addPath('M '+edge+' '+pr.cy+' H '+busX,color);            // parent side edge → bus
+    const ys=list.map(c=>c.cy).concat([pr.cy]);
+    const yTop=Math.min.apply(null,ys),yBot=Math.max.apply(null,ys);
+    if(yBot>yTop+0.5)addPath('M '+busX+' '+yTop+' V '+yBot,color); // vertical bus
+    list.forEach(c=>{const ce=isRight?c.x:c.right;addPath('M '+busX+' '+c.cy+' H '+ce,color);}); // bus → each child near edge
+  }
+  sideBus(right,true);
+  sideBus(left,false);
+  if(below.length){
+    const minChildTop=Math.min.apply(null,below.map(c=>c.y));
+    if(minChildTop<=pr.bottom+8){
+      below.forEach(c=>{const trunkY=Math.min(pr.bottom,c.y)-16;addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,color);});
+    }else{
+      const trunkY=pr.bottom+Math.max(20,Math.round((minChildTop-pr.bottom)/2));
+      addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY,color);
+      const xs=below.map(c=>c.cx).concat([pr.cx]);
+      const minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs);
+      if(maxX>minX+0.5)addPath('M '+minX+' '+trunkY+' H '+maxX,color);
+      below.forEach(c=>addPath('M '+c.cx+' '+trunkY+' V '+c.y,color));
+    }
+  }
+}
 function redrawPVConnectors(){
   if(!S.pvGridMode)return;
   const svg=document.getElementById('pv-grid-svg');if(!svg)return;svg.innerHTML='';
@@ -1361,17 +1406,7 @@ function redrawPVConnectors(){
     const pr=rectToLocal(pCard.getBoundingClientRect());
     const childRects=kids.map(li=>{const c=li.querySelector(':scope > .node-card');return c?rectToLocal(c.getBoundingClientRect()):null;}).filter(Boolean);
     if(!childRects.length)return;
-    const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
-    if(minChildTop<=pr.bottom+8){
-      childRects.forEach(c=>{const trunkY=Math.min(pr.bottom,c.y)-16;addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');});
-      return;
-    }
-    const trunkY=pr.bottom+Math.max(20,Math.round((minChildTop-pr.bottom)/2));
-    addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY,'#94a3b8');
-    const xs=childRects.map(c=>c.cx).concat([pr.cx]);
-    const minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs);
-    if(maxX>minX+0.5)addPath('M '+minX+' '+trunkY+' H '+maxX,'#94a3b8');
-    childRects.forEach(c=>addPath('M '+c.cx+' '+trunkY+' V '+c.y,'#94a3b8'));
+    drawGroupConnectors(pr,childRects,addPath,'#94a3b8');
   });
   // IC summary connectors in PV
   document.querySelectorAll('#pv-org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
@@ -2377,25 +2412,7 @@ function redrawGridConnectorsFromTree(){
     if(!childCards.length)return;
     const pr=rectToLocal(mgrCard.getBoundingClientRect());
     const childRects=childCards.map(c=>rectToLocal(c.getBoundingClientRect()));
-    const minChildTop=Math.min.apply(null,childRects.map(c=>c.y));
-    // If a child sits above the manager (after manual drag), fall back to a per-child elbow that loops over the parent.
-    if(minChildTop<=pr.bottom+8){
-      childRects.forEach(c=>{
-        const trunkY=Math.min(pr.bottom,c.y)-16;
-        addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY+' H '+c.cx+' V '+c.y,'#94a3b8');
-      });
-      return;
-    }
-    // Standard org-chart shared trunk: trunk lives in the gap between parent bottom and lowest child top.
-    const trunkY=pr.bottom+Math.max(20,Math.round((minChildTop-pr.bottom)/2));
-    // Parent → trunk
-    addPath('M '+pr.cx+' '+pr.bottom+' V '+trunkY,'#94a3b8');
-    // Trunk horizontal
-    const xs=childRects.map(c=>c.cx).concat([pr.cx]);
-    const minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs);
-    if(maxX>minX+0.5)addPath('M '+minX+' '+trunkY+' H '+maxX,'#94a3b8');
-    // Trunk → each child
-    childRects.forEach(c=>{addPath('M '+c.cx+' '+trunkY+' V '+c.y,'#94a3b8');});
+    drawGroupConnectors(pr,childRects,addPath,'#94a3b8');
   });
   // Manager → IC summary connectors (purple)
   cc.querySelectorAll('#org-tree .summary-list-card[data-ic-manager]').forEach(ic=>{
