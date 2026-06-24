@@ -159,7 +159,7 @@ body{display:flex;flex-direction:column}
 .chart-canvas-wrap{flex:1;overflow:auto;background:var(--bg3);cursor:grab;position:relative}
 .chart-canvas-wrap:active{cursor:grabbing}
 .chart-canvas-content{display:inline-block;padding:56px 80px 120px 80px;transform-origin:top left;position:relative;z-index:1}
-.org-tree{display:inline-block}
+.org-tree{display:inline-block;position:relative}
 .org-tree ul{padding-top:24px;position:relative;list-style:none;display:flex;justify-content:center}
 .org-tree li{display:table-cell;vertical-align:top;text-align:center;position:relative;padding:24px 7px 0 7px}
 .org-tree li::before,.org-tree li::after{content:'';position:absolute;top:0;right:50%;border-top:2px solid #94a3b8;width:50%;height:24px}
@@ -180,6 +180,18 @@ body{display:flex;flex-direction:column}
 .children-row-ul::before{display:none}
 .children-row-ul.row-cont{padding-top:30px;border-top:1.5px dashed #94a3b8;margin-top:6px;position:relative}
 .children-row-ul.row-cont::after{content:'\2937 continued';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 9px;font-size:0.6rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;border-radius:6px}
+/* ── Measured-SVG hierarchy connectors ──────────────────────────────────
+   The classic ::before/::after border connectors break two ways: (1) when a
+   manager's reports wrap onto multiple rows the rows visually detach from the
+   parent, and (2) the 2px borders don't land exactly on each card under zoom.
+   With .svg-conn we draw every hierarchy line into a <svg> measured from real
+   card positions instead, and switch the old border connectors + the dashed
+   "continued" row treatment off. */
+.tree-conn-svg{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:-1;display:block}
+.org-tree.svg-conn li::before,.org-tree.svg-conn li::after,.org-tree.svg-conn ul ul::before,.org-tree.svg-conn .children-rows-wrap::before{display:none!important}
+.org-tree.svg-conn .children-row-ul.row-cont{border-top:none!important;padding-top:24px!important;margin-top:0!important}
+.org-tree.svg-conn .children-row-ul.row-cont::after{display:none!important}
+.chart-canvas-content.grid-mode .tree-conn-svg,.pv-tree-content.grid-mode .tree-conn-svg{display:none!important}
 /* Drag-to-reassign visual states */
 .node-card.drop-halo{box-shadow:0 0 0 4px rgba(34,197,94,0.45),0 0 30px rgba(34,197,94,0.35)!important;border-color:#16a34a!important}
 .node-card.drop-halo-bad{box-shadow:0 0 0 4px rgba(239,68,68,0.4),0 0 30px rgba(239,68,68,0.25)!important;border-color:#dc2626!important;cursor:not-allowed}
@@ -768,6 +780,114 @@ function mkKidsWrap(kids,depth){
   return wrap;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   MEASURED-SVG HIERARCHY CONNECTORS
+   Draw every parent→child line into an <svg> sized to the tree and measured
+   from real card positions. Robust where the old CSS border connectors broke:
+     • reports that wrap onto multiple rows stay fully connected to the parent
+     • lines land exactly on each card's top-/bottom-center at any zoom
+   The svg lives INSIDE the tree element, so it scales with the tree (no redraw
+   needed on zoom) and is carried along by cloneNode for PNG/PPTX export.
+   ════════════════════════════════════════════════════════════════════ */
+function ensureTreeConnSvg(treeEl){
+  let svg=treeEl.querySelector(':scope > svg.tree-conn-svg');
+  if(!svg){
+    svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','tree-conn-svg');
+    svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    treeEl.insertBefore(svg,treeEl.firstChild);
+  }
+  return svg;
+}
+/* Direct child cards (regular node cards + IC summary cards) of a node's <li>,
+   skipping grandchildren. Reads the DOM so it transparently handles the
+   single-row <ul>, the multi-row .children-rows-wrap, and manager-mode IC
+   summary cards — and naturally respects collapse (hidden cards have no rect). */
+function directChildCards(li){
+  const cont=li.querySelector(':scope > ul, :scope > .children-rows-wrap');
+  if(!cont)return [];
+  const childLis=cont.classList.contains('children-rows-wrap')
+    ? cont.querySelectorAll(':scope > .children-row-ul > li')
+    : cont.querySelectorAll(':scope > li');
+  const cards=[];
+  childLis.forEach(cl=>{const c=cl.querySelector(':scope > .node-card, :scope > .summary-list-card');if(c)cards.push(c);});
+  return cards;
+}
+function renderTreeConnectors(treeEl,zoom){
+  if(!treeEl)return;
+  const svg=ensureTreeConnSvg(treeEl);
+  // Grid mode owns its own drag-aware connectors (grid-svg) — stay out of its way.
+  const inPV=treeEl.id==='pv-org-tree';
+  if(inPV?S.pvGridMode:S.gridMode){svg.innerHTML='';return;}
+  zoom=zoom||1;
+  const treeRect=treeEl.getBoundingClientRect();
+  const W=Math.max(treeEl.scrollWidth,treeEl.offsetWidth);
+  const H=Math.max(treeEl.scrollHeight,treeEl.offsetHeight);
+  svg.setAttribute('width',W+'px');svg.setAttribute('height',H+'px');
+  // Inline z-index too: the A3-print path bakes SVGs into <img>s and copies the
+  // inline z-index, so this keeps the connectors behind cards there as well.
+  svg.style.width=W+'px';svg.style.height=H+'px';svg.style.zIndex='-1';
+  function loc(r){return{
+    cx:(r.left+r.width/2-treeRect.left)/zoom,
+    top:(r.top-treeRect.top)/zoom,
+    bottom:(r.bottom-treeRect.top)/zoom
+  };}
+  let d='';
+  const vline=(x,y0,y1)=>{if(Math.abs(y1-y0)>0.5)d+='M '+x.toFixed(1)+' '+y0.toFixed(1)+' V '+y1.toFixed(1)+' ';};
+  const hline=(y,x0,x1)=>{if(Math.abs(x1-x0)>0.5)d+='M '+x0.toFixed(1)+' '+y.toFixed(1)+' H '+x1.toFixed(1)+' ';};
+  treeEl.querySelectorAll('li[data-id]').forEach(li=>{
+    if(li.classList.contains('collapsed'))return;
+    const pCard=li.querySelector(':scope > .node-card');
+    if(!pCard||!pCard.getClientRects().length)return;
+    const childCards=directChildCards(li).filter(c=>c.getClientRects().length);
+    if(!childCards.length)return;
+    const pr=loc(pCard.getBoundingClientRect());
+    const crs=childCards.map(c=>loc(c.getBoundingClientRect()));
+    // Cluster children into visual rows by top-Y (wrapped layouts yield >1 row).
+    crs.sort((a,b)=>(a.top-b.top)||(a.cx-b.cx));
+    const rows=[];
+    crs.forEach(c=>{
+      const row=rows[rows.length-1];
+      const thresh=Math.max(24,(c.bottom-c.top)*0.5);
+      if(row&&Math.abs(c.top-row.top)<=thresh){row.items.push(c);row.top=Math.min(row.top,c.top);}
+      else rows.push({top:c.top,items:[c]});
+    });
+    // A single vertical spine at the parent's center ties the parent to every
+    // row; each row has its own horizontal bar with short risers to its cards.
+    // The spine runs behind cards (z-index:-1) and shows through the gaps.
+    const pcx=pr.cx;
+    let prevBottom=pr.bottom,lastBarY=pr.bottom;
+    rows.forEach(row=>{
+      let barY=row.top-14;
+      if(barY<prevBottom+6)barY=prevBottom+6;
+      const xs=row.items.map(c=>c.cx).concat([pcx]);
+      hline(barY,Math.min.apply(null,xs),Math.max.apply(null,xs));
+      row.items.forEach(c=>vline(c.cx,barY,c.top));
+      prevBottom=Math.max.apply(null,row.items.map(c=>c.bottom));
+      lastBarY=barY;
+    });
+    vline(pcx,pr.bottom,lastBarY);
+  });
+  svg.innerHTML='';
+  if(d){
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d);p.setAttribute('stroke','#94a3b8');p.setAttribute('stroke-width','2');
+    p.setAttribute('fill','none');p.setAttribute('stroke-linejoin','round');
+    p.setAttribute('stroke-linecap','round');p.setAttribute('shape-rendering','geometricPrecision');
+    svg.appendChild(p);
+  }
+}
+/* Redraw connectors for whichever trees are currently on screen. rAF so we
+   measure AFTER the browser has laid the cards out. */
+function scheduleTreeConnectors(){
+  requestAnimationFrame(()=>{
+    const main=document.getElementById('org-tree');
+    if(main&&main.classList.contains('svg-conn'))renderTreeConnectors(main,S.zoom);
+    const pvModal=document.getElementById('person-view-modal');
+    const pv=document.getElementById('pv-org-tree');
+    if(pv&&pvModal&&!pvModal.classList.contains('hidden'))renderTreeConnectors(pv,S.pvZoom);
+  });
+}
 function renderChart(){
   const tree=document.getElementById('org-tree');
   tree.innerHTML='';
@@ -780,9 +900,13 @@ function renderChart(){
   const ul=document.createElement('ul');
   roots.forEach(r=>ul.appendChild(mkNodeLI(r,0)));
   tree.appendChild(ul);
+  tree.classList.add('svg-conn');
   updateStats(roots);
+  requestAnimationFrame(()=>renderTreeConnectors(tree,S.zoom));
   clearTimeout(window._fit);window._fit=setTimeout(()=>fitToScreen(true),180);
-  clearTimeout(window._froTimer);window._froTimer=setTimeout(renderFROLines,600);
+  // Redraw once more after fonts/photos settle (card heights can shift), which
+  // is also when FRO overlay lines are drawn.
+  clearTimeout(window._froTimer);window._froTimer=setTimeout(()=>{renderFROLines();renderTreeConnectors(tree,S.zoom);},600);
   if(S.gridMode){setTimeout(()=>{applyGridOverridesToTree();redrawGridConnectorsFromTree();applyGridLines();},220);}
 }
 function mkNodeLI(node,depth){depth=depth||0;const li=document.createElement('li');li.dataset.id=node.id;const ac=getNodeBorderColor(node);const acLight=ac+'18',acMid=ac+'55';const kids=childrenOf(node.id);const card=document.createElement('div');card.className='node-card'+(node.id===S.highlighted?' highlighted':'');
@@ -910,9 +1034,9 @@ function mkLeafSummaryLI(leafNodes, ac) {
   return li;
 }
 
-function toggleCollapse(li,btn){li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');const childEl=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(childEl)childEl.style.display=c?'none':'';btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';li.querySelector('.node-card').classList.toggle('collapsed-node',c);setTimeout(()=>updateStats(),60);}
-function expandAll(){document.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const u=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(u)u.style.display='';const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}});setTimeout(()=>updateStats(),60);}
-function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.parentElement||!li.parentElement.parentElement||!li.parentElement.parentElement.closest('li'))return;const hasKids=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(hasKids){li.classList.add('collapsed');hasKids.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';};}});setTimeout(()=>updateStats(),60);}
+function toggleCollapse(li,btn){li.classList.toggle('collapsed');const c=li.classList.contains('collapsed');const childEl=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(childEl)childEl.style.display=c?'none':'';btn.innerHTML=c?'▸':'▾';btn.style.color=c?'var(--warning)':'';li.querySelector('.node-card').classList.toggle('collapsed-node',c);scheduleTreeConnectors();setTimeout(()=>updateStats(),60);}
+function expandAll(){document.querySelectorAll('li.collapsed').forEach(li=>{li.classList.remove('collapsed');const u=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(u)u.style.display='';const card=li.querySelector('.node-card');if(card)card.classList.remove('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▾';b.style.color='';}});scheduleTreeConnectors();setTimeout(()=>updateStats(),60);}
+function collapseAll(){document.querySelectorAll('li').forEach(li=>{if(!li.parentElement||!li.parentElement.parentElement||!li.parentElement.parentElement.closest('li'))return;const hasKids=li.querySelector(':scope > ul,:scope > .children-rows-wrap');if(hasKids){li.classList.add('collapsed');hasKids.style.display='none';const card=li.querySelector('.node-card');if(card)card.classList.add('collapsed-node');const b=li.querySelector('.collapse-btn');if(b){b.innerHTML='▸';b.style.color='var(--warning)';};}});scheduleTreeConnectors();setTimeout(()=>updateStats(),60);}
 function updateStats(roots){if(!roots)roots=S.skipDepth>0?S.viewData.filter(n=>(S.nodeDepth[n.id]||0)===S.skipDepth):(S.childMap['']||[]);document.getElementById('stat-total').textContent=S.viewData.length;document.getElementById('stat-roots').textContent=roots.length;let visCount=0;document.querySelectorAll('.node-card').forEach(card=>{if(!card.closest('li.collapsed > ul')&&!card.closest('li.collapsed > .children-rows-wrap'))visCount++;});document.getElementById('stat-vis').textContent=visCount;document.getElementById('stat-filtered').style.display=Object.values(S.activeFilters).some(v=>v)?'flex':'none';const mgrStat=document.getElementById('stat-mgr-mode');const mgrVal=document.getElementById('stat-mgr-val');if(mgrStat){mgrStat.style.display=S.managerMode?'flex':'none';if(S.managerMode&&mgrVal){mgrVal.textContent=S.viewData.filter(n=>!isManager(n.id)).length+' ICs in lists';}}}
 function cwrap(){return document.getElementById('chart-canvas-wrap');}
 function ccontent(){return document.getElementById('chart-canvas-content');}
@@ -1066,7 +1190,7 @@ function renderPersonView(personId,maxDepth){
   function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
   function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
   if(byId[personId]){cD(personId);cH(personId);cDep(personId,0);}
-  const pvTree=document.getElementById('pv-org-tree');pvTree.innerHTML='';
+  const pvTree=document.getElementById('pv-org-tree');pvTree.innerHTML='';pvTree.classList.add('svg-conn');
   const root=S.viewData.find(n=>n.id===personId);
   if(root){const ul=document.createElement('ul');ul.appendChild(mkNodeLI(root,0));pvTree.appendChild(ul);}
   // Restore
@@ -1078,8 +1202,8 @@ function renderPersonView(personId,maxDepth){
     bindPVCanvasGridDND();
     setTimeout(()=>{applyPVGridOverridesToTree();redrawPVConnectors();},180);
   }
-  // Fit + FRO lines
-  setTimeout(()=>{pvFit();setTimeout(()=>renderPVFROLines(),350);},180);
+  // Fit + connectors + FRO lines
+  setTimeout(()=>{pvFit();renderTreeConnectors(pvTree,S.pvZoom);setTimeout(()=>{renderPVFROLines();renderTreeConnectors(pvTree,S.pvZoom);},350);},180);
   // Update stats in modal
   document.getElementById('pv-sub').textContent='ID: '+personId+' · '+included.size+' people · Cross-filter · FRO shown';
 }
@@ -1142,6 +1266,7 @@ function togglePVGrid(){
   }else{
     clearPVTreeTranslations();
     const svg=document.getElementById('pv-grid-svg');if(svg)svg.innerHTML='';
+    requestAnimationFrame(()=>renderTreeConnectors(document.getElementById('pv-org-tree'),S.pvZoom));
     showToast('Person View · Grid Mode off');
   }
 }
@@ -1394,6 +1519,7 @@ async function printPVA3(){
     S.pvZoom=1;  // keep redrawPVConnectors' coord math in sync with the rendered scale
     await new Promise(r=>setTimeout(r,250));
     if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
+    else{renderTreeConnectors(document.getElementById('pv-org-tree'),1);await new Promise(r=>setTimeout(r,40));}
     svgRestorers=await svgsToImagesAsync(target);
     await new Promise(r=>setTimeout(r,150));
     const bounds=S.pvGridMode?_translatedBounds(target):null;
@@ -1431,6 +1557,7 @@ async function exportPVPNG(){
   try{
     await new Promise(r=>setTimeout(r,300));
     if(S.pvGridMode){redrawPVConnectors();await new Promise(r=>setTimeout(r,80));}
+    else{renderTreeConnectors(document.getElementById('pv-org-tree'),1);await new Promise(r=>setTimeout(r,40));}
     const pvSvg=document.getElementById('pv-fro-svg');pvSvg.setAttribute('width',pvContent.scrollWidth+'px');pvSvg.setAttribute('height',pvContent.scrollHeight+'px');
     const opts={backgroundColor:S.transparentExport?null:'#f1f5f9',scale:2,useCORS:true,logging:false,allowTaint:true};
     if(S.pvGridMode){
@@ -1486,6 +1613,12 @@ async function buildRenderStage(){
   // In grid mode, redraw connectors first so the cloned grid SVG carries the
   // freshest path geometry for the export.
   if(S.gridMode){redrawGridConnectorsFromTree();await new Promise(r=>setTimeout(r,80));}
+  else{
+    // Redraw measured connectors against the fully-expanded export layout (zoom
+    // is 1 here) so the cloned org-tree carries correct hierarchy lines.
+    renderTreeConnectors(document.getElementById('org-tree'),1);
+    await new Promise(r=>setTimeout(r,40));
+  }
   // Clone the WHOLE chart-canvas-content when grid mode is on so card
   // transforms + SVG connector lines come along; otherwise just the org-tree.
   const source=S.gridMode?document.getElementById('chart-canvas-content'):document.getElementById('org-tree');
@@ -2057,6 +2190,8 @@ async function printA3(){
     const cc=document.getElementById('chart-canvas-content');
     const wasTransform=cc.style.transform;cc.style.transform='scale(1)';
     await new Promise(r=>setTimeout(r,200));
+    // Redraw measured tree connectors at 1× so the baked image is correct.
+    if(!S.gridMode){renderTreeConnectors(document.getElementById('org-tree'),1);await new Promise(r=>setTimeout(r,40));}
     // Convert all SVGs in the chart canvas to image data-URLs first to
     // avoid html2canvas rendering them as black blocks.
     svgRestorers=await svgsToImagesAsync(cc);
@@ -2126,6 +2261,9 @@ function toggleGridMode(){
     const ov=document.getElementById('grid-overlay');if(ov)ov.classList.remove('visible');
     clearSelection();
   }
+  // renderTreeConnectors self-decides: it clears its svg in grid mode (so no
+  // stale tree lines leak into a grid export) and redraws it in tree mode.
+  requestAnimationFrame(()=>renderTreeConnectors(document.getElementById('org-tree'),S.zoom));
   persistState();
   showToast(S.gridMode?'Grid Mode on — drag any card to reposition · Shift+click to multi-select':'Grid Mode off — tree view restored');
 }
