@@ -744,7 +744,21 @@ function populatePhotoMatchCol(){const sel=document.getElementById('photo-match-
 function toggleManagerMode(){pushUndo();S.managerMode=!S.managerMode;document.getElementById('mgr-mode-btn').classList.toggle('active',S.managerMode);document.getElementById('summary-fields-wrap').style.display=S.managerMode?'flex':'none';const stat=document.getElementById('stat-mgr-mode');if(stat)stat.style.display=S.managerMode?'flex':'none';renderChart();persistState();}
 function isManager(nodeId){return(S.childMap[nodeId]||[]).length>0;}
 
-function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});if(typeof refreshDataQualityBtn==='function')setTimeout(refreshDataQualityBtn,30);}
+/* Break reporting cycles: walk up each node's manager chain; if it loops back,
+   root the node that closes the loop. Without this, cyclic people (A→B→A, common
+   in messy HR data) are unreachable from any root — they silently vanish from the
+   chart AND cause infinite recursion in Person View / Insights / subtree export. */
+function breakManagerCycles(nodes){
+  const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));
+  nodes.forEach(n=>{
+    const vis=new Set();let cur=n;
+    while(cur&&cur.manager){
+      if(vis.has(cur.id)){cur.manager='';break;}
+      vis.add(cur.id);cur=byId[cur.manager];
+    }
+  });
+}
+function buildViewData(){const{empId,empName,managerId}=S.colMap;let nodes=S.rawRows.map(row=>{const id=String(row[empId]||'').replace(/\.0$/,'').trim();const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';const node={id,name:String(row[empName]||'Unknown'),manager:mgr};S.columns.forEach(col=>{node[col]=String(row[col]||'');});return node;}).filter(n=>n.id&&!S.removedIds.has(n.id));const _seen=new Set();nodes=nodes.filter(n=>{if(_seen.has(n.id))return false;_seen.add(n.id);return true;});const validIds=new Set(nodes.map(n=>n.id));nodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];});nodes.forEach(n=>{if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});breakManagerCycles(nodes);const hasFilter=Object.values(S.activeFilters).some(v=>v);if(hasFilter){const matching=new Set(nodes.filter(n=>Object.entries(S.activeFilters).every(([c,v])=>!v||n[c]===v)).map(n=>n.id));const byId=Object.fromEntries(nodes.map(n=>[n.id,n]));const keep=new Set(matching);matching.forEach(id=>{let cur=byId[id];const vis=new Set();while(cur&&cur.manager&&byId[cur.manager]&&!vis.has(cur.id)){vis.add(cur.id);keep.add(cur.manager);cur=byId[cur.manager];}});nodes=nodes.filter(n=>keep.has(n.id));}S.viewData=nodes;S.childMap={};nodes.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});S.descCount={};function calcD(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.descCount[id]!==undefined)return S.descCount[id];const kids=S.childMap[id]||[];S.descCount[id]=kids.reduce((s,k)=>s+1+calcD(k.id,vis),0);return S.descCount[id];}nodes.filter(n=>!n.manager).forEach(r=>calcD(r.id,new Set()));S.nodeHeight={};function calcH(id,vis){if(vis.has(id))return 0;vis.add(id);if(S.nodeHeight[id]!==undefined)return S.nodeHeight[id];const kids=S.childMap[id]||[];S.nodeHeight[id]=kids.length?1+Math.max(...kids.map(k=>calcH(k.id,vis))):0;return S.nodeHeight[id];}nodes.filter(n=>!n.manager).forEach(r=>calcH(r.id,new Set()));nodes.forEach(n=>{if(S.nodeHeight[n.id]===undefined)calcH(n.id,new Set());});S.nodeDepth={};function calcDepth(id,d,vis){if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>calcDepth(k.id,d+1,vis));}nodes.filter(n=>!n.manager).forEach(r=>calcDepth(r.id,0,new Set()));nodes.forEach(n=>{if(S.nodeDepth[n.id]===undefined)S.nodeDepth[n.id]=0;});if(typeof refreshDataQualityBtn==='function')setTimeout(refreshDataQualityBtn,30);}
 function childrenOf(id){return S.childMap[id]||[];}
 function countDescendants(id){return S.descCount[id]||0;}
 
@@ -1157,15 +1171,17 @@ function setPVDepth(d){S.pvDepth=d;document.querySelectorAll('.pv-depth-btn').fo
 
 function buildRawChildMap(){
   const{empId,empName,managerId}=S.colMap;
+  const _seen=new Set();
   const allNodes=S.rawRows.map(row=>{
     const id=String(row[empId]||'').replace(/\.0$/,'').trim();
     const mgr=managerId?String(row[managerId]||'').replace(/\.0$/,'').trim():'';
     const node={id,name:String(row[empName]||'Unknown'),manager:mgr};
     S.columns.forEach(col=>{node[col]=String(row[col]||'');});
     return node;
-  }).filter(n=>n.id);
+  }).filter(n=>{if(!n.id||_seen.has(n.id))return false;_seen.add(n.id);return true;});
   const validIds=new Set(allNodes.map(n=>n.id));
   allNodes.forEach(n=>{if(S.managerOverrides.hasOwnProperty(n.id))n.manager=S.managerOverrides[n.id];if(!validIds.has(n.manager)||n.manager===n.id)n.manager='';});
+  breakManagerCycles(allNodes);
   const childMap={};allNodes.forEach(n=>{if(!childMap[n.manager])childMap[n.manager]=[];childMap[n.manager].push(n);});
   const byId=Object.fromEntries(allNodes.map(n=>[n.id,n]));
   return{allNodes,childMap,byId};
@@ -1186,9 +1202,9 @@ function renderPersonView(personId,maxDepth){
   const personNode=byId[personId];const savedMgr=personNode?personNode.manager:undefined;if(personNode)personNode.manager='';
   S.childMap={};S.viewData.forEach(n=>{if(!S.childMap[n.manager])S.childMap[n.manager]=[];S.childMap[n.manager].push(n);});
   S.descCount={};S.nodeHeight={};S.nodeDepth={};
-  function cD(id){const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id),0);return S.descCount[id];}
-  function cH(id){const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id))):0;return S.nodeHeight[id];}
-  function cDep(id,d){S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1));}
+  function cD(id,vis){vis=vis||new Set();if(vis.has(id))return 0;vis.add(id);const k=S.childMap[id]||[];S.descCount[id]=k.reduce((s,c)=>s+1+cD(c.id,vis),0);return S.descCount[id];}
+  function cH(id,vis){vis=vis||new Set();if(vis.has(id))return 0;vis.add(id);const k=S.childMap[id]||[];S.nodeHeight[id]=k.length?1+Math.max(...k.map(c=>cH(c.id,vis))):0;return S.nodeHeight[id];}
+  function cDep(id,d,vis){vis=vis||new Set();if(vis.has(id))return;vis.add(id);S.nodeDepth[id]=d;(S.childMap[id]||[]).forEach(k=>cDep(k.id,d+1,vis));}
   if(byId[personId]){cD(personId);cH(personId);cDep(personId,0);}
   const pvTree=document.getElementById('pv-org-tree');pvTree.innerHTML='';pvTree.classList.add('svg-conn');
   const root=S.viewData.find(n=>n.id===personId);
@@ -2074,7 +2090,7 @@ function computeInsights(){
   let deepest=null,deepestD=-1;
   S.viewData.forEach(n=>{const d=S.nodeDepth[n.id]||0;if(d>deepestD){deepestD=d;deepest=n;}});
   out.deepChain=deepestD+1;out.maxDepth=deepestD+1;
-  if(deepest){let cur=deepest;const chain=[];while(cur){chain.unshift(cur.name||cur.id);cur=byId[cur.manager];}out.longestChain=chain;}
+  if(deepest){let cur=deepest;const chain=[];const seen=new Set();while(cur&&!seen.has(cur.id)){seen.add(cur.id);chain.unshift(cur.name||cur.id);cur=byId[cur.manager];}out.longestChain=chain;}
   out.wideSpan.sort((a,b)=>b.span-a.span);
   return out;
 }
